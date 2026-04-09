@@ -1,0 +1,117 @@
+package com.pfe.saas.controller;
+
+import com.pfe.saas.dto.request.ApplicationRequest;
+import com.pfe.saas.dto.response.ApiResponse;
+import com.pfe.saas.entity.Application;
+import com.pfe.saas.entity.User;
+import com.pfe.saas.enums.ApplicationStatus;
+import com.pfe.saas.repository.UserRepository;
+import com.pfe.saas.service.ApplicationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/applications")
+@RequiredArgsConstructor
+@Tag(name = "Candidatures", description = "Soumission, suivi et analyse IA des candidatures")
+@SecurityRequirement(name = "bearerAuth")
+public class ApplicationController {
+
+    private final ApplicationService applicationService;
+    private final UserRepository userRepository;
+
+    @PostMapping
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Soumettre une candidature")
+    public ResponseEntity<ApiResponse<Application>> apply(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody ApplicationRequest request) {
+        Long candidateId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok("Candidature soumise",
+                applicationService.apply(candidateId, request)));
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Mes candidatures")
+    public ResponseEntity<ApiResponse<List<Application>>> myApplications(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long candidateId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.getCandidateApplications(candidateId)));
+    }
+
+    @GetMapping("/offer/{offerId}")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Candidatures reçues pour une offre (paginées)")
+    public ResponseEntity<ApiResponse<Page<Application>>> offerApplications(
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+                applicationService.getApplicationsByOffer(offerId, enterpriseId, PageRequest.of(page, size))));
+    }
+
+    @GetMapping("/offer/{offerId}/ranked")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Candidatures classées par score IA")
+    public ResponseEntity<ApiResponse<List<Application>>> rankedApplications(
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.getRankedApplications(offerId, enterpriseId)));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Changer le statut d'une candidature")
+    public ResponseEntity<ApiResponse<Application>> updateStatus(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, String> body) {
+        Long enterpriseId = resolveUserId(userDetails);
+        ApplicationStatus newStatus = ApplicationStatus.valueOf(body.get("status"));
+        return ResponseEntity.ok(ApiResponse.ok("Statut mis à jour",
+                applicationService.updateStatus(id, enterpriseId, newStatus)));
+    }
+
+    @PatchMapping("/{id}/notes")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Ajouter une note recruteur à une candidature")
+    public ResponseEntity<ApiResponse<Application>> addNote(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, Object> body) {
+        Long enterpriseId = resolveUserId(userDetails);
+        String note = (String) body.get("note");
+        Integer rating = body.get("rating") != null ? ((Number) body.get("rating")).intValue() : null;
+        return ResponseEntity.ok(ApiResponse.ok("Note enregistrée",
+                applicationService.addRecruiterNote(id, enterpriseId, note, rating)));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Détail d'une candidature")
+    public ResponseEntity<ApiResponse<Application>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(applicationService.getById(id)));
+    }
+
+    private Long resolveUserId(UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        return user.getId();
+    }
+}
