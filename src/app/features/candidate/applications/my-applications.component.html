@@ -1,0 +1,56 @@
+<div class="page-header">
+  <h1 class="page-title">Mes candidatures</h1>
+  <p class="page-subtitle">{{ applications.length }} candidature(s) envoyée(s)</p>
+</div>
+
+@if (loading) {
+  <div class="loading-center"><mat-spinner diameter="40" /></div>
+} @else if (!applications.length) {
+  <div class="empty-state card">
+    <span class="material-icons-round empty-icon">send</span>
+    <p class="empty-title">Aucune candidature envoyée</p>
+    <p class="empty-desc">Explorez les offres et postulez en un clic</p>
+  </div>
+} @else {
+  <div class="applications-list">
+    @for (app of applications; track app.id) {
+      <div class="app-card card">
+        <div class="app-header">
+          <div class="company-logo bg-primary">{{ app.jobOffer?.enterprise?.companyName?.[0]?.toUpperCase() }}</div>
+          <div class="app-info">
+            <h3>{{ app.jobOffer?.title }}</h3>
+            <p class="company">{{ app.jobOffer?.enterprise?.companyName }}</p>
+            <div class="meta-row">
+              @if (app.jobOffer?.location) {
+                <span class="meta"><span class="material-icons-round">place</span>{{ app.jobOffer?.location }}</span>
+              }
+              @if (app.jobOffer?.contractType) {
+                <span class="meta">{{ app.jobOffer?.contractType }}</span>
+              }
+            </div>
+          </div>
+          <div class="app-side">
+            <span class="chip {{ statusChipClass(app.status) }}">{{ statusLabel(app.status) }}</span>
+            @if (app.aiScore) {
+              <div class="ai-score-badge {{ app.aiScore >= 80 ? 'high' : app.aiScore >= 50 ? 'mid' : 'low' }}">
+                <span class="material-icons-round">psychology</span>
+                {{ app.aiScore }}/100
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (app.aiSummary) {
+          <div class="ai-summary">
+            <span class="material-icons-round">psychology</span>
+            <p>{{ app.aiSummary }}</p>
+          </div>
+        }
+
+        <div class="app-footer">
+          <span class="date">Postulé le {{ app.appliedAt | date:'dd MMMM yyyy' }}</span>
+        </div>
+      </div>
+    }
+  </div>
+}

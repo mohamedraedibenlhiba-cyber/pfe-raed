@@ -1,0 +1,106 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Mon profil entreprise</h1>
+    <p class="page-subtitle">Gérez les informations de votre entreprise</p>
+  </div>
+</div>
+
+@if (loading) {
+  <div class="loading-center"><mat-spinner diameter="40" /></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <!-- Logo / Photo -->
+    <div class="card profile-photo-section">
+      <div class="photo-container">
+        @if (profile?.profilePicture) {
+          <img [src]="profile!.profilePicture" alt="Logo entreprise" class="avatar-img" />
+        } @else {
+          <div class="avatar-placeholder">
+            <span class="material-icons-round">business</span>
+          </div>
+        }
+        <label class="photo-upload-btn" [class.loading]="uploadingPhoto">
+          @if (uploadingPhoto) {
+            <mat-spinner diameter="16" />
+          } @else {
+            <mat-icon>photo_camera</mat-icon>
+          }
+          <input type="file" accept="image/*" (change)="onPhotoSelect($event)" hidden [disabled]="uploadingPhoto" />
+        </label>
+      </div>
+      <div class="profile-info">
+        <h3>{{ profile?.companyName || profile?.fullName }}</h3>
+        <p>{{ profile?.email }}</p>
+        @if (profile?.premium) {
+          <span class="chip chip-warning">Premium</span>
+        }
+      </div>
+    </div>
+
+    <!-- Infos contact -->
+    <div class="card section-card">
+      <h3 class="section-title"><mat-icon>person</mat-icon> Informations de contact</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Nom du responsable</mat-label>
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Téléphone</mat-label>
+          <input matInput formControlName="phoneNumber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Ville</mat-label>
+          <input matInput formControlName="city" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Pays</mat-label>
+          <input matInput formControlName="country" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Infos entreprise -->
+    <div class="card section-card">
+      <h3 class="section-title"><mat-icon>business</mat-icon> Informations entreprise</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nom de l'entreprise</mat-label>
+          <input matInput formControlName="companyName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="companyDescription" rows="4"
+            placeholder="Décrivez votre entreprise, sa mission, ses valeurs..."></textarea>
+        </mat-form-field>
+        <app-select label="Secteur d'activité" [options]="sectorOpts" formControlName="companySector"></app-select>
+        <app-select label="Taille de l'entreprise" [options]="companySizeOpts" formControlName="companySize"></app-select>
+        <mat-form-field appearance="outline">
+          <mat-label>Site web</mat-label>
+          <mat-icon matPrefix>language</mat-icon>
+          <input matInput formControlName="companyWebsite" placeholder="https://..." />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Numéro SIRET</mat-label>
+          <input matInput formControlName="siretNumber" placeholder="12345678901234" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>LinkedIn entreprise</mat-label>
+          <mat-icon matPrefix>business</mat-icon>
+          <input matInput formControlName="enterpriseLinkedinUrl" placeholder="https://linkedin.com/company/..." />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving">
+        @if (saving) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+}

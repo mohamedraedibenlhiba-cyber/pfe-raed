@@ -1,0 +1,208 @@
+<div class="auth-wrapper">
+  <div class="auth-brand register-brand">
+    <div class="brand-content">
+      <div class="brand-logo"><span class="material-icons-round">work</span></div>
+      <h1>RecruitPro</h1>
+      <p>Rejoignez des milliers d'entreprises et de talents<br>qui font confiance à notre plateforme IA.</p>
+      <div class="stats-row">
+        <div class="stat"><span class="num">2 400+</span><span class="lbl">Entreprises</span></div>
+        <div class="stat"><span class="num">18 000+</span><span class="lbl">Candidats</span></div>
+        <div class="stat"><span class="num">85%</span><span class="lbl">Taux de placement</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-form-panel register-panel">
+    <div class="auth-form-container wide">
+      <div class="form-header">
+        <h2>Créer un compte</h2>
+        <p>Choisissez votre type de compte pour commencer</p>
+      </div>
+
+      <mat-tab-group [(selectedIndex)]="selectedTab" animationDuration="0ms">
+        <!-- ── Entreprise ────────────────────────────────────────────────────── -->
+        <mat-tab label="Je suis une Entreprise">
+          <form [formGroup]="enterpriseForm" (ngSubmit)="submitEnterprise()" novalidate class="register-form">
+            <div class="form-grid">
+              <mat-form-field>
+                <mat-label>E-mail professionnel</mat-label>
+                <input matInput formControlName="email" type="email" />
+                <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
+                @if (enterpriseForm.get('email')?.hasError('required')) {
+                  <mat-error>L'e-mail est obligatoire</mat-error>
+                }
+                @if (enterpriseForm.get('email')?.hasError('email')) {
+                  <mat-error>E-mail invalide</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Mot de passe</mat-label>
+                <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
+                <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+                <button mat-icon-button matSuffix type="button" (click)="hidePassword=!hidePassword">
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (enterpriseForm.get('password')?.hasError('required')) {
+                  <mat-error>Le mot de passe est obligatoire</mat-error>
+                }
+                @if (enterpriseForm.get('password')?.hasError('minlength')) {
+                  <mat-error>Minimum 8 caractères</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Nom complet (responsable)</mat-label>
+                <input matInput formControlName="fullName" />
+                <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
+                @if (enterpriseForm.get('fullName')?.hasError('required')) {
+                  <mat-error>Le nom est obligatoire</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Nom de l'entreprise</mat-label>
+                <input matInput formControlName="companyName" />
+                <mat-icon matPrefix class="field-icon">business</mat-icon>
+                @if (enterpriseForm.get('companyName')?.hasError('required')) {
+                  <mat-error>Le nom de l'entreprise est obligatoire</mat-error>
+                }
+              </mat-form-field>
+
+              <app-select label="Secteur d'activité" [options]="sectorOpts" formControlName="companySector"></app-select>
+
+              <app-select label="Taille de l'entreprise" [options]="companySizeOpts" formControlName="companySize"></app-select>
+
+              <mat-form-field>
+                <mat-label>Site web</mat-label>
+                <input matInput formControlName="companyWebsite" placeholder="https://..." />
+                <mat-icon matPrefix class="field-icon">language</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Numéro SIRET</mat-label>
+                <input matInput formControlName="siretNumber" />
+                <mat-icon matPrefix class="field-icon">badge</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field class="full-width">
+                <mat-label>Description de l'entreprise</mat-label>
+                <textarea matInput formControlName="companyDescription" rows="3"></textarea>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Ville</mat-label>
+                <input matInput formControlName="city" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Pays</mat-label>
+                <input matInput formControlName="country" />
+              </mat-form-field>
+            </div>
+
+            <button mat-flat-button type="submit" class="btn-submit" [disabled]="loading">
+              @if (loading) { <mat-spinner diameter="20" /> }
+              @else { <span>Créer mon compte entreprise</span><mat-icon>arrow_forward</mat-icon> }
+            </button>
+          </form>
+        </mat-tab>
+
+        <!-- ── Candidat ─────────────────────────────────────────────────────── -->
+        <mat-tab label="Je suis un Candidat">
+          <form [formGroup]="candidateForm" (ngSubmit)="submitCandidate()" novalidate class="register-form">
+            <div class="form-grid">
+              <mat-form-field>
+                <mat-label>E-mail</mat-label>
+                <input matInput formControlName="email" type="email" />
+                <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
+                @if (candidateForm.get('email')?.hasError('required')) {
+                  <mat-error>L'e-mail est obligatoire</mat-error>
+                }
+                @if (candidateForm.get('email')?.hasError('email')) {
+                  <mat-error>E-mail invalide</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Mot de passe</mat-label>
+                <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
+                <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+                <button mat-icon-button matSuffix type="button" (click)="hidePassword=!hidePassword">
+                  <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (candidateForm.get('password')?.hasError('required')) {
+                  <mat-error>Le mot de passe est obligatoire</mat-error>
+                }
+                @if (candidateForm.get('password')?.hasError('minlength')) {
+                  <mat-error>Minimum 8 caractères</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Nom complet</mat-label>
+                <input matInput formControlName="fullName" />
+                <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
+                @if (candidateForm.get('fullName')?.hasError('required')) {
+                  <mat-error>Le nom est obligatoire</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Titre professionnel</mat-label>
+                <input matInput formControlName="headline" placeholder="ex: Développeur Full-Stack Senior" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Compétences clés</mat-label>
+                <input matInput formControlName="skills" placeholder="Angular, Spring Boot, Docker..." />
+                <mat-icon matPrefix class="field-icon">psychology</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Années d'expérience</mat-label>
+                <input matInput formControlName="yearsExperience" type="number" min="0" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>LinkedIn</mat-label>
+                <input matInput formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+                <mat-icon matPrefix class="field-icon">link</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>GitHub</mat-label>
+                <input matInput formControlName="githubUrl" placeholder="https://github.com/..." />
+                <mat-icon matPrefix class="field-icon">code</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field class="full-width">
+                <mat-label>Résumé professionnel</mat-label>
+                <textarea matInput formControlName="summary" rows="3" placeholder="Présentez-vous en quelques lignes..."></textarea>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Ville</mat-label>
+                <input matInput formControlName="city" />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Pays</mat-label>
+                <input matInput formControlName="country" />
+              </mat-form-field>
+            </div>
+
+            <button mat-flat-button type="submit" class="btn-submit" [disabled]="loading">
+              @if (loading) { <mat-spinner diameter="20" /> }
+              @else { <span>Créer mon profil candidat</span><mat-icon>arrow_forward</mat-icon> }
+            </button>
+          </form>
+        </mat-tab>
+      </mat-tab-group>
+
+      <div class="form-footer">
+        <p>Déjà inscrit ? <a routerLink="/auth/login">Se connecter</a></p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<div class="offers-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Mes offres d'emploi</h1>
+      <p class="page-subtitle">{{ offers.length }} offre(s) créée(s)</p>
+    </div>
+    <a mat-flat-button routerLink="/enterprise/offers/new" class="btn-primary">
+      <mat-icon>add</mat-icon> Nouvelle offre
+    </a>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    @for (tab of [['ALL','Toutes'],['PUBLISHED','Publiées'],['DRAFT','Brouillons'],['CLOSED','Clôturées']]; track tab[0]) {
+      <button class="filter-tab" [class.active]="filter === tab[0]" (click)="filter = $any(tab[0])">
+        {{ tab[1] }}
+        <span class="count">{{ countByStatus(tab[0]) }}</span>
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="40" /></div>
+  } @else if (!filtered.length) {
+    <div class="empty-state card">
+      <span class="material-icons-round empty-icon">work_outline</span>
+      <p class="empty-title">Aucune offre dans cette catégorie</p>
+      <a mat-flat-button routerLink="/enterprise/offers/new" class="btn-primary" style="margin-top:12px">
+        <mat-icon>add</mat-icon> Créer votre première offre
+      </a>
+    </div>
+  } @else {
+    <div class="offers-grid">
+      @for (offer of filtered; track offer.id) {
+        <div class="offer-card card">
+          <div class="offer-card-header">
+            <div class="offer-card-title">
+              <h3>{{ offer.title }}</h3>
+              <span class="chip {{ statusClass(offer.status) }}">{{ statusLabel(offer.status) }}</span>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <a mat-menu-item [routerLink]="['/enterprise/offers', offer.id, 'edit']">
+                <mat-icon>edit</mat-icon> Modifier
+              </a>
+              <a mat-menu-item [routerLink]="['/enterprise/offers', offer.id, 'applications']">
+                <mat-icon>people</mat-icon> Candidatures
+              </a>
+              @if (offer.status === 'DRAFT') {
+                <button mat-menu-item (click)="publish(offer)">
+                  <mat-icon>public</mat-icon> Publier
+                </button>
+              }
+              @if (offer.status === 'PUBLISHED') {
+                <button mat-menu-item (click)="close(offer)">
+                  <mat-icon>lock</mat-icon> Clôturer
+                </button>
+              }
+              <button mat-menu-item (click)="exportExcel(offer)">
+                <mat-icon>download</mat-icon> Export Excel
+              </button>
+              <button mat-menu-item (click)="delete(offer)" class="danger-item">
+                <mat-icon>delete_outline</mat-icon> Supprimer
+              </button>
+            </mat-menu>
+          </div>
+
+          <div class="offer-meta-row">
+            @if (offer.location) {
+              <span class="meta-chip"><span class="material-icons-round">place</span>{{ offer.location }}</span>
+            }
+            @if (offer.contractType) {
+              <span class="meta-chip"><span class="material-icons-round">work</span>{{ offer.contractType }}</span>
+            }
+            @if (offer.remote) {
+              <span class="meta-chip remote"><span class="material-icons-round">home</span>Télétravail</span>
+            }
+            @if (offer.experienceRequired) {
+              <span class="meta-chip"><span class="material-icons-round">schedule</span>{{ offer.experienceRequired }} ans exp.</span>
+            }
+          </div>
+
+          @if (offer.salaryMin || offer.salaryMax) {
+            <div class="salary-row">
+              <span class="material-icons-round">euro</span>
+              <span>{{ offer.salaryMin | number }} – {{ offer.salaryMax | number }} €</span>
+            </div>
+          }
+
+          <div class="offer-card-footer">
+            <span class="date-label">{{ offer.createdAt | date:'dd/MM/yyyy' }}</span>
+            <div class="footer-actions">
+              <a mat-button [routerLink]="['/enterprise/offers', offer.id, 'applications']" class="btn-applications">
+                <mat-icon>people</mat-icon> Candidatures
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,136 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Mon profil candidat</h1>
+    <p class="page-subtitle">Gérez votre profil pour attirer les recruteurs</p>
+  </div>
+</div>
+
+@if (loading) {
+  <div class="loading-center"><mat-spinner diameter="40" /></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <!-- Photo de profil -->
+    <div class="card profile-photo-section">
+      <div class="photo-container">
+        @if (profile?.profilePicture) {
+          <img [src]="profile!.profilePicture" alt="Photo de profil" class="avatar-img" />
+        } @else {
+          <div class="avatar-placeholder">
+            <span class="material-icons-round">account_circle</span>
+          </div>
+        }
+        <label class="photo-upload-btn" [class.loading]="uploadingPhoto">
+          @if (uploadingPhoto) {
+            <mat-spinner diameter="16" />
+          } @else {
+            <mat-icon>photo_camera</mat-icon>
+          }
+          <input type="file" accept="image/*" (change)="onPhotoSelect($event)" hidden [disabled]="uploadingPhoto" />
+        </label>
+      </div>
+      <div class="profile-info">
+        <h3>{{ profile?.fullName }}</h3>
+        <p>{{ profile?.email }}</p>
+        @if (profile?.openToWork) {
+          <span class="chip chip-success">Ouvert aux opportunités</span>
+        }
+      </div>
+    </div>
+
+    <!-- Infos générales -->
+    <div class="card section-card">
+      <h3 class="section-title"><mat-icon>person</mat-icon> Informations générales</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Nom complet</mat-label>
+          <input matInput formControlName="fullName" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Téléphone</mat-label>
+          <input matInput formControlName="phoneNumber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Ville</mat-label>
+          <input matInput formControlName="city" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Pays</mat-label>
+          <input matInput formControlName="country" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Profil professionnel -->
+    <div class="card section-card">
+      <h3 class="section-title"><mat-icon>work</mat-icon> Profil professionnel</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Titre / Poste recherché</mat-label>
+          <input matInput formControlName="headline" placeholder="Ex: Développeur Full Stack React/Node.js" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Résumé professionnel</mat-label>
+          <textarea matInput formControlName="summary" rows="4"
+            placeholder="Décrivez votre expérience, vos objectifs professionnels..."></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Années d'expérience</mat-label>
+          <input matInput type="number" formControlName="yearsExperience" min="0" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Salaire souhaité</mat-label>
+          <input matInput formControlName="desiredSalary" placeholder="Ex: 45000 €/an" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Compétences</mat-label>
+          <input matInput formControlName="skills" placeholder="Ex: Java, Angular, Spring Boot, SQL..." />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Langues</mat-label>
+          <input matInput formControlName="languages" placeholder="Ex: Français (natif), Anglais (courant)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Formation / Diplômes</mat-label>
+          <textarea matInput formControlName="education" rows="3"
+            placeholder="Ex: Master Informatique - Université Paris-Saclay (2022), BTS SIO (2020)..."></textarea>
+        </mat-form-field>
+      </div>
+      <mat-checkbox formControlName="openToWork" color="primary" class="open-to-work-check">
+        Je suis ouvert(e) aux opportunités professionnelles
+      </mat-checkbox>
+    </div>
+
+    <!-- Liens -->
+    <div class="card section-card">
+      <h3 class="section-title"><mat-icon>link</mat-icon> Liens professionnels</h3>
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>LinkedIn</mat-label>
+          <mat-icon matPrefix>business</mat-icon>
+          <input matInput formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>GitHub</mat-label>
+          <mat-icon matPrefix>code</mat-icon>
+          <input matInput formControlName="githubUrl" placeholder="https://github.com/..." />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Portfolio</mat-label>
+          <mat-icon matPrefix>language</mat-icon>
+          <input matInput formControlName="portfolioUrl" placeholder="https://monportfolio.com" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving">
+        @if (saving) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+}

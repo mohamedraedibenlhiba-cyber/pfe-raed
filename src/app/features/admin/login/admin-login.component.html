@@ -1,0 +1,54 @@
+<div class="admin-login-wrapper">
+  <div class="admin-login-card">
+    <!-- Header -->
+    <div class="card-header">
+      <div class="admin-badge">
+        <span class="material-icons-round">shield</span>
+      </div>
+      <h1>Administration</h1>
+      <p>Accès réservé aux administrateurs autorisés</p>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="login()" #loginForm="ngForm" novalidate class="login-form">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Identifiant</mat-label>
+        <mat-icon matPrefix>person_outline</mat-icon>
+        <input matInput [(ngModel)]="username" name="username" autocomplete="username"
+               placeholder="admin" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Mot de passe</mat-label>
+        <mat-icon matPrefix>lock_outline</mat-icon>
+        <input matInput [(ngModel)]="password" name="password" autocomplete="current-password"
+               [type]="hidePassword ? 'password' : 'text'" required />
+        <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      @if (errorMsg) {
+        <div class="error-banner">
+          <span class="material-icons-round">error_outline</span>
+          {{ errorMsg }}
+        </div>
+      }
+
+      <button mat-flat-button type="submit" class="btn-login" [disabled]="loading">
+        @if (loading) {
+          <mat-spinner diameter="20" />
+          <span>Connexion...</span>
+        } @else {
+          <mat-icon>login</mat-icon>
+          <span>Accéder au panneau admin</span>
+        }
+      </button>
+    </form>
+
+    <div class="card-footer">
+      <span class="material-icons-round">info</span>
+      Accès sécurisé — RecruitPro Admin
+    </div>
+  </div>
+</div>

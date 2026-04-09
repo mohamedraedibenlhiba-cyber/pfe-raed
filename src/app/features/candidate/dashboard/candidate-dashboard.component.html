@@ -1,0 +1,88 @@
+<div class="dashboard">
+  <div class="welcome-banner candidate-banner">
+    <div class="welcome-text">
+      <h1>Bonjour, {{ auth.currentUser?.fullName }} 👋</h1>
+      <p>Découvrez les meilleures offres d'emploi adaptées à votre profil grâce à l'IA.</p>
+    </div>
+    <a mat-flat-button routerLink="/candidate/search" class="btn-search">
+      <mat-icon>search</mat-icon> Chercher des offres
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="40" /></div>
+  } @else {
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary"><span class="material-icons-round">send</span></div>
+        <div class="stat-info">
+          <p class="stat-label">Candidatures envoyées</p>
+          <h3 class="stat-value">{{ applications.length }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-warning"><span class="material-icons-round">hourglass_empty</span></div>
+        <div class="stat-info">
+          <p class="stat-label">En attente</p>
+          <h3 class="stat-value">{{ pendingCount }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-success"><span class="material-icons-round">star</span></div>
+        <div class="stat-info">
+          <p class="stat-label">Sélectionnés</p>
+          <h3 class="stat-value">{{ shortlistCount }}</h3>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-info"><span class="material-icons-round">event</span></div>
+        <div class="stat-info">
+          <p class="stat-label">Entretiens</p>
+          <h3 class="stat-value">{{ interviewCount }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent applications -->
+    <div class="card section-card">
+      <div class="section-header">
+        <h3>Mes dernières candidatures</h3>
+        <a routerLink="/candidate/applications" mat-button class="view-all-btn">
+          Voir tout <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </div>
+
+      @if (!applications.length) {
+        <div class="empty-state">
+          <span class="material-icons-round empty-icon">send</span>
+          <p class="empty-title">Aucune candidature</p>
+          <a mat-flat-button routerLink="/candidate/search" class="btn-primary" style="margin-top:12px">
+            Rechercher des offres
+          </a>
+        </div>
+      } @else {
+        @for (app of applications.slice(0, 5); track app.id) {
+          <div class="app-row">
+            <div class="app-info">
+              <p class="app-offer-title">{{ app.jobOffer?.title }}</p>
+              <p class="app-company">{{ app.jobOffer?.enterprise?.companyName }}</p>
+            </div>
+            @if (app.aiScore) {
+              <div class="mini-score">{{ app.aiScore }}<span>/100</span></div>
+            }
+            <span class="chip {{ appStatusClass(app.status) }}">{{ app.status }}</span>
+            <span class="app-date">{{ app.appliedAt | date:'dd/MM' }}</span>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Quick links -->
+    <div class="quick-links-grid">
+      <a routerLink="/candidate/search"       class="quick-link-card"><div class="ql-icon bg-primary"><span class="material-icons-round">search</span></div><span>Offres d'emploi</span></a>
+      <a routerLink="/candidate/cvs"          class="quick-link-card"><div class="ql-icon bg-info"><span class="material-icons-round">description</span></div><span>Mes CVs ({{ cvCount }})</span></a>
+      <a routerLink="/candidate/messages"     class="quick-link-card"><div class="ql-icon bg-success"><span class="material-icons-round">chat_bubble_outline</span></div><span>Messagerie</span></a>
+      <a routerLink="/candidate/reclamations" class="quick-link-card"><div class="ql-icon bg-warning"><span class="material-icons-round">report_problem</span></div><span>Réclamations</span></a>
+    </div>
+  }
+</div>

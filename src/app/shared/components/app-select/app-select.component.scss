@@ -1,0 +1,92 @@
+:host { display: block; width: 100%; }
+
+.cs-wrap {
+  position: relative;
+  width: 100%;
+
+  .cs-label {
+    display: block;
+    font-size: .75rem;
+    font-weight: 500;
+    color: rgba(0,0,0,.6);
+    margin-bottom: 6px;
+    padding-left: 2px;
+    line-height: 1.2;
+    transition: color .15s;
+  }
+
+  .cs-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 14px;
+    height: 56px;
+    border: 1px solid rgba(0,0,0,.38);
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    background: transparent;
+    transition: border-color .15s, border-width .05s;
+
+    &:hover { border-color: rgba(0,0,0,.87); }
+
+    span:first-child {
+      flex: 1;
+      font-size: .9375rem;
+      color: rgba(0,0,0,.87);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cs-ph { color: rgba(0,0,0,.42); }
+
+    .cs-chevron {
+      font-size: 20px;
+      color: rgba(0,0,0,.54);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+  }
+
+  &.cs-open {
+    .cs-trigger {
+      border-color: #4f46e5;
+      border-width: 2px;
+      padding: 0 13px; // compensate border-width change
+    }
+    .cs-label { color: #4f46e5; }
+    .cs-chevron { transform: rotate(180deg); color: #4f46e5; }
+  }
+
+  &.cs-disabled .cs-trigger {
+    opacity: .38;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .cs-panel {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15), 0 1px 4px rgba(0,0,0,.08);
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid rgba(0,0,0,.1);
+
+    .cs-opt {
+      padding: 11px 16px;
+      font-size: .9375rem;
+      color: rgba(0,0,0,.87);
+      cursor: pointer;
+      transition: background .1s;
+      &:hover { background: rgba(79,70,229,.07); }
+      &.cs-sel { background: rgba(79,70,229,.12); color: #4f46e5; font-weight: 500; }
+    }
+  }
+}

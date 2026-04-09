@@ -1,0 +1,52 @@
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
+
+.filter-tabs {
+  display: flex; gap: 4px; margin-bottom: 20px;
+  background: #fff; border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 5px; width: fit-content; flex-wrap: wrap;
+}
+.filter-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border: none; border-radius: 8px;
+  background: transparent; cursor: pointer;
+  font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
+  transition: all 0.2s ease;
+  .count { background: #e2e8f0; color: #475569; padding: 1px 7px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+  &:hover { background: #f1f5f9; }
+  &.active { background: var(--primary-light); color: #fff; .count { background: rgba(255,255,255,.25); color: #fff; } }
+}
+
+.loading-center { display: flex; justify-content: center; padding: 80px; }
+
+.offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+
+.offer-card { padding: 20px; }
+.offer-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.offer-card-title { flex: 1; h3 { font-size: 0.95rem; font-weight: 700; margin: 0 0 6px; color: var(--text-primary); } }
+.menu-btn { margin-left: 4px; color: var(--text-secondary)!important; }
+
+.offer-meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.meta-chip {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.78rem; color: var(--text-secondary); background: #f1f5f9;
+  padding: 3px 8px; border-radius: 6px;
+  .material-icons-round { font-size: 14px; }
+  &.remote { background: #dcfce7; color: #166534; }
+}
+
+.salary-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; font-weight: 600; color: var(--success);
+  margin-bottom: 12px;
+  .material-icons-round { font-size: 16px; }
+}
+
+.offer-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.date-label { font-size: 0.75rem; color: var(--text-muted); }
+.btn-applications { font-size: 0.8rem!important; color: var(--primary-light)!important; }
+
+::ng-deep .danger-item { color: var(--danger); }
