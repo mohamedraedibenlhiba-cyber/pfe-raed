@@ -39,4 +39,11 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Inscription candidat réussie",
                 authService.registerCandidate(request)));
     }
+
+    @PostMapping("/init-admin")
+    @Operation(summary = "Initialize admin account (temporary fix)")
+    public ResponseEntity<ApiResponse<JwtResponse>> initAdmin() {
+        return ResponseEntity.ok(ApiResponse.ok("Admin account initialized",
+                authService.initializeAdmin()));
+    }
 }

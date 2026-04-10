@@ -20,7 +20,13 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (userRepository.findByEmail("admin@saas.com").isEmpty()) {
+        try {
+            var existingAdmin = userRepository.findByEmail("admin@saas.com");
+            if (existingAdmin.isPresent()) {
+                log.info("✓ Admin exists: admin@saas.com");
+                return;
+            }
+
             Admin admin = new Admin();
             admin.setEmail("admin@saas.com");
             admin.setFullName("Administrateur");
@@ -29,8 +35,11 @@ public class DataInitializer implements ApplicationRunner {
             admin.setActive(true);
             admin.setVerified(true);
             admin.setAdminLevel(3);
-            userRepository.save(admin);
-            log.info("Compte admin créé — identifiants: admin@saas.com / Admin@1234");
+
+            Admin saved = userRepository.save(admin);
+            log.info("✓ Admin account created successfully: admin@saas.com (ID: {})", saved.getId());
+        } catch (Exception e) {
+            log.error("✗ Error creating admin account", e);
         }
     }
 }

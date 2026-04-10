@@ -24,6 +24,25 @@ public class AuthService {
     private final EnterpriseRepository enterpriseRepository;
     private final CandidateRepository candidateRepository;
 
+    public JwtResponse initializeAdmin() {
+        // Delete if exists
+        userRepository.findByEmail("admin@saas.com").ifPresent(userRepository::delete);
+
+        // Create new admin
+        Admin admin = new Admin();
+        admin.setEmail("admin@saas.com");
+        admin.setFullName("Administrateur");
+        admin.setPassword(passwordEncoder.encode("Admin@1234"));
+        admin.setRole(Role.ROLE_ADMIN);
+        admin.setActive(true);
+        admin.setVerified(true);
+        admin.setAdminLevel(3);
+
+        Admin saved = userRepository.save(admin);
+        String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
+        return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
+    }
+
     public JwtResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
