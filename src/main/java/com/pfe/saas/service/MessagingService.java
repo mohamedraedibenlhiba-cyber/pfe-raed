@@ -19,6 +19,7 @@ public class MessagingService {
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ConnectionRequestService connectionRequestService;  // ✨ Updated from ConnectionService
 
     @Transactional
     public Message sendMessage(Long senderId, MessageRequest req) {
@@ -26,6 +27,13 @@ public class MessagingService {
                 .orElseThrow(() -> new RuntimeException("Expéditeur non trouvé"));
         User recipient = userRepository.findById(req.getRecipientId())
                 .orElseThrow(() -> new RuntimeException("Destinataire non trouvé"));
+
+        // ✨ VÉRIFICATION MISE À JOUR: Utiliser les règles de connexion appropriées
+        if (!connectionRequestService.canMessage(senderId, req.getRecipientId())) {
+            throw new IllegalArgumentException(
+                "Messagerie interdite: Les candidats et les entreprises doivent d'abord accepter une demande de connexion."
+            );
+        }
 
         // Trouver ou créer la conversation
         Conversation conversation = conversationRepository
@@ -84,5 +92,35 @@ public class MessagingService {
     @Transactional(readOnly = true)
     public long getTotalUnread(Long userId) {
         return messageRepository.countTotalUnread(userId);
+    }
+
+    // ✨ ──────────────────────────────────────────────────────────────
+    // ✨ Obtenir ou créer une conversation
+    // ✨ ──────────────────────────────────────────────────────────────
+
+    /**
+     * Obtient une conversation existante ou la crée si elle n'existe pas
+     */
+    @Transactional
+    public Conversation getOrCreateConversation(Long userId1, Long userId2) {
+        // Vérifier que la paire d'utilisateurs peut se messagier
+        if (!connectionRequestService.canMessage(userId1, userId2)) {
+            throw new IllegalArgumentException(
+                "Messagerie interdite: Les candidats et les entreprises doivent d'abord accepter une demande de connexion."
+            );
+        }
+
+        User user1 = userRepository.findById(userId1)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User user2 = userRepository.findById(userId2)
+                .orElseThrow(() -> new RuntimeException("Destinataire non trouvé"));
+
+        return conversationRepository.findBetweenUsers(userId1, userId2)
+                .orElseGet(() -> {
+                    Conversation conv = new Conversation();
+                    conv.setParticipant1(user1);
+                    conv.setParticipant2(user2);
+                    return conversationRepository.save(conv);
+                });
     }
 }

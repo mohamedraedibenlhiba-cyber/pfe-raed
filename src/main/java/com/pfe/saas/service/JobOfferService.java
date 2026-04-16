@@ -29,7 +29,7 @@ public class JobOfferService {
         JobOffer offer = new JobOffer();
         mapRequestToOffer(req, offer);
         offer.setEnterprise(enterprise);
-        offer.setStatus(OfferStatus.DRAFT);
+        offer.setStatus(OfferStatus.PUBLISHED);  // ✨ Créé directement PUBLIÉ
         return jobOfferRepository.save(offer);
     }
 

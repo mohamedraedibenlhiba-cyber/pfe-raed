@@ -2,24 +2,43 @@ package com.pfe.saas.service;
 
 import com.pfe.saas.dto.request.UpdateProfileRequest;
 import com.pfe.saas.dto.response.UserProfileResponse;
+import com.pfe.saas.dto.response.PublicProfileResponse;
+import com.pfe.saas.dto.response.ConnectionStatusResponse;
+import com.pfe.saas.dto.response.PostSummaryDTO;
+import com.pfe.saas.dto.response.UserSearchResponse;
 import com.pfe.saas.entity.Candidate;
 import com.pfe.saas.entity.Enterprise;
 import com.pfe.saas.entity.User;
+import com.pfe.saas.entity.Post;
+import com.pfe.saas.enums.Role;
 import com.pfe.saas.repository.UserRepository;
+import com.pfe.saas.repository.FollowRepository;
+import com.pfe.saas.repository.PostRepository;
+import com.pfe.saas.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;  // ✨ NOUVEAU
+    private final ConnectionService connectionService;  // ✨ NOUVEAU
+    private final CertificationService certificationService;  // ✨ NEW
+    private final PostRepository postRepository;  // ✨ NEW
 
     private static final String PROFILE_UPLOAD_DIR = "uploads/profiles/";
 
@@ -91,6 +110,55 @@ public class UserService {
         return Files.readAllBytes(path);
     }
 
+    // ✨ ──────────────────────────────────────────────────────────────
+    // ✨ NOUVEAUX: Profil PUBLIC et Statut de Connexion
+    // ✨ ──────────────────────────────────────────────────────────────
+
+    /**
+     * Récupère le profil PUBLIC d'un utilisateur
+     * (Visible à n'importe qui, sans authentification)
+     */
+    @Transactional(readOnly = true)
+    public PublicProfileResponse getPublicProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Récupérer les stats de suivi
+        long followersCount = followRepository.countByFollowingId(userId);
+        long followingCount = followRepository.countByFollowerId(userId);
+
+        return mapToPublicProfile(user, followersCount, followingCount);
+    }
+
+    /**
+     * Récupère le statut de connexion entre deux utilisateurs
+     * (Utilisé pour afficher les boutons "Suivre", "Envoyer message", etc.)
+     */
+    @Transactional(readOnly = true)
+    public ConnectionStatusResponse getConnectionStatus(Long userId, Long currentUserId) {
+        User otherUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Vérifiez les deux sens du follow
+        boolean isFollowedByMe = followRepository.existsByFollowerIdAndFollowingId(currentUserId, userId);
+        boolean isFollowingMe = followRepository.existsByFollowerIdAndFollowingId(userId, currentUserId);
+
+        // Vérifiez si on peut se envoyer des messages
+        boolean canMessage = connectionService.areConnected(currentUserId, userId);
+
+        // Stats
+        long followersCount = followRepository.countByFollowingId(userId);
+        long followingCount = followRepository.countByFollowerId(userId);
+
+        return ConnectionStatusResponse.builder()
+                .isFollowedByMe(isFollowedByMe)
+                .isFollowingMe(isFollowingMe)
+                .canMessage(canMessage)
+                .followersCount(followersCount)
+                .followingCount(followingCount)
+                .build();
+    }
+
     // ── Private helpers ─────────────────────────────────────────────
 
     private User findByEmail(String email) {
@@ -133,6 +201,134 @@ public class UserService {
              .education(cand.getEducation())
              .openToWork(cand.isOpenToWork())
              .desiredSalary(cand.getDesiredSalary());
+        }
+
+        return b.build();
+    }
+
+    // ✨ ──────────────────────────────────────────────────────────────
+    // ✨ Mapper pour Profil PUBLIC
+    // ✨ ──────────────────────────────────────────────────────────────
+
+    private PublicProfileResponse mapToPublicProfile(User user, long followersCount, long followingCount) {
+        PublicProfileResponse.PublicProfileResponseBuilder b = PublicProfileResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .profilePicture(user.getProfilePicture())
+                .city(user.getCity())
+                .country(user.getCountry())
+                .phoneNumber(user.getPhoneNumber())
+                .followersCount(followersCount)
+                .followingCount(followingCount);
+
+        // Infos spécifiques Candidat
+        if (user instanceof Candidate cand) {
+            b.headline(cand.getHeadline())
+             .summary(cand.getSummary())
+             .skills(cand.getSkills())
+             .yearsExperience(cand.getYearsExperience())
+             .education(cand.getEducation())
+             .languages(cand.getLanguages())
+             .linkedinUrl(cand.getLinkedinUrl())
+             .githubUrl(cand.getGithubUrl())
+             .portfolioUrl(cand.getPortfolioUrl())
+             .openToWork(cand.isOpenToWork())
+             .desiredSalary(cand.getDesiredSalary())
+             // ✨ Add certifications for candidates
+             .certifications(certificationService.getCertificationsForProfile(user.getId()));
+        }
+
+        // Infos spécifiques Entreprise
+        if (user instanceof Enterprise ent) {
+            b.companyName(ent.getCompanyName())
+             .companyDescription(ent.getCompanyDescription())
+             .companyWebsite(ent.getCompanyWebsite())
+             .companySector(ent.getCompanySector())
+             .companySize(ent.getCompanySize())
+             .premium(ent.isPremium());
+        }
+
+        // ✨ Add posts stats for all users
+        List<Post> userPosts = postRepository.findByAuthorId(
+            user.getId(), PageRequest.of(0, 5)).getContent();
+        long postCount = postRepository.countByAuthorId(user.getId());
+
+        List<PostSummaryDTO> postSummaries = userPosts.stream()
+                .map(post -> PostSummaryDTO.builder()
+                        .id(post.getId())
+                        .contentPreview(post.getContent().length() > 200
+                                ? post.getContent().substring(0, 200) + "..."
+                                : post.getContent())
+                        .createdAt(post.getCreatedAt().toString())
+                        .commentCount(post.getCommentCount())
+                        .reactionCount(post.getReactionCount())
+                        .build())
+                .collect(Collectors.toList());
+
+        b.postCount(postCount)
+         .recentPosts(postSummaries.isEmpty() ? null : postSummaries);
+
+        return b.build();
+    }
+
+    // ✨ ──────────────────────────────────────────────────────────────
+    // ✨ Recherche d'utilisateurs
+    // ✨ ──────────────────────────────────────────────────────────────
+
+    /**
+     * Cherche des utilisateurs avec filtres et pagination
+     */
+    @Transactional(readOnly = true)
+    public Page<UserSearchResponse> searchUsers(String query, List<Role> roles, Long currentUserId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.search(query, roles, currentUserId, pageable);
+
+        List<UserSearchResponse> responses = users.stream()
+                .map(user -> mapToSearchResponse(user, currentUserId))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(responses, pageable, users.getTotalElements());
+    }
+
+    /**
+     * Convertit un User en UserSearchResponse avec statut de connexion
+     */
+    private UserSearchResponse mapToSearchResponse(User user, Long currentUserId) {
+        String connectionStatus = "NONE";
+        boolean canMessage = false;
+
+        canMessage = connectionService.areConnected(currentUserId, user.getId());
+
+        // Try to get connection request status if cross-role
+        if (user instanceof Candidate cand && user.getRole() != Role.ROLE_CANDIDATE ||
+            user instanceof Enterprise ent && user.getRole() != Role.ROLE_ENTERPRISE) {
+            // Different roles - check connection request status
+            // (getConnectionRequestStatus is handled via ConnectionRequestService if needed)
+        }
+
+        UserSearchResponse.UserSearchResponseBuilder b = UserSearchResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .profilePicture(user.getProfilePicture())
+                .city(user.getCity())
+                .canMessage(canMessage)
+                .connectionStatus(connectionStatus);
+
+        // Infos Candidat
+        if (user instanceof Candidate cand) {
+            b.headline(cand.getHeadline())
+             .skills(cand.getSkills())
+             .openToWork(cand.isOpenToWork());
+        }
+
+        // Infos Entreprise
+        if (user instanceof Enterprise ent) {
+            b.companyName(ent.getCompanyName())
+             .companyDescription(ent.getCompanyDescription());
         }
 
         return b.build();

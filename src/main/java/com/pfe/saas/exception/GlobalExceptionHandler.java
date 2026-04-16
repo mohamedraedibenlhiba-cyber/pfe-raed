@@ -28,6 +28,13 @@ public class GlobalExceptionHandler {
         return new ApiResponse<>(false, "Erreur de validation", errors);
     }
 
+    /** Arguments invalides (permissions refusées, etc.) */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException ex) {
+        return ApiResponse.error(ex.getMessage());
+    }
+
     /** RuntimeException génériques (métier) */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -107,6 +107,11 @@ public class JobOfferController {
         return ResponseEntity.ok(ApiResponse.ok("Offre supprimée", null));
     }
 
+    /**
+     * ⚠️ SPECIFIC ROUTES MUST COME BEFORE GENERIC ROUTES WITH PATH VARIABLES
+     * This route must be BEFORE @GetMapping("/{id}") to avoid route collision
+     * Otherwise, /mine will be matched as /{id} with id="mine" → 400 Bad Request
+     */
     @GetMapping("/mine")
     @PreAuthorize("hasRole('ENTERPRISE')")
     @Operation(summary = "Récupérer toutes ses offres")
@@ -116,6 +121,11 @@ public class JobOfferController {
         return ResponseEntity.ok(ApiResponse.ok(jobOfferService.getEnterpriseOffers(enterpriseId)));
     }
 
+    /**
+     * ⚠️ GENERIC ROUTE - MUST COME LAST
+     * This is a catch-all route that matches any /{id}
+     * All specific routes must be defined above this
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Détail d'une offre")
     public ResponseEntity<ApiResponse<JobOffer>> getById(@PathVariable Long id) {

@@ -4,6 +4,7 @@ import com.pfe.saas.dto.request.MessageRequest;
 import com.pfe.saas.dto.response.ApiResponse;
 import com.pfe.saas.entity.*;
 import com.pfe.saas.repository.UserRepository;
+import com.pfe.saas.service.ConnectionService;
 import com.pfe.saas.service.MessagingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,6 +29,7 @@ public class MessagingController {
 
     private final MessagingService messagingService;
     private final UserRepository userRepository;
+    private final ConnectionService connectionService;  // ✨ NEW
 
     @PostMapping
     @Operation(summary = "Envoyer un message à un utilisateur")
@@ -37,6 +39,31 @@ public class MessagingController {
         Long senderId = resolveUserId(userDetails);
         return ResponseEntity.ok(ApiResponse.ok("Message envoyé",
                 messagingService.sendMessage(senderId, request)));
+    }
+
+    @GetMapping("/connection-rules")
+    @Operation(summary = "Afficher les règles de connexion pour la messagerie")
+    public ResponseEntity<ApiResponse<Map<String, String>>> getConnectionRules() {
+        return ResponseEntity.ok(ApiResponse.ok(
+            Map.of("rules", connectionService.getConnectionRuleDescription())
+        ));
+    }
+
+    @GetMapping("/can-message/{recipientId}")
+    @Operation(summary = "Vérifier si je peux envoyer un message à cet utilisateur")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> canMessage(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long recipientId) {
+        Long senderId = resolveUserId(userDetails);
+        boolean canMessage = connectionService.areConnected(senderId, recipientId);
+
+        return ResponseEntity.ok(ApiResponse.ok(
+            Map.of(
+                "canMessage", canMessage,
+                "reason", canMessage ? "Vous pouvez envoyer un message"
+                                     : "Connexion requise (vérifiez les règles)"
+            )
+        ));
     }
 
     @GetMapping("/conversations")
@@ -75,6 +102,21 @@ public class MessagingController {
             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = resolveUserId(userDetails);
         return ResponseEntity.ok(ApiResponse.ok(Map.of("unread", messagingService.getTotalUnread(userId))));
+    }
+
+    // ✨ ──────────────────────────────────────────────────────────────
+    // ✨ Obtenir ou créer une conversation
+    // ✨ ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/conversation/{recipientId}")
+    @Operation(summary = "Obtenir ou créer une conversation avec un utilisateur")
+    public ResponseEntity<ApiResponse<Conversation>> getOrCreateConversation(
+            @PathVariable Long recipientId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long senderId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+            messagingService.getOrCreateConversation(senderId, recipientId)
+        ));
     }
 
     private Long resolveUserId(UserDetails userDetails) {

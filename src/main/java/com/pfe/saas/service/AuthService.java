@@ -100,4 +100,24 @@ public class AuthService {
         String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
         return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
     }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest request) {
+        // Valider que les mots de passe correspondent
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException("Les mots de passe ne correspondent pas");
+        }
+
+        // Vérifier que l'ancien mot de passe est correct
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("L'ancien mot de passe est incorrect");
+        }
+
+        // Mettre à jour le mot de passe
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 }

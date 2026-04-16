@@ -2,6 +2,8 @@ package com.pfe.saas.controller;
 
 import com.pfe.saas.dto.request.ApplicationRequest;
 import com.pfe.saas.dto.response.ApiResponse;
+import com.pfe.saas.dto.response.ApplicationDetailResponse;
+import com.pfe.saas.dto.response.EnterpriseDashboardResponse;
 import com.pfe.saas.entity.Application;
 import com.pfe.saas.entity.User;
 import com.pfe.saas.enums.ApplicationStatus;
@@ -66,6 +68,30 @@ public class ApplicationController {
                 applicationService.getApplicationsByOffer(offerId, enterpriseId, PageRequest.of(page, size))));
     }
 
+    @GetMapping("/offer/{offerId}/with-details")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Candidatures avec profil candidat complet (paginées)")
+    public ResponseEntity<ApiResponse<Page<ApplicationDetailResponse>>> offerApplicationsWithDetails(
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+                applicationService.getApplicationsByOfferWithDetails(offerId, enterpriseId, PageRequest.of(page, size))));
+    }
+
+    @GetMapping("/offer/{offerId}/ranked/with-details")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Candidatures classées par score IA avec profil complet")
+    public ResponseEntity<ApiResponse<List<ApplicationDetailResponse>>> rankedApplicationsWithDetails(
+            @PathVariable Long offerId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+                applicationService.getApplicationsByOfferRankedWithDetails(offerId, enterpriseId)));
+    }
+
     @GetMapping("/offer/{offerId}/ranked")
     @PreAuthorize("hasRole('ENTERPRISE')")
     @Operation(summary = "Candidatures classées par score IA")
@@ -74,6 +100,28 @@ public class ApplicationController {
             @AuthenticationPrincipal UserDetails userDetails) {
         Long enterpriseId = resolveUserId(userDetails);
         return ResponseEntity.ok(ApiResponse.ok(applicationService.getRankedApplications(offerId, enterpriseId)));
+    }
+
+    @GetMapping("/enterprise/dashboard")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Tableau de bord entreprise - Statistiques complètes")
+    public ResponseEntity<ApiResponse<EnterpriseDashboardResponse>> enterpriseDashboard(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+                "Statistiques d'entreprise",
+                applicationService.getEnterpriseDashboard(enterpriseId)));
+    }
+
+    @GetMapping("/{id}/detail")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Détails complets d'une candidature (avec profil candidat)")
+    public ResponseEntity<ApiResponse<ApplicationDetailResponse>> getApplicationWithDetail(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long enterpriseId = resolveUserId(userDetails);
+        return ResponseEntity.ok(ApiResponse.ok(
+                applicationService.getApplicationDetail(id, enterpriseId)));
     }
 
     @PatchMapping("/{id}/status")

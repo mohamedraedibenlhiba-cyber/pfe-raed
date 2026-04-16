@@ -48,4 +48,8 @@ public class Candidate extends User {
     @JsonIgnore
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Application> applications = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Certification> certifications = new ArrayList<>();
 }

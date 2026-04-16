@@ -57,8 +57,8 @@ public class JobOffer {
     private Integer experienceRequired;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "experience_level")
-    private ExperienceLevel experienceLevel;    // JUNIOR, MID, SENIOR, LEAD
+    @Column(name = "experience_level", nullable = true)
+    private ExperienceLevel experienceLevel;    // JUNIOR, MID, SENIOR, LEAD (nullable)
 
     @Column(name = "number_of_positions")
     private Integer numberOfPositions = 1;

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,5 +46,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<JwtResponse>> initAdmin() {
         return ResponseEntity.ok(ApiResponse.ok("Admin account initialized",
                 authService.initializeAdmin()));
+    }
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Changer le mot de passe de l'utilisateur connecté")
+    public ResponseEntity<ApiResponse<String>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
+        authService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok(ApiResponse.ok("Mot de passe modifié avec succès", ""));
     }
 }

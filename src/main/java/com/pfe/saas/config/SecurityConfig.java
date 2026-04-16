@@ -81,8 +81,6 @@ public class SecurityConfig {
                 // Projets freelance — consultation publique
                 .requestMatchers(HttpMethod.GET, "/api/freelance/projects").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/freelance/projects/*").permitAll()
-                // Canaux — liste publique
-                .requestMatchers(HttpMethod.GET, "/api/channels").permitAll()
                 // Swagger UI
                 .requestMatchers(
                     "/swagger-ui/**",

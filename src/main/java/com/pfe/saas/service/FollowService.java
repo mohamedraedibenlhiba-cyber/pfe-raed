@@ -67,4 +67,18 @@ public class FollowService {
     public long countFollowing(Long userId) {
         return followRepository.countByFollowerId(userId);
     }
+
+    @Transactional
+    public void followUser(Long followerId, Long followingId) {
+        if (followerId.equals(followingId)) return;
+        if (followRepository.existsByFollowerIdAndFollowingId(followerId, followingId)) return;
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        User following = userRepository.findById(followingId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Follow follow = new Follow();
+        follow.setFollower(follower);
+        follow.setFollowing(following);
+        followRepository.save(follow);
+    }
 }
