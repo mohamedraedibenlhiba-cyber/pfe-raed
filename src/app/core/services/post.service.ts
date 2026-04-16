@@ -54,4 +54,9 @@ export class PostService {
   removeReaction(postId: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.API}/${postId}/react`);
   }
+
+  // ✨ Alias for public user posts (same as getByUser)
+  getPublicUserPosts(userId: number, page = 0, size = 10): Observable<ApiResponse<Page<Post>>> {
+    return this.getByUser(userId, page, size);
+  }
 }

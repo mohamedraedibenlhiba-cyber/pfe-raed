@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AppSelectComponent, SelectOption } from '../../../shared/components/app-select/app-select.component';
@@ -19,7 +19,7 @@ import { ContractType, CV, JobOffer } from '../../../core/models/models';
 @Component({
   selector: 'app-job-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, MatPaginatorModule],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatProgressSpinnerModule, MatDialogModule, MatPaginatorModule],
   templateUrl: './job-search.component.html',
   styleUrls: ['./job-search.component.scss']
 })
@@ -27,7 +27,7 @@ export class JobSearchComponent implements OnInit {
   private readonly offerSvc = inject(JobOfferService);
   private readonly appSvc   = inject(ApplicationService);
   private readonly cvSvc    = inject(CvService);
-  private readonly snack    = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
 
   loading = false;
   offers: JobOffer[] = [];
@@ -84,8 +84,8 @@ export class JobSearchComponent implements OnInit {
     if (!this.selectedOffer) return;
     this.applyLoading = true;
     this.appSvc.apply({ jobOfferId: this.selectedOffer.id, cvId: this.selectedCvId, coverLetter: this.coverLetter }).subscribe({
-      next: () => { this.applyLoading = false; this.selectedOffer = null; this.snack.open('Candidature envoyée !', 'OK', { panelClass: 'success-snack' }); },
-      error: err => { this.applyLoading = false; this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' }); }
+      next: () => { this.applyLoading = false; this.selectedOffer = null; this.alertSvc.success('Candidature envoyée !'); },
+      error: err => { this.applyLoading = false; this.alertSvc.error('Erreur', err.error?.message || 'Erreur'); }
     });
   }
 }

@@ -16,7 +16,38 @@
 
 .chat-panel { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
 .no-conv-selected { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.chat-header { padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
+
+// Chat Header
+.chat-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+
+    .header-info {
+      flex: 1;
+
+      strong {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+      }
+
+      .role-badge {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+    }
+  }
+}
 
 .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
 .message { display: flex; flex-direction: column; &.own { align-items: flex-end; } }

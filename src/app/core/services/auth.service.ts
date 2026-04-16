@@ -46,6 +46,10 @@ export class AuthService {
     );
   }
 
+  changePassword(changePasswordData: any): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(`${this.API}/change-password`, changePasswordData);
+  }
+
   // ─── Session helpers ─────────────────────────────────────────────────────────
   private storeSession(user: JwtResponse): void {
     localStorage.setItem(this.TOKEN_KEY, user.token);

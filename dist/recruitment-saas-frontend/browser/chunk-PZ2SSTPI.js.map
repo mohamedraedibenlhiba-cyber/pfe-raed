@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/utils/api-error.util.ts"],
-  "sourcesContent": ["export function getApiErrorMessage(\n  error: { error?: { message?: string; data?: unknown } } | null | undefined,\n  fallback: string\n): string {\n  const data = error?.error?.data;\n\n  if (data && typeof data === 'object' && !Array.isArray(data)) {\n    const firstMessage = Object.values(data as Record<string, unknown>).find(\n      (value): value is string => typeof value === 'string' && value.trim().length > 0\n    );\n\n    if (firstMessage) return firstMessage;\n  }\n\n  const message = error?.error?.message;\n  return typeof message === 'string' && message.trim().length > 0 ? message : fallback;\n}\n"],
-  "mappings": ";AAAM,SAAU,mBACd,OACA,UAAgB;AAEhB,QAAM,OAAO,OAAO,OAAO;AAE3B,MAAI,QAAQ,OAAO,SAAS,YAAY,CAAC,MAAM,QAAQ,IAAI,GAAG;AAC5D,UAAM,eAAe,OAAO,OAAO,IAA+B,EAAE,KAClE,CAAC,UAA2B,OAAO,UAAU,YAAY,MAAM,KAAI,EAAG,SAAS,CAAC;AAGlF,QAAI;AAAc,aAAO;EAC3B;AAEA,QAAM,UAAU,OAAO,OAAO;AAC9B,SAAO,OAAO,YAAY,YAAY,QAAQ,KAAI,EAAG,SAAS,IAAI,UAAU;AAC9E;",
-  "names": []
-}

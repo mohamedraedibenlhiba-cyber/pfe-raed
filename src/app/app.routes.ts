@@ -10,6 +10,12 @@ export const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
+  // ── Public Profile (no auth required) ─────────────────────────────────────────
+  {
+    path: 'profile/:userId',
+    loadComponent: () => import('./features/shared/public-profile/public-profile.component').then(m => m.PublicProfileComponent),
+    title: 'Profil Public'
+  },
   // ── Admin (protected) ────────────────────────────────────────────────────────
   {
     path: 'admin',
@@ -36,8 +42,7 @@ export const routes: Routes = [
       { path: 'offers/new',              loadComponent: () => import('./features/enterprise/offer-form/offer-form.component').then(m => m.OfferFormComponent), title: 'Nouvelle offre' },
       { path: 'offers/:id/edit',         loadComponent: () => import('./features/enterprise/offer-form/offer-form.component').then(m => m.OfferFormComponent), title: 'Modifier une offre' },
       { path: 'offers/:id/applications', loadComponent: () => import('./features/enterprise/applications/enterprise-applications.component').then(m => m.EnterpriseApplicationsComponent), title: 'Candidatures' },
-      { path: 'messages',                loadComponent: () => import('./features/shared/messaging/messaging.component').then(m => m.MessagingComponent), title: 'Messagerie' },
-      { path: 'channels',                loadComponent: () => import('./features/shared/channels/channels.component').then(m => m.ChannelsComponent), title: 'Canaux' },
+      { path: 'messages',                loadComponent: () => import('./features/shared/unified-chat/unified-chat.component').then(m => m.UnifiedChatComponent), title: 'Messagerie & Canaux' },
       { path: 'feed',                    loadComponent: () => import('./features/shared/feed/feed.component').then(m => m.FeedComponent), title: "Fil d'actualité" },
       { path: 'freelance',               loadComponent: () => import('./features/shared/freelance/freelance.component').then(m => m.FreelanceComponent), title: 'Espace Freelance' },
       { path: 'reclamations',            loadComponent: () => import('./features/shared/reclamations/my-reclamations.component').then(m => m.MyReclamationsComponent), title: 'Mes réclamations' },
@@ -56,8 +61,7 @@ export const routes: Routes = [
       { path: 'search',      loadComponent: () => import('./features/candidate/search/job-search.component').then(m => m.JobSearchComponent), title: 'Rechercher des offres' },
       { path: 'applications',loadComponent: () => import('./features/candidate/applications/my-applications.component').then(m => m.MyApplicationsComponent), title: 'Mes candidatures' },
       { path: 'cvs',         loadComponent: () => import('./features/candidate/cvs/my-cvs.component').then(m => m.MyCvsComponent), title: 'Mes CVs' },
-      { path: 'messages',    loadComponent: () => import('./features/shared/messaging/messaging.component').then(m => m.MessagingComponent), title: 'Messagerie' },
-      { path: 'channels',    loadComponent: () => import('./features/shared/channels/channels.component').then(m => m.ChannelsComponent), title: 'Canaux' },
+      { path: 'messages',    loadComponent: () => import('./features/shared/unified-chat/unified-chat.component').then(m => m.UnifiedChatComponent), title: 'Messagerie & Canaux' },
       { path: 'feed',        loadComponent: () => import('./features/shared/feed/feed.component').then(m => m.FeedComponent), title: "Fil d'actualité" },
       { path: 'freelance',   loadComponent: () => import('./features/shared/freelance/freelance.component').then(m => m.FreelanceComponent), title: 'Espace Freelance' },
       { path: 'reclamations',loadComponent: () => import('./features/shared/reclamations/my-reclamations.component').then(m => m.MyReclamationsComponent), title: 'Mes réclamations' },

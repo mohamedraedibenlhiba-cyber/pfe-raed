@@ -4,6 +4,8 @@
     <div class="conv-header">
       <h3>Messagerie</h3>
     </div>
+
+    <!-- Conversations List -->
     @if (loading) {
       <div class="loading-center"><mat-spinner diameter="30" /></div>
     } @else if (!conversations.length) {
@@ -32,9 +34,15 @@
         <p style="color:#64748b;margin-top:12px">Sélectionnez une conversation</p>
       </div>
     } @else {
+      <!-- Chat Header with Profile Link -->
       <div class="chat-header">
-        <div class="conv-avatar">{{ initials(getOtherParticipant(selectedConv).fullName) }}</div>
-        <strong>{{ getOtherParticipant(selectedConv).fullName }}</strong>
+        <div class="header-left">
+          <div class="conv-avatar">{{ initials(getOtherParticipant(selectedConv).fullName) }}</div>
+          <div class="header-info">
+            <strong>{{ getOtherParticipant(selectedConv).fullName }}</strong>
+            <p class="role-badge">{{ getRoleLabel(getOtherParticipant(selectedConv).role) }}</p>
+          </div>
+        </div>
       </div>
 
       <div class="messages-area">

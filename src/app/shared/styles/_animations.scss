@@ -1,0 +1,336 @@
+// ===================================================================
+// ANIMATIONS & TRANSITIONS
+// ===================================================================
+// Smooth transitions, keyframe animations, hover states
+// ===================================================================
+
+@import '_design-system';
+
+// ============================================================================
+// 1. TRANSITION MIXINS
+// ============================================================================
+
+// Quick transition (150ms)
+@mixin transition-fast($properties: all) {
+  transition: $properties $transition-fast;
+}
+
+// Standard transition (250ms)
+@mixin transition($properties: all) {
+  transition: $properties $transition-base;
+}
+
+// Slow transition (350ms)
+@mixin transition-slow($properties: all) {
+  transition: $properties $transition-slow;
+}
+
+// Multiple properties with different durations
+@mixin transition-multiple($props-durations...) {
+  transition: $props-durations;
+}
+
+// ============================================================================
+// 2. COMMON TRANSITIONS
+// ============================================================================
+
+// Color transition
+@mixin transition-color {
+  @include transition(color);
+}
+
+// Background color transition
+@mixin transition-bg {
+  @include transition(background-color);
+}
+
+// Border transition
+@mixin transition-border {
+  @include transition(border-color);
+}
+
+// Shadow transition
+@mixin transition-shadow {
+  @include transition(box-shadow);
+}
+
+// Transform transition (for scale, translate, rotate)
+@mixin transition-transform {
+  @include transition(transform);
+}
+
+// Opacity transition
+@mixin transition-opacity {
+  @include transition(opacity);
+}
+
+// All properties transition (general)
+@mixin transition-all {
+  @include transition(all);
+}
+
+// ============================================================================
+// 3. HOVER STATE MIXINS
+// ============================================================================
+
+// Card hover: slight lift + shadow increase
+@mixin hover-card {
+  @include transition-shadow;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Button hover: color + background change
+@mixin hover-button {
+  @include transition(background-color, color, border-color);
+
+  &:hover {
+    background-color: darken(#0A66C2, 10%);
+  }
+}
+
+// Link hover: underline
+@mixin hover-link {
+  @include transition-color;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Icon hover: color change
+@mixin hover-icon {
+  @include transition-color;
+
+  &:hover {
+    color: $color-primary;
+  }
+}
+
+// Badge hover: brightness
+@mixin hover-badge {
+  @include transition-all;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// ============================================================================
+// 4. KEYFRAME ANIMATIONS
+// ============================================================================
+
+// Fade in animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Fade out animation
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// Slide in from top
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Slide in from bottom
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Slide in from left
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Slide in from right
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Scale up (zoom in)
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Scale down (zoom out)
+@keyframes scaleDown {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+// Bounce (subtle)
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+// Pulse (opacity blink)
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Shimmer (loading skeleton)
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+// Spin (loading spinner)
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// 5. ANIMATION UTILITY CLASSES
+// ============================================================================
+
+.animate-fade-in {
+  animation: fadeIn $transition-base ease-in-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut $transition-base ease-in-out;
+}
+
+.animate-slide-down {
+  animation: slideInDown $transition-base ease-out;
+}
+
+.animate-slide-up {
+  animation: slideInUp $transition-base ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInLeft $transition-base ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInRight $transition-base ease-out;
+}
+
+.animate-scale-up {
+  animation: scaleUp $transition-base ease-out;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+// ============================================================================
+// 6. SHIMMER LOADING EFFECT
+// ============================================================================
+
+@mixin shimmer-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.shimmer-loading {
+  @include shimmer-loading;
+}
+
+// ============================================================================
+// 7. ACCESSIBILITY - PREFERS REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

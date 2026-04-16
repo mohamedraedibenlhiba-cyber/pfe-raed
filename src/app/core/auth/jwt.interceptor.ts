@@ -8,8 +8,14 @@ export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, nex
   const auth = inject(AuthService);
   const token = auth.getToken();
 
+  // Exclure les endpoints d'auth du token JWT
+  const isAuthEndpoint = req.url.includes('/auth/login') ||
+                         req.url.includes('/auth/register') ||
+                         req.url.includes('/auth/init-admin');
+
   // N'attacher le token qu'aux requêtes vers l'API (pas vers des services tiers)
-  if (token && req.url.startsWith(environment.apiUrl)) {
+  // ET jamais aux endpoints d'authentification
+  if (token && req.url.startsWith(environment.apiUrl) && !isAuthEndpoint) {
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });

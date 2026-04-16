@@ -9,7 +9,6 @@ export type ReclamationStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED' |
 export type ReclamationType = 'TECHNICAL_ISSUE' | 'ACCOUNT_PROBLEM' | 'PAYMENT_ISSUE' | 'ABUSIVE_CONTENT' | 'OFFER_FRAUD' | 'OTHER';
 export type ProjectStatus = 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 export type BidStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NEGOTIATING' | 'WITHDRAWN';
-export type ChannelMemberRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
 // ─── API Wrapper ──────────────────────────────────────────────────────────────
 export interface ApiResponse<T> {
@@ -266,47 +265,50 @@ export interface FollowStatus {
   followingCount: number;
 }
 
-// ─── Channels (Telegram-style) ────────────────────────────────────────────────
-export interface Channel {
+// ─── Public Profiles ──────────────────────────────────────────────────────────────
+export interface PublicProfileResponse {
   id: number;
-  name: string;
-  description?: string;
-  pictureUrl?: string;
-  publicChannel: boolean;
-  owner: User;
-  memberCount?: number;
-  isMember?: boolean;
-  createdAt: string;
+  fullName: string;
+  email: string;
+  role: Role;
+  profilePicture?: string;
+  city?: string;
+  country?: string;
+  phoneNumber?: string;
+  followersCount: number;
+  followingCount: number;
+  // Candidate-specific fields
+  headline?: string;
+  summary?: string;
+  skills?: string;
+  yearsExperience?: number;
+  education?: string;
+  languages?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
+  openToWork?: boolean;
+  desiredSalary?: number;
+  // Certifications (Candidate)
+  certifications?: Certification[];
+  // Enterprise-specific fields
+  companyName?: string;
+  companyDescription?: string;
+  companyWebsite?: string;
+  companySector?: string;
+  companySize?: string;
+  premium?: boolean;
+  // Posts (all users)
+  postCount?: number;
+  recentPosts?: PostSummaryDTO[];
 }
 
-export interface ChannelMember {
-  id: number;
-  user: User;
-  role: ChannelMemberRole;
-  joinedAt: string;
-}
-
-export interface ChannelMessage {
-  id: number;
-  sender: User;
-  content: string;
-  attachmentUrl?: string;
-  replyTo?: ChannelMessage;
-  reactionCount?: number;
-  sentAt: string;
-}
-
-export interface ChannelRequest {
-  name: string;
-  description?: string;
-  pictureUrl?: string;
-  publicChannel?: boolean;
-}
-
-export interface ChannelMessageRequest {
-  content: string;
-  attachmentUrl?: string;
-  replyToId?: number;
+export interface ConnectionStatusResponse {
+  isFollowedByMe: boolean;
+  isFollowingMe: boolean;
+  canMessage: boolean;
+  followersCount: number;
+  followingCount: number;
 }
 
 // ─── Freelance ────────────────────────────────────────────────────────────────
@@ -419,4 +421,97 @@ export interface AdminDashboard {
   totalReclamations: number;
   openReclamations: number;
   resolvedReclamations: number;
+}
+
+// ─── Connection Requests ──────────────────────────────────────────────────────
+export type ConnectionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE';
+
+export interface ConnectionRequest {
+  id: number;
+  senderId: number;
+  senderName: string;
+  senderProfilePicture?: string;
+  receiverId: number;
+  receiverName: string;
+  message?: string;
+  status: ConnectionRequestStatus;
+  createdAt: string;
+  respondedAt?: string;
+}
+
+export interface ConnectionRequestSendRequest {
+  receiverId: number;
+  message?: string;
+}
+
+export interface ConnectionRequestResponse {
+  status: ConnectionRequestStatus;
+  requestId?: number;
+}
+
+// ─── Certifications ───────────────────────────────────────────────────────────
+export interface Certification {
+  id: number;
+  certificationName: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialUrl?: string;
+  expired?: boolean;
+}
+
+export interface CertificationRequest {
+  certificationName: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialUrl?: string;
+}
+
+// ─── Post Summaries ───────────────────────────────────────────────────────────
+export interface PostSummaryDTO {
+  id: number;
+  contentPreview: string;
+  createdAt: string;
+  commentCount: number;
+  reactionCount: number;
+}
+
+// ─── User Search ──────────────────────────────────────────────────────────────
+export interface UserSearchResponse {
+  id: number;
+  fullName: string;
+  email: string;
+  role: Role;
+  profilePicture?: string;
+  city?: string;
+  headline?: string;          // Candidat
+  skills?: string;            // Candidat
+  openToWork?: boolean;       // Candidat
+  companyName?: string;       // Entreprise
+  companyDescription?: string;  // Entreprise
+  canMessage: boolean;
+  connectionStatus: string;   // NONE, PENDING, ACCEPTED, REJECTED
+}
+
+// ─── Friendships ──────────────────────────────────────────────────────────────
+export interface UserFriendSummaryDTO {
+  id: number;
+  fullName: string;
+  email: string;
+  role: Role;
+  profilePicture?: string;
+  city?: string;
+}
+
+export interface Friendship {
+  id: number;
+  userId1: number;
+  userName1: string;
+  profilePicture1?: string;
+  userId2: number;
+  userName2: string;
+  profilePicture2?: string;
+  createdAt: string;
+  currentUserId?: number;
 }

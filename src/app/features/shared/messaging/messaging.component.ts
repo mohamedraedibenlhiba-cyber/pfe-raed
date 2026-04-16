@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MessagingService } from '../../../core/services/messaging.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Conversation, Message } from '../../../core/models/models';
@@ -13,7 +14,16 @@ import { Conversation, Message } from '../../../core/models/models';
 @Component({
   selector: 'app-messaging',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
+  ],
   templateUrl: './messaging.component.html',
   styleUrls: ['./messaging.component.scss']
 })
@@ -61,5 +71,16 @@ export class MessagingComponent implements OnInit {
 
   initials(name: string): string {
     return name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+  }
+
+  getRoleLabel(role: string): string {
+    switch (role) {
+      case 'ROLE_CANDIDATE':
+        return 'Candidat';
+      case 'ROLE_ENTERPRISE':
+        return 'Entreprise';
+      default:
+        return role;
+    }
   }
 }

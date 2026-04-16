@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { FreelanceService } from '../../../core/services/freelance.service';
@@ -20,7 +20,7 @@ import { FreelanceProject, ProjectBid, BidStatus } from '../../../core/models/mo
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule, MatChipsModule
+    MatMenuModule, MatProgressSpinnerModule, MatTabsModule, MatChipsModule
   ],
   template: `
 <div class="page-wrapper">
@@ -325,7 +325,7 @@ import { FreelanceProject, ProjectBid, BidStatus } from '../../../core/models/mo
 export class FreelanceComponent implements OnInit {
   readonly auth      = inject(AuthService);
   private readonly freelanceSvc = inject(FreelanceService);
-  private readonly snack        = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly fb           = inject(FormBuilder);
 
   activeTab = 0;
@@ -430,7 +430,7 @@ export class FreelanceComponent implements OnInit {
           this.myProjects.unshift(res.data);
         }
         this.cancelProjectForm(); this.creatingProject = false;
-        this.snack.open(this.editingProject ? 'Mis à jour' : 'Projet publié', 'OK', { duration: 2000 });
+        this.alertSvc.success(this.editingProject ? 'Mis à jour' : 'Projet publié');
       },
       error: () => { this.creatingProject = false; }
     });
@@ -451,7 +451,7 @@ export class FreelanceComponent implements OnInit {
   deleteProject(p: FreelanceProject): void {
     this.freelanceSvc.deleteProject(p.id).subscribe(() => {
       this.myProjects = this.myProjects.filter(pr => pr.id !== p.id);
-      this.snack.open('Supprimé', 'OK', { duration: 2000 });
+      this.alertSvc.success('Supprimé');
     });
   }
 
@@ -469,27 +469,27 @@ export class FreelanceComponent implements OnInit {
     this.freelanceSvc.submitBid(this.selectedProject.id, this.bidForm.value as any).subscribe({
       next: res => {
         this.myBids.unshift(res.data); this.showBidForm = false; this.submittingBid = false;
-        this.snack.open('Offre soumise avec succès', 'OK', { duration: 2000 });
+        this.alertSvc.success('Offre soumise avec succès');
         this.closeProject();
         if (this.activeTab !== 1) this.activeTab = 1;
       },
       error: err => {
         this.submittingBid = false;
-        this.snack.open(err.error?.message || 'Erreur', 'OK', { duration: 3000 });
+        this.alertSvc.error('Erreur', err.error?.message || 'Erreur');
       }
     });
   }
 
   withdrawBid(bid: ProjectBid): void {
     this.freelanceSvc.withdrawBid(bid.id).subscribe(() => {
-      bid.status = 'WITHDRAWN'; this.snack.open('Offre retirée', 'OK', { duration: 2000 });
+      bid.status = 'WITHDRAWN'; this.alertSvc.success('Offre retirée');
     });
   }
 
   acceptBid(bid: ProjectBid): void {
     this.freelanceSvc.negotiate(bid.id, { status: 'ACCEPTED' }).subscribe(res => {
       bid.status = res.data.status;
-      this.snack.open('Offre acceptée', 'OK', { duration: 2000 });
+      this.alertSvc.success('Offre acceptée');
     });
   }
 
@@ -513,14 +513,14 @@ export class FreelanceComponent implements OnInit {
       const bids = this.selectedProjectBids[this.negotiatingProjectId!];
       if (bids) { const i = bids.findIndex(b => b.id === res.data.id); if (i >= 0) bids[i] = res.data; }
       this.cancelNegotiate();
-      this.snack.open('Contre-offre envoyée', 'OK', { duration: 2000 });
+      this.alertSvc.success('Contre-offre envoyée');
     });
   }
 
   acceptCounter(bid: ProjectBid): void {
     this.freelanceSvc.negotiate(bid.id, { status: 'ACCEPTED' }).subscribe(res => {
       bid.status = res.data.status;
-      this.snack.open('Contre-offre acceptée', 'OK', { duration: 2000 });
+      this.alertSvc.success('Contre-offre acceptée');
     });
   }
 

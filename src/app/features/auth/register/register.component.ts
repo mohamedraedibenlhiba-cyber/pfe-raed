@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AppSelectComponent } from '../../../shared/components/app-select/app-select.component';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,7 +21,7 @@ import { getApiErrorMessage } from '../../../core/utils/api-error.util';
     CommonModule, ReactiveFormsModule, RouterLink,
     MatCardModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatIconModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatTabsModule, AppSelectComponent
+    MatTabsModule, AppSelectComponent
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
@@ -29,7 +29,7 @@ import { getApiErrorMessage } from '../../../core/utils/api-error.util';
 export class RegisterComponent implements OnInit {
   private readonly fb    = inject(FormBuilder);
   private readonly auth  = inject(AuthService);
-  private readonly snack = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
 
   loading = false;
   hidePassword = true;
@@ -89,7 +89,7 @@ export class RegisterComponent implements OnInit {
       next: () => this.auth.redirectToDashboard(),
       error: err => {
         this.loading = false;
-        this.snack.open(getApiErrorMessage(err, 'Erreur lors de l\'inscription'), 'Fermer', { panelClass: 'error-snack' });
+        this.alertSvc.error('Erreur', getApiErrorMessage(err, 'Erreur lors de l\'inscription'));
       }
     });
   }
@@ -101,7 +101,7 @@ export class RegisterComponent implements OnInit {
       next: () => this.auth.redirectToDashboard(),
       error: err => {
         this.loading = false;
-        this.snack.open(getApiErrorMessage(err, 'Erreur lors de l\'inscription'), 'Fermer', { panelClass: 'error-snack' });
+        this.alertSvc.error('Erreur', getApiErrorMessage(err, 'Erreur lors de l\'inscription'));
       }
     });
   }

@@ -12,7 +12,13 @@ import { Application } from '../../../core/models/models';
 @Component({
   selector: 'app-candidate-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './candidate-dashboard.component.html',
   styleUrls: ['./candidate-dashboard.component.scss']
 })

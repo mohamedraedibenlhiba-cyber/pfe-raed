@@ -1,14 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { UserProfile } from '../../../core/models/models';
 
 @Component({
@@ -18,19 +22,23 @@ import { UserProfile } from '../../../core/models/models';
     CommonModule, FormsModule, ReactiveFormsModule,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCheckboxModule,
-    MatProgressSpinnerModule, MatSnackBarModule
+    MatProgressSpinnerModule,
+    MatTabsModule, MatCardModule, MatDividerModule
   ],
   templateUrl: './candidate-profile.component.html',
   styleUrls: ['./candidate-profile.component.scss']
 })
 export class CandidateProfileComponent implements OnInit {
   private readonly userSvc = inject(UserService);
-  private readonly snack = inject(MatSnackBar);
+  private readonly authSvc = inject(AuthService);
+  private readonly alertSvc = inject(AlertService);
   private readonly fb = inject(FormBuilder);
 
   loading = true;
   saving = false;
   uploadingPhoto = false;
+  changingPassword = false;
+  showChangePassword = false;
   profile: UserProfile | null = null;
 
   form: FormGroup = this.fb.group({
@@ -49,6 +57,12 @@ export class CandidateProfileComponent implements OnInit {
     education: [''],
     openToWork: [false],
     desiredSalary: ['']
+  });
+
+  changePasswordForm: FormGroup = this.fb.group({
+    oldPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   ngOnInit(): void {
@@ -85,11 +99,11 @@ export class CandidateProfileComponent implements OnInit {
       next: res => {
         this.profile = res.data;
         this.saving = false;
-        this.snack.open('Profil mis à jour', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success('Profil mis à jour');
       },
       error: err => {
         this.saving = false;
-        this.snack.open(err.error?.message || 'Erreur lors de la mise à jour', 'OK', { panelClass: 'error-snack' });
+        this.alertSvc.error('Erreur', err.error?.message || 'Erreur lors de la mise à jour');
       }
     });
   }
@@ -98,18 +112,47 @@ export class CandidateProfileComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      this.snack.open('Seules les images sont acceptées', 'OK', { panelClass: 'error-snack' }); return;
+      this.alertSvc.error('Seules les images sont acceptées'); return;
     }
     this.uploadingPhoto = true;
     this.userSvc.uploadProfilePicture(file).subscribe({
       next: res => {
         this.profile = res.data;
         this.uploadingPhoto = false;
-        this.snack.open('Photo de profil mise à jour', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success('Photo de profil mise à jour');
       },
       error: err => {
         this.uploadingPhoto = false;
-        this.snack.open(err.error?.message || 'Erreur upload photo', 'OK', { panelClass: 'error-snack' });
+        this.alertSvc.error('Erreur', err.error?.message || 'Erreur upload photo');
+      }
+    });
+  }
+
+  changePassword(): void {
+    if (this.changePasswordForm.invalid || this.changingPassword) return;
+
+    const { oldPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
+
+    if (newPassword !== confirmPassword) {
+      this.alertSvc.error('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    this.changingPassword = true;
+    this.authSvc.changePassword({
+      oldPassword,
+      newPassword,
+      confirmPassword
+    }).subscribe({
+      next: () => {
+        this.changingPassword = false;
+        this.showChangePassword = false;
+        this.changePasswordForm.reset();
+        this.alertSvc.success('Mot de passe modifié avec succès');
+      },
+      error: err => {
+        this.changingPassword = false;
+        this.alertSvc.error('Erreur', err.error?.message || 'Erreur lors du changement de mot de passe');
       }
     });
   }

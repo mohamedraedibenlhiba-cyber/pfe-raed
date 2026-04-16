@@ -48,6 +48,7 @@ export class UserLayoutComponent implements OnInit {
 
   candidateNav: NavItem[] = [
     { label: 'Tableau de bord',   icon: 'dashboard',           route: '/candidate/dashboard' },
+    { label: 'Découvrir',         icon: 'explore',             route: '/candidate/discovery' },
     { label: 'Rechercher offres', icon: 'search',              route: '/candidate/search' },
     { label: 'Mes candidatures',  icon: 'send',                route: '/candidate/applications' },
     { label: 'Mes CVs',           icon: 'description',         route: '/candidate/cvs' },

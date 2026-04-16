@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { getApiErrorMessage } from '../../../core/utils/api-error.util';
 
@@ -18,7 +18,7 @@ import { getApiErrorMessage } from '../../../core/utils/api-error.util';
   imports: [
     CommonModule, ReactiveFormsModule, RouterLink,
     MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSnackBarModule
+    MatButtonModule, MatIconModule, MatProgressSpinnerModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
   private readonly fb      = inject(FormBuilder);
   private readonly auth    = inject(AuthService);
   private readonly router  = inject(Router);
-  private readonly snack   = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
 
   form!: FormGroup;
   loading = false;
@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
       next: () => { this.auth.redirectToDashboard(); },
       error: err => {
         this.loading = false;
-        this.snack.open(getApiErrorMessage(err, 'Identifiants incorrects'), 'Fermer', { panelClass: 'error-snack' });
+        this.alertSvc.error('Erreur', getApiErrorMessage(err, 'Identifiants incorrects'));
       }
     });
   }

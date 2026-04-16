@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { AppSelectComponent } from '../../../shared/components/app-select/app-select.component';
 import { ReclamationService } from '../../../core/services/reclamation.service';
 import { Reclamation, ReclamationStatus, ReclamationType } from '../../../core/models/models';
@@ -14,13 +14,13 @@ import { Reclamation, ReclamationStatus, ReclamationType } from '../../../core/m
 @Component({
   selector: 'app-my-reclamations',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatProgressSpinnerModule, MatSnackBarModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatProgressSpinnerModule],
   templateUrl: './my-reclamations.component.html',
   styleUrls: ['./my-reclamations.component.scss']
 })
 export class MyReclamationsComponent implements OnInit {
   private readonly reclamSvc = inject(ReclamationService);
-  private readonly snack     = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly fb        = inject(FormBuilder);
 
   loading = true;
@@ -57,9 +57,9 @@ export class MyReclamationsComponent implements OnInit {
       next: res => {
         this.reclamations.unshift(res.data);
         this.form.reset(); this.showForm = false; this.submitting = false;
-        this.snack.open('Réclamation soumise avec succès', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success('Réclamation soumise avec succès');
       },
-      error: err => { this.submitting = false; this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' }); }
+      error: err => { this.submitting = false; this.alertSvc.error('Erreur', err.error?.message || 'Erreur'); }
     });
   }
 

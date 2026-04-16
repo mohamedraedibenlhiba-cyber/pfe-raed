@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -18,7 +18,7 @@ import { ContractType, ExperienceLevel, JobOfferRequest } from '../../../core/mo
 @Component({
   selector: 'app-offer-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatCheckboxModule, MatSnackBarModule, MatProgressSpinnerModule, MatDatepickerModule, MatNativeDateModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent, MatCheckboxModule, MatProgressSpinnerModule, MatDatepickerModule, MatNativeDateModule],
   templateUrl: './offer-form.component.html',
   styleUrls: ['./offer-form.component.scss']
 })
@@ -27,7 +27,7 @@ export class OfferFormComponent implements OnInit {
   private readonly offerSvc = inject(JobOfferService);
   private readonly router   = inject(Router);
   private readonly route    = inject(ActivatedRoute);
-  private readonly snack    = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
 
   loading = false;
   saving = false;
@@ -92,10 +92,10 @@ export class OfferFormComponent implements OnInit {
     obs.subscribe({
       next: () => {
         this.saving = false;
-        this.snack.open(this.isEdit ? 'Offre mise à jour' : 'Offre créée', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success(this.isEdit ? 'Offre mise à jour' : 'Offre créée');
         this.router.navigate(['/enterprise/offers']);
       },
-      error: err => { this.saving = false; this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' }); }
+      error: err => { this.saving = false; this.alertSvc.error('Erreur', err.error?.message || 'Erreur'); }
     });
   }
 }

@@ -1,0 +1,438 @@
+// ===================================================================
+// TYPOGRAPHY MIXINS & UTILITIES
+// ===================================================================
+// Font scales, text utilities, responsive typography
+// ===================================================================
+
+@import '_design-system';
+
+// ============================================================================
+// 1. TYPOGRAPHY SCALES
+// ============================================================================
+
+// Heading 1: 32px, Bold, Line-height 1.2
+@mixin h1 {
+  font-size: $font-size-5xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $color-text-dark;
+  margin: 0;
+  letter-spacing: $letter-spacing-tight;
+}
+
+// Heading 2: 28px, Bold
+@mixin h2 {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $color-text-dark;
+  margin: 0;
+  letter-spacing: $letter-spacing-tight;
+}
+
+// Heading 3: 24px, Bold
+@mixin h3 {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $color-text-dark;
+  margin: 0;
+}
+
+// Heading 4: 20px, Semibold
+@mixin h4 {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+  margin: 0;
+}
+
+// Heading 5: 18px, Semibold
+@mixin h5 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+  margin: 0;
+}
+
+// Heading 6: 16px, Semibold
+@mixin h6 {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+  margin: 0;
+}
+
+// Body Large: 16px, Regular
+@mixin body-lg {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+}
+
+// Body Base: 14px, Regular (default)
+@mixin body-base {
+  font-size: $font-size-base;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+}
+
+// Body Small: 12px, Regular
+@mixin body-sm {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+}
+
+// Caption: 12px, Regular, Muted
+@mixin caption {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  color: $color-text-muted;
+}
+
+// Label: 12px, Semibold, Secondary
+@mixin label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-normal;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+}
+
+// ============================================================================
+// 2. TEXT UTILITIES
+// ============================================================================
+
+// Truncate single line
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Truncate multi-line (2 lines)
+@mixin line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Truncate 3 lines
+@mixin line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Truncate 4 lines
+@mixin line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Bold variant
+@mixin font-bold {
+  font-weight: $font-weight-bold;
+}
+
+// Semibold variant
+@mixin font-semibold {
+  font-weight: $font-weight-semibold;
+}
+
+// Medium variant
+@mixin font-medium {
+  font-weight: $font-weight-medium;
+}
+
+// Regular variant
+@mixin font-regular {
+  font-weight: $font-weight-regular;
+}
+
+// Light variant
+@mixin font-light {
+  font-weight: $font-weight-light;
+}
+
+// Text primary
+@mixin text-primary {
+  color: $color-text-dark;
+}
+
+// Text secondary
+@mixin text-secondary {
+  color: $color-text-secondary;
+}
+
+// Text muted
+@mixin text-muted {
+  color: $color-text-muted;
+}
+
+// ============================================================================
+// 3. RESPONSIVE TYPOGRAPHY
+// ============================================================================
+
+// Responsive heading that scales down on mobile
+@mixin h1-responsive {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $color-text-dark;
+  margin: 0;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-3xl;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-2xl;
+  }
+}
+
+@mixin h2-responsive {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-2xl;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    font-size: $font-size-xl;
+  }
+}
+
+// ============================================================================
+// 4. LINK STYLES
+// ============================================================================
+
+@mixin link-base {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color $transition-base;
+  font-weight: $font-weight-semibold;
+
+  &:hover {
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: $color-primary-dark;
+  }
+
+  &:disabled {
+    color: $color-text-disabled;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+@mixin link-muted {
+  color: $color-text-secondary;
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $color-primary;
+  }
+
+  &:focus {
+    outline: none;
+    color: $color-primary;
+  }
+}
+
+// ============================================================================
+// 5. GLOBAL TYPOGRAPHY RULES
+// ============================================================================
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-regular;
+  line-height: $line-height-normal;
+  color: $color-text-dark;
+  background-color: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  @include h1;
+}
+
+h2 {
+  @include h2;
+}
+
+h3 {
+  @include h3;
+}
+
+h4 {
+  @include h4;
+}
+
+h5 {
+  @include h5;
+}
+
+h6 {
+  @include h6;
+}
+
+p {
+  margin: 0 0 $space-4 0;
+  @include body-base;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+a {
+  @include link-base;
+}
+
+strong,
+b {
+  @include font-bold;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+small {
+  @include body-sm;
+  @include text-muted;
+}
+
+code {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+  background-color: $color-primary-light;
+  color: $color-primary-dark;
+  padding: 2px 6px;
+  border-radius: $radius-sm;
+}
+
+// ============================================================================
+// 6. UTILITIES CLASSES
+// ============================================================================
+
+.text-h1 {
+  @include h1;
+}
+
+.text-h2 {
+  @include h2;
+}
+
+.text-h3 {
+  @include h3;
+}
+
+.text-h4 {
+  @include h4;
+}
+
+.text-h5 {
+  @include h5;
+}
+
+.text-h6 {
+  @include h6;
+}
+
+.text-body-lg {
+  @include body-lg;
+}
+
+.text-body {
+  @include body-base;
+}
+
+.text-body-sm {
+  @include body-sm;
+}
+
+.text-caption {
+  @include caption;
+}
+
+.text-label {
+  @include label;
+}
+
+.text-primary {
+  @include text-primary;
+}
+
+.text-secondary {
+  @include text-secondary;
+}
+
+.text-muted {
+  @include text-muted;
+}
+
+.text-truncate {
+  @include truncate;
+}
+
+.text-clamp-2 {
+  @include line-clamp-2;
+}
+
+.text-clamp-3 {
+  @include line-clamp-3;
+}
+
+.text-clamp-4 {
+  @include line-clamp-4;
+}
+
+.font-bold {
+  @include font-bold;
+}
+
+.font-semibold {
+  @include font-semibold;
+}
+
+.font-medium {
+  @include font-medium;
+}
+
+.font-regular {
+  @include font-regular;
+}
+
+.font-light {
+  @include font-light;
+}

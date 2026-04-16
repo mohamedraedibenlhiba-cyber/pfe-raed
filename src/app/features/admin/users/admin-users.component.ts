@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -25,14 +25,14 @@ import { User } from '../../../core/models/models';
     CommonModule, FormsModule, MatCardModule, MatTableModule,
     MatPaginatorModule, MatButtonModule, MatIconModule, MatInputModule,
     MatFormFieldModule, MatChipsModule, MatMenuModule, MatDialogModule,
-    MatSnackBarModule, MatProgressSpinnerModule, MatTooltipModule, MatSlideToggleModule
+    MatProgressSpinnerModule, MatTooltipModule, MatSlideToggleModule
   ],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss']
 })
 export class AdminUsersComponent implements OnInit {
   private readonly adminSvc = inject(AdminService);
-  private readonly snack    = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly dialog   = inject(MatDialog);
 
   displayedColumns = ['avatar', 'name', 'email', 'role', 'city', 'status', 'createdAt', 'actions'];
@@ -73,17 +73,17 @@ export class AdminUsersComponent implements OnInit {
     this.adminSvc.toggleUserActive(user.id).subscribe({
       next: () => {
         user.active = !user.active;
-        this.snack.open(`Compte ${user.active ? 'activé' : 'désactivé'}`, 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success(`Compte ${user.active ? 'activé' : 'désactivé'}`);
       },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 
   delete(user: User): void {
     if (!confirm(`Supprimer définitivement le compte de ${user.fullName} ?`)) return;
     this.adminSvc.deleteUser(user.id).subscribe({
-      next: () => { this.users = this.users.filter(u => u.id !== user.id); this.snack.open('Utilisateur supprimé', 'OK', { panelClass: 'success-snack' }); },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      next: () => { this.users = this.users.filter(u => u.id !== user.id); this.alertSvc.success('Utilisateur supprimé'); },
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 

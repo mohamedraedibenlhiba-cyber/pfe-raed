@@ -1,10 +1,21 @@
 // ─── Global Theme ────────────────────────────────────────────────────────────
 @use '@angular/material' as mat;
 
-// Custom palette — Professional Blue
-$primary-palette: mat.define-palette(mat.$indigo-palette, 700, 400, 900);
-$accent-palette:  mat.define-palette(mat.$cyan-palette, 600, 300, 900);
-$warn-palette:    mat.define-palette(mat.$red-palette);
+// ─── SWEETALERT2 CSS ──────────────────────────────────────────────────────────
+@import 'sweetalert2/dist/sweetalert2.min';
+
+// ─── IMPORT DESIGN SYSTEM ─────────────────────────────────────────────────────
+// Core design system with colors, spacing, typography, animations
+@import 'app/shared/styles/_design-system';
+@import 'app/shared/styles/_typography';
+@import 'app/shared/styles/_animations';
+@import 'app/shared/styles/_responsive';
+
+// Custom palette — Warm Golden & Vibrant Accents
+// Primary: #fcb900 (Gold), Accents: Purple (#9b51e0), Orange (#ff6900), Yellow (#fef84c)
+$primary-palette: mat.define-palette(mat.$amber-palette, 500, 50, 800);
+$accent-palette:  mat.define-palette(mat.$purple-palette, 500, 200, 900);
+$warn-palette:    mat.define-palette(mat.$orange-palette);
 
 $app-theme: mat.define-light-theme((
   color: (primary: $primary-palette, accent: $accent-palette, warn: $warn-palette),
@@ -15,36 +26,38 @@ $app-theme: mat.define-light-theme((
 @include mat.all-component-themes($app-theme);
 @include mat.all-component-typographies($app-theme);
 
-// ─── CSS Variables ────────────────────────────────────────────────────────────
+// ─── CSS Variables (Updated for Warm Golden Palette) ────────────────────────
 :root {
-  --primary:         #3730a3;
-  --primary-light:   #4f46e5;
-  --primary-dark:    #312e81;
-  --accent:          #0891b2;
-  --success:         #059669;
-  --warning:         #d97706;
-  --danger:          #dc2626;
-  --info:            #2563eb;
+  --primary:         #fcb900;         // Gold
+  --primary-light:   #fef4d9;
+  --primary-dark:    #e8a800;
+  --accent:          #9b51e0;         // Purple
+  --accent-orange:   #ff6900;         // Orange
+  --accent-yellow:   #fef84c;         // Bright Yellow
+  --success:         #31A24C;
+  --warning:         #ff6900;
+  --danger:          #DA3633;
+  --info:            #fcb900;
 
-  // Admin sidebar
-  --sidebar-bg:      #1e1b4b;
-  --sidebar-text:    #c7d2fe;
-  --sidebar-active:  #4f46e5;
-  --sidebar-hover:   rgba(255,255,255,0.08);
+  // Corporate Sidebar (Light gray with golden accents)
+  --sidebar-bg:      #F3F6F8;         // Light gray corporate
+  --sidebar-text:    #5B6B82;         // Professional gray
+  --sidebar-active:  #fcb900;         // Golden active
+  --sidebar-hover:   #fef4d9;         // Light gold hover
   --sidebar-width:   260px;
 
   // Layout
   --topbar-height:   64px;
-  --content-bg:      #f8fafc;
-  --card-radius:     12px;
-  --card-shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
-  --card-shadow-hover: 0 4px 16px rgba(0,0,0,.12);
-  --border-color:    #e2e8f0;
+  --content-bg:      #F3F6F8;
+  --card-radius:     8px;
+  --card-shadow:     0 2px 4px rgba(0,0,0,0.08);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+  --border-color:    #CACED4;
 
   // Typography
-  --text-primary:    #1e293b;
-  --text-secondary:  #64748b;
-  --text-muted:      #94a3b8;
+  --text-primary:    #000000;
+  --text-secondary:  #5B6B82;
+  --text-muted:      #65676B;
 }
 
 // ─── Reset & Base ─────────────────────────────────────────────────────────────
@@ -201,4 +214,106 @@ html, body {
 .mat-mdc-tab-body.mat-mdc-tab-body-active,
 .mat-mdc-tab-body.mat-mdc-tab-body-active > .mat-mdc-tab-body-content {
   overflow: visible !important;
+}
+
+// ─── Menu Fix: Force proper width and padding ────────────────────────────────
+.mat-mdc-menu-panel {
+  min-width: 200px !important;
+}
+
+.mat-mdc-menu-content {
+  padding: 4px 0 !important;
+  padding-left: 0 !important;
+}
+
+.mat-mdc-menu-item {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+// ─── SweetAlert2 Customization ────────────────────────────────────────────────
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.swal-dialog-container .swal2-popup {
+  border-radius: 12px !important;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+}
+
+.swal-toast-container .swal2-popup {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
+  padding: 16px !important;
+}
+
+.swal2-title {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 12px !important;
+}
+
+.swal2-html-container {
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-size: 0.95rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal2-confirm {
+  background-color: var(--primary) !important;
+  border: none !important;
+
+  &:hover {
+    background-color: #0a5aa8 !important;
+    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3) !important;
+  }
+}
+
+.swal2-cancel {
+  background-color: #cbd5e0 !important;
+  color: #2d3748 !important;
+  border: none !important;
+
+  &:hover {
+    background-color: #a0aec0 !important;
+  }
+}
+
+// Success toast styling
+.swal-toast-popup.swal2-show[data-icon="success"] {
+  .swal2-icon {
+    color: var(--success) !important;
+  }
+}
+
+// Error toast styling
+.swal-toast-popup.swal2-show[data-icon="error"] {
+  .swal2-icon {
+    color: var(--danger) !important;
+  }
+}
+
+// Warning toast styling
+.swal-toast-popup.swal2-show[data-icon="warning"] {
+  .swal2-icon {
+    color: var(--warning) !important;
+  }
+}
+
+// Info toast styling
+.swal-toast-popup.swal2-show[data-icon="info"] {
+  .swal2-icon {
+    color: var(--info) !important;
+  }
 }

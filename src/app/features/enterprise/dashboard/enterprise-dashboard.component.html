@@ -1,4 +1,58 @@
 <div class="dashboard">
+  <!-- ✨ Search Section -->
+  <div class="search-banner">
+    <h2>Trouver des candidats</h2>
+    <div class="search-wrapper">
+      <mat-form-field class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput
+               placeholder="Chercher un candidat..."
+               [(ngModel)]="searchQuery"
+               (input)="searchUsers()"
+               (keyup.escape)="clearSearch()"
+               [disabled]="loadingSearch" />
+      </mat-form-field>
+
+      <!-- Search Results -->
+      @if (showSearch && searchQuery && searchResults.length > 0) {
+        <div class="search-results-dropdown">
+          @if (loadingSearch) {
+            <div class="loading-center"><mat-spinner diameter="24" /></div>
+          } @else {
+            @for (user of searchResults; track user.id) {
+              <div class="search-result-item">
+                <div class="result-left" (click)="viewProfile(user.id)">
+                  <div class="avatar">{{ initials(user.fullName) }}</div>
+                  <div class="user-details">
+                    <p class="name">{{ user.fullName }}</p>
+                    <p class="subtitle">{{ user.headline || 'Candidat' }}</p>
+                    <p class="location" *ngIf="user.city">
+                      <mat-icon>location_on</mat-icon> {{ user.city }}
+                    </p>
+                  </div>
+                </div>
+                <div class="result-actions">
+                  <button mat-icon-button
+                          (click)="viewProfile(user.id)"
+                          [matTooltip]="'Voir le profil'"
+                          class="action-btn">
+                    <mat-icon>open_in_new</mat-icon>
+                  </button>
+                  <button mat-raised-button
+                          (click)="startConversation(user.id)"
+                          color="primary"
+                          class="msg-btn">
+                    <mat-icon>mail</mat-icon> Message
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  </div>
+
   <!-- Welcome -->
   <div class="welcome-banner">
     <div class="welcome-text">

@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { PostService } from '../../../core/services/post.service';
 import { FollowService } from '../../../core/services/follow.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,7 +19,7 @@ import { Post, Comment, ReactionType } from '../../../core/models/models';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule
+    MatMenuModule, MatProgressSpinnerModule
   ],
   template: `
 <div class="feed-layout">
@@ -166,7 +166,7 @@ export class FeedComponent implements OnInit {
   readonly auth  = inject(AuthService);
   private readonly postSvc   = inject(PostService);
   private readonly followSvc = inject(FollowService);
-  private readonly snack     = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly fb        = inject(FormBuilder);
 
   loading    = true;
@@ -212,7 +212,7 @@ export class FeedComponent implements OnInit {
       next: res => {
         this.posts.unshift(res.data);
         this.postForm.reset(); this.showCreateForm = false; this.creating = false;
-        this.snack.open('Publication créée', 'OK', { duration: 2000 });
+        this.alertSvc.success('Publication créée');
       },
       error: () => { this.creating = false; }
     });
@@ -222,7 +222,7 @@ export class FeedComponent implements OnInit {
     this.postSvc.delete(post.id).subscribe({
       next: () => {
         this.posts = this.posts.filter(p => p.id !== post.id);
-        this.snack.open('Supprimée', 'OK', { duration: 2000 });
+        this.alertSvc.success('Supprimée');
       }
     });
   }

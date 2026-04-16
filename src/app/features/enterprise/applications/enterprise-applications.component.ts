@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AppSelectComponent } from '../../../shared/components/app-select/app-select.component';
@@ -15,14 +15,14 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-enterprise-applications',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSnackBarModule, AppSelectComponent, MatTooltipModule, MatTabsModule],
+  imports: [CommonModule, RouterLink, FormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, AppSelectComponent, MatTooltipModule, MatTabsModule],
   templateUrl: './enterprise-applications.component.html',
   styleUrls: ['./enterprise-applications.component.scss']
 })
 export class EnterpriseApplicationsComponent implements OnInit {
   private readonly appSvc  = inject(ApplicationService);
   private readonly route   = inject(ActivatedRoute);
-  private readonly snack   = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
 
   loading = true;
   offerId!: number;
@@ -53,8 +53,8 @@ export class EnterpriseApplicationsComponent implements OnInit {
 
   updateStatus(app: Application, status: string): void {
     this.appSvc.updateStatus(app.id, status).subscribe({
-      next: res => { app.status = res.data.status; this.snack.open('Statut mis à jour', 'OK', { panelClass: 'success-snack' }); },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      next: res => { app.status = res.data.status; this.alertSvc.success('Statut mis à jour'); },
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 

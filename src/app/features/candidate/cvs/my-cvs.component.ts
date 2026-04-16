@@ -4,7 +4,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CvService } from '../../../core/services/cv.service';
 import { CV } from '../../../core/models/models';
@@ -12,13 +12,13 @@ import { CV } from '../../../core/models/models';
 @Component({
   selector: 'app-my-cvs',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatButtonModule, MatSnackBarModule, MatTooltipModule],
+  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: './my-cvs.component.html',
   styleUrls: ['./my-cvs.component.scss']
 })
 export class MyCvsComponent implements OnInit {
   private readonly cvSvc = inject(CvService);
-  private readonly snack = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly sanitizer = inject(DomSanitizer);
 
   loading = true;
@@ -43,19 +43,19 @@ export class MyCvsComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     if (!['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
-      this.snack.open('Seuls les fichiers PDF et Word sont acceptés', 'OK', { panelClass: 'error-snack' }); return;
+      this.alertSvc.error('Seuls les fichiers PDF et Word sont acceptés'); return;
     }
     this.uploading = true;
     this.cvSvc.upload(file).subscribe({
-      next: res => { this.cvs.unshift(res.data); this.uploading = false; this.snack.open('CV uploadé avec succès', 'OK', { panelClass: 'success-snack' }); },
-      error: err => { this.uploading = false; this.snack.open(err.error?.message || 'Erreur upload', 'OK', { panelClass: 'error-snack' }); }
+      next: res => { this.cvs.unshift(res.data); this.uploading = false; this.alertSvc.success('CV uploadé avec succès'); },
+      error: err => { this.uploading = false; this.alertSvc.error('Erreur', err.error?.message || 'Erreur upload'); }
     });
   }
 
   setDefault(cv: CV): void {
     this.cvSvc.setDefault(cv.id).subscribe({
-      next: () => { this.cvs.forEach(c => c.defaultCv = c.id === cv.id); this.snack.open('CV défini comme CV par défaut', 'OK', { panelClass: 'success-snack' }); },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      next: () => { this.cvs.forEach(c => c.defaultCv = c.id === cv.id); this.alertSvc.success('CV défini comme CV par défaut'); },
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 
@@ -65,9 +65,9 @@ export class MyCvsComponent implements OnInit {
       next: () => {
         if (this.viewerObjectUrl) { this.closeViewer(); }
         this.cvs = this.cvs.filter(c => c.id !== cv.id);
-        this.snack.open('CV supprimé', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success('CV supprimé');
       },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 
@@ -84,7 +84,7 @@ export class MyCvsComponent implements OnInit {
       },
       error: () => {
         this.viewerLoading = false;
-        this.snack.open('Impossible de charger le CV', 'OK', { panelClass: 'error-snack' });
+        this.alertSvc.error('Impossible de charger le CV');
       }
     });
   }

@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AlertService } from '../../../core/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,7 +25,7 @@ import { Reclamation, ReclamationStatus } from '../../../core/models/models';
     CommonModule, ReactiveFormsModule,
     MatCardModule, MatTableModule, MatPaginatorModule, MatButtonModule,
     MatIconModule, MatFormFieldModule, MatInputModule, AppSelectComponent,
-    MatDialogModule, MatSnackBarModule, MatProgressSpinnerModule,
+    MatDialogModule, MatProgressSpinnerModule,
     MatTabsModule, MatTooltipModule, MatDividerModule
   ],
   templateUrl: './admin-reclamations.component.html',
@@ -33,7 +33,7 @@ import { Reclamation, ReclamationStatus } from '../../../core/models/models';
 })
 export class AdminReclamationsComponent implements OnInit {
   private readonly reclamSvc = inject(ReclamationService);
-  private readonly snack     = inject(MatSnackBar);
+  private readonly alertSvc = inject(AlertService);
   private readonly dialog    = inject(MatDialog);
   private readonly fb        = inject(FormBuilder);
 
@@ -113,10 +113,10 @@ export class AdminReclamationsComponent implements OnInit {
       next: res => {
         const idx = this.reclamations.findIndex(r => r.id === res.data.id);
         if (idx !== -1) this.reclamations[idx] = res.data;
-        this.snack.open('Réclamation mise à jour', 'OK', { panelClass: 'success-snack' });
+        this.alertSvc.success('Réclamation mise à jour');
         this.closePanel();
       },
-      error: err => this.snack.open(err.error?.message || 'Erreur', 'OK', { panelClass: 'error-snack' })
+      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Erreur', )
     });
   }
 
