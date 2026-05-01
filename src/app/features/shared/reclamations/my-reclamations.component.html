@@ -1,77 +1,130 @@
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Mes réclamations</h1>
-    <p class="page-subtitle">{{ reclamations.length }} réclamation(s) soumise(s)</p>
-  </div>
-  <button mat-flat-button class="btn-primary" (click)="showForm = !showForm">
-    <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon>
-    {{ showForm ? 'Annuler' : 'Nouvelle réclamation' }}
-  </button>
-</div>
-
-<!-- New reclamation form -->
-@if (showForm) {
-  <div class="card form-card">
-    <h3>Soumettre une réclamation</h3>
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <div class="form-grid">
-        <app-select label="Type de réclamation" [options]="typeOptions" formControlName="type"></app-select>
-
-        <mat-form-field>
-          <mat-label>Sujet</mat-label>
-          <input matInput formControlName="subject" placeholder="Résumez votre problème..." />
-        </mat-form-field>
-
-        <mat-form-field class="full">
-          <mat-label>Description détaillée</mat-label>
-          <textarea matInput formControlName="description" rows="4" placeholder="Décrivez votre problème en détail (minimum 20 caractères)..."></textarea>
-          <mat-hint>{{ form.get('description')?.value?.length || 0 }} caractères</mat-hint>
-          @if (form.get('description')?.hasError('minlength') && form.get('description')?.touched) {
-            <mat-error>Minimum 20 caractères</mat-error>
-          }
-        </mat-form-field>
+<div class="reclamations-wrapper">
+  <div class="page-header-modern">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Mes réclamations</h1>
+        <p class="page-subtitle">Gérez et suivez vos réclamations en temps réel</p>
       </div>
-
-      <button mat-flat-button type="submit" class="btn-primary submit-btn" [disabled]="form.invalid || submitting">
-        @if (submitting) { <mat-spinner diameter="18" /> }
-        @else { <mat-icon>send</mat-icon> Soumettre la réclamation }
+      <button mat-flat-button class="btn-primary-modern" (click)="showForm = !showForm">
+        <mat-icon>{{ showForm ? 'close' : 'add_circle' }}</mat-icon>
+        {{ showForm ? 'Annuler' : 'Nouvelle réclamation' }}
       </button>
-    </form>
-  </div>
-}
-
-@if (loading) {
-  <div class="loading-center"><mat-spinner diameter="40" /></div>
-} @else if (!reclamations.length) {
-  <div class="empty-state card">
-    <span class="material-icons-round empty-icon">check_circle_outline</span>
-    <p class="empty-title">Aucune réclamation</p>
-    <p class="empty-desc">Tout va bien ! Soumettez une réclamation si vous avez un problème.</p>
-  </div>
-} @else {
-  <div class="reclamations-list">
-    @for (r of reclamations; track r.id) {
-      <div class="reclamation-card card">
-        <div class="card-header">
-          <div class="card-id">#{{ r.id }}</div>
-          <span class="chip {{ statusClass(r.status) }}">{{ statusLabel(r.status) }}</span>
-          <span class="date">{{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+    </div>
+    @if (reclamations.length > 0) {
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-label">Total</span>
+          <span class="stat-value">{{ reclamations.length }}</span>
         </div>
-        <h4>{{ r.subject }}</h4>
-        <p class="description">{{ r.description }}</p>
-        @if (r.adminResponse) {
-          <div class="admin-reply">
-            <div class="reply-header">
-              <span class="material-icons-round">support_agent</span>
-              <strong>Réponse de l'équipe support</strong>
-            </div>
-            <p>{{ r.adminResponse }}</p>
-            @if (r.resolvedAt) {
-              <p class="resolved-date">Traité le {{ r.resolvedAt | date:'dd/MM/yyyy à HH:mm' }}</p>
-            }
-          </div>
-        }
+        <div class="stat-item">
+          <span class="stat-label">En cours</span>
+          <span class="stat-value">{{ getOpenCount() }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Résolues</span>
+          <span class="stat-value">{{ getResolvedCount() }}</span>
+        </div>
       </div>
     }
   </div>
-}
+
+  <!-- New reclamation form -->
+  @if (showForm) {
+    <div class="card form-card-modern">
+      <div class="form-header-modern">
+        <h3>Soumettre une nouvelle réclamation</h3>
+        <p>Décrivez-nous votre problème et nous vous aiderons au plus vite</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <app-select label="Type de réclamation" [options]="typeOptions" formControlName="type"></app-select>
+          </div>
+
+          <div class="form-group">
+            <mat-form-field class="full-width">
+              <mat-label>Sujet</mat-label>
+              <input matInput formControlName="subject" placeholder="Résumez votre problème..." />
+              <mat-icon matPrefix>subject</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-group full">
+            <mat-form-field class="full-width">
+              <mat-label>Description détaillée</mat-label>
+              <textarea matInput formControlName="description" rows="5" placeholder="Décrivez votre problème en détail..."></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint>{{ form.get('description')?.value?.length || 0 }}/500 caractères</mat-hint>
+              @if (form.get('description')?.hasError('minlength') && form.get('description')?.touched) {
+                <mat-error>Minimum 20 caractères requis</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-flat-button type="button" (click)="showForm = false" class="btn-secondary">
+            <mat-icon>cancel</mat-icon> Annuler
+          </button>
+          <button mat-flat-button type="submit" class="btn-primary-modern" [disabled]="form.invalid || submitting">
+            @if (submitting) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <mat-icon>send</mat-icon> Soumettre la réclamation
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Reclamations list -->
+  @if (loading) {
+    <div class="loading-center"><mat-spinner diameter="40" /></div>
+  } @else if (!reclamations.length) {
+    <div class="empty-state-modern card">
+      <div class="empty-icon-wrapper">
+        <span class="material-icons-round empty-icon">done_all</span>
+      </div>
+      <p class="empty-title">Aucune réclamation</p>
+      <p class="empty-desc">Vous n'avez pas soumis de réclamation. Si vous avez un problème, n'hésitez pas à en créer une.</p>
+      <button mat-flat-button class="btn-primary-modern" (click)="showForm = true">
+        <mat-icon>add_circle</mat-icon> Créer une réclamation
+      </button>
+    </div>
+  } @else {
+    <div class="reclamations-grid">
+      @for (r of reclamations; track r.id) {
+        <div class="reclamation-card-modern card">
+          <div class="card-header-modern">
+            <div class="card-id-badge">#{{ r.id }}</div>
+            <span class="chip {{ statusClass(r.status) }}">{{ statusLabel(r.status) }}</span>
+            <span class="card-date">{{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <h4 class="card-title">{{ r.subject }}</h4>
+          <p class="card-description">{{ r.description }}</p>
+
+          @if (r.adminResponse) {
+            <div class="admin-reply-modern">
+              <div class="reply-header-modern">
+                <div class="reply-icon">
+                  <span class="material-icons-round">support_agent</span>
+                </div>
+                <div>
+                  <strong>Réponse de notre équipe support</strong>
+                  @if (r.resolvedAt) {
+                    <p class="resolved-date">{{ r.resolvedAt | date:'dd/MM/yyyy à HH:mm' }}</p>
+                  }
+                </div>
+              </div>
+              <p class="reply-text">{{ r.adminResponse }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+

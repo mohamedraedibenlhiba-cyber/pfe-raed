@@ -70,4 +70,12 @@ export class MyReclamationsComponent implements OnInit {
   statusLabel(s: ReclamationStatus): string {
     return { OPEN: 'Ouvert', IN_PROGRESS: 'En cours', RESOLVED: 'Résolu', CLOSED: 'Fermé', REJECTED: 'Rejeté' }[s] ?? s;
   }
+
+  getOpenCount(): number {
+    return this.reclamations.filter(r => r.status === 'IN_PROGRESS' || r.status === 'OPEN').length;
+  }
+
+  getResolvedCount(): number {
+    return this.reclamations.filter(r => r.status === 'RESOLVED').length;
+  }
 }
