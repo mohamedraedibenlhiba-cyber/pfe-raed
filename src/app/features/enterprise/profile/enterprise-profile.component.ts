@@ -9,6 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AlertService } from '../../../core/services/alert.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppSelectComponent } from '../../../shared/components/app-select/app-select.component';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -22,7 +24,8 @@ import { UserProfile } from '../../../core/models/models';
     MatFormFieldModule, MatInputModule, AppSelectComponent,
     MatButtonModule, MatIconModule,
     MatProgressSpinnerModule,
-    MatDividerModule, MatCardModule
+    MatDividerModule, MatCardModule,
+    MatTabsModule, MatTooltipModule
   ],
   templateUrl: './enterprise-profile.component.html',
   styleUrls: ['./enterprise-profile.component.scss']
@@ -38,7 +41,16 @@ export class EnterpriseProfileComponent implements OnInit {
   uploadingPhoto = false;
   changingPassword = false;
   showChangePassword = false;
+  selectedTabIndex = 0;
   profile: UserProfile | null = null;
+
+  // Stats placeholder
+  companyStats = {
+    offersCount: 0,
+    applicationsCount: 0,
+    acceptedCandidatesCount: 0,
+    profileViewsCount: 0
+  };
 
   readonly sectors = [
     'Technologie & IT', 'Finance & Banque', 'Santé & Médical',
@@ -161,5 +173,48 @@ export class EnterpriseProfileComponent implements OnInit {
         this.alertSvc.error('Erreur', err.error?.message || 'Erreur lors du changement de mot de passe');
       }
     });
+  }
+
+  // Helper methods for template
+  maskSiret(siret: string | null): string {
+    if (!siret || siret.length < 8) return '****';
+    return siret.substring(0, 4) + '****' + siret.substring(siret.length - 4);
+  }
+
+  getSectorIcon(): string {
+    const sector = this.form.get('companySector')?.value || '';
+    const iconMap: { [key: string]: string } = {
+      'Technologie & IT': 'computer',
+      'Finance & Banque': 'savings',
+      'Santé & Médical': 'local_hospital',
+      'Éducation & Formation': 'school',
+      'Commerce & Distribution': 'shopping_cart',
+      'Industrie & Fabrication': 'factory',
+      'Transport & Logistique': 'local_shipping',
+      'Construction & Immobilier': 'apartment',
+      'Médias & Communication': 'newspaper',
+      'Conseil & Services': 'support_agent',
+      'Agriculture & Agroalimentaire': 'eco',
+      'Autre': 'business'
+    };
+    return iconMap[sector] || 'business';
+  }
+
+  getSectorColor(): string {
+    const sector = this.form.get('companySector')?.value || '';
+    const colorMap: { [key: string]: string } = {
+      'Technologie & IT': '#0693e3',
+      'Finance & Banque': '#9b51e0',
+      'Santé & Médical': '#cf2e2e',
+      'Éducation & Formation': '#00d084',
+      'Commerce & Distribution': '#ff6900',
+      'Industrie & Fabrication': '#abb8c3',
+      'Transport & Logistique': '#fcb900',
+      'Construction & Immobilier': '#0693e3',
+      'Médias & Communication': '#9b51e0',
+      'Conseil & Services': '#00d084',
+      'Agriculture & Agroalimentaire': '#00d084'
+    };
+    return colorMap[sector] || '#abb8c3';
   }
 }

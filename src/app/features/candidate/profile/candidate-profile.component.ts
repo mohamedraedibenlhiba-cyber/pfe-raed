@@ -11,6 +11,8 @@ import { AlertService } from '../../../core/services/alert.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserProfile } from '../../../core/models/models';
@@ -23,7 +25,8 @@ import { UserProfile } from '../../../core/models/models';
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCheckboxModule,
     MatProgressSpinnerModule,
-    MatTabsModule, MatCardModule, MatDividerModule
+    MatTabsModule, MatCardModule, MatDividerModule,
+    MatChipsModule, MatTooltipModule
   ],
   templateUrl: './candidate-profile.component.html',
   styleUrls: ['./candidate-profile.component.scss']
@@ -39,7 +42,16 @@ export class CandidateProfileComponent implements OnInit {
   uploadingPhoto = false;
   changingPassword = false;
   showChangePassword = false;
+  selectedTabIndex = 0;
   profile: UserProfile | null = null;
+
+  // Stats placeholder (can be enhanced with actual data)
+  profileStats = {
+    applicationsCount: 0,
+    messagesCount: 0,
+    postsCount: 0,
+    certificationsCount: 0
+  };
 
   form: FormGroup = this.fb.group({
     fullName: [''],
@@ -155,5 +167,38 @@ export class CandidateProfileComponent implements OnInit {
         this.alertSvc.error('Erreur', err.error?.message || 'Erreur lors du changement de mot de passe');
       }
     });
+  }
+
+  // Helper methods for template
+  get skillsArray(): string[] {
+    const skills = this.form.get('skills')?.value || '';
+    return skills ? skills.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [];
+  }
+
+  get skillsPreview(): string[] {
+    return this.skillsArray.slice(0, 6);
+  }
+
+  get hasMoreSkills(): boolean {
+    return this.skillsArray.length > 6;
+  }
+
+  get experienceLevelBadge(): string {
+    const years = this.form.get('yearsExperience')?.value || 0;
+    if (years < 2) return 'JUNIOR';
+    if (years < 5) return 'MID';
+    if (years < 10) return 'SENIOR';
+    return 'LEAD';
+  }
+
+  get experienceLevelColor(): string {
+    const level = this.experienceLevelBadge;
+    const colors: { [key: string]: string } = {
+      'JUNIOR': 'badge-info',
+      'MID': 'badge-primary',
+      'SENIOR': 'badge-warning',
+      'LEAD': 'badge-success'
+    };
+    return colors[level];
   }
 }
