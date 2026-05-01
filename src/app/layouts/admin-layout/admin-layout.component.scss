@@ -3,6 +3,7 @@ $sidebar-collapsed-w: 68px;
 $topbar-h: 64px;
 $transition: 0.25s ease;
 
+// ─── Admin Sidebar Dark Theme ─────────────────────────────────────────────────
 .admin-shell {
   display: flex; min-height: 100vh;
   background: var(--content-bg);
@@ -12,7 +13,7 @@ $transition: 0.25s ease;
 .sidebar {
   width: $sidebar-w;
   min-height: 100vh;
-  background: var(--sidebar-bg);
+  background: #1e1b4b;
   display: flex; flex-direction: column;
   position: fixed; top: 0; left: 0; bottom: 0;
   z-index: 100;
@@ -33,7 +34,7 @@ $transition: 0.25s ease;
   display: flex; align-items: center; gap: 12px; overflow: hidden;
   .logo-icon {
     width: 36px; height: 36px; flex-shrink: 0;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #fcb900, #ff6900);
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     .material-icons-round { font-size: 20px; color: #fff; }
@@ -48,10 +49,10 @@ $transition: 0.25s ease;
   background: none; border: none; cursor: pointer;
   width: 32px; height: 32px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--sidebar-text);
+  color: rgba(255,255,255,0.5);
   transition: background $transition;
   flex-shrink: 0;
-  &:hover { background: var(--sidebar-hover); }
+  &:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .material-icons-round { font-size: 20px; }
 }
 
@@ -67,7 +68,7 @@ $transition: 0.25s ease;
 .nav-item {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 12px; border-radius: 10px;
-  text-decoration: none; color: var(--sidebar-text);
+  text-decoration: none; color: rgba(255,255,255,0.6);
   font-size: 0.875rem; font-weight: 500;
   margin-bottom: 2px;
   transition: all $transition;
@@ -78,17 +79,17 @@ $transition: 0.25s ease;
   .nav-label { overflow: hidden; text-overflow: ellipsis; transition: opacity $transition; }
   .nav-badge {
     margin-left: auto; flex-shrink: 0;
-    background: #dc2626; color: #fff;
+    background: #cf2e2e; color: #fff;
     border-radius: 999px; padding: 1px 7px;
     font-size: 0.7rem; font-weight: 700;
   }
 
-  &:hover { background: var(--sidebar-hover); color: #fff; }
+  &:hover { background: rgba(252,185,0,0.15); color: #fff; }
   &.active {
-    background: var(--sidebar-active);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(79,70,229,0.35);
-    .nav-icon { color: #fff; }
+    background: #fcb900;
+    color: #1e1b4b;
+    box-shadow: 0 4px 12px rgba(252, 185, 0, 0.4);
+    .nav-icon { color: #1e1b4b; }
   }
 }
 
@@ -108,8 +109,8 @@ $transition: 0.25s ease;
 .user-avatar {
   width: 36px; height: 36px; flex-shrink: 0;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #fff; font-weight: 600; font-size: 0.875rem;
+  background: linear-gradient(135deg, #fcb900, #ff6900);
+  color: #1e1b4b; font-weight: 600; font-size: 0.875rem;
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -121,7 +122,7 @@ $transition: 0.25s ease;
 
 .logout-btn {
   flex-shrink: 0; color: rgba(255,255,255,0.45)!important;
-  &:hover { color: #fff!important; }
+  &:hover { color: #fcb900!important; }
 }
 
 // ─── Collapsed state ──────────────────────────────────────────────────────────
@@ -165,7 +166,7 @@ $transition: 0.25s ease;
 
 .admin-badge {
   display: flex; align-items: center; gap: 6px;
-  background: #e0e7ff; color: #3730a3;
+  background: #fef4d9; color: #e8a800;
   padding: 5px 12px; border-radius: 999px;
   font-size: 0.8rem; font-weight: 600;
   .material-icons-round { font-size: 16px; }
@@ -173,8 +174,8 @@ $transition: 0.25s ease;
 
 .admin-avatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #fff; font-weight: 600; font-size: 0.875rem;
+  background: linear-gradient(135deg, #fcb900, #ff6900);
+  color: #1e1b4b; font-weight: 600; font-size: 0.875rem;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }

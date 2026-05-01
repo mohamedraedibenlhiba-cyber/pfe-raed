@@ -10,7 +10,7 @@ $transition: 0.25s ease;
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 .sidebar {
   width: $sidebar-w; min-height: 100vh;
-  background: #F3F6F8;
+  background: $color-bg;
   border-right: 1px solid var(--border-color);
   display: flex; flex-direction: column;
   position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
@@ -47,7 +47,7 @@ $transition: 0.25s ease;
   color: $color-text-secondary;
   transition: all $transition;
   &:hover {
-    background: #E8EDEE;
+    background: $color-primary-light;
     color: $color-primary;
   }
 }
@@ -97,7 +97,7 @@ $transition: 0.25s ease;
     text-overflow: ellipsis;
   }
   &:hover {
-    background: #E8EDEE;
+    background: $color-primary-light;
     color: $color-primary;
     .nav-icon {
       color: $color-primary;
@@ -161,7 +161,7 @@ $transition: 0.25s ease;
   flex-shrink: 0;
   color: var(--text-muted)!important;
   &:hover {
-    color: var(--danger)!important;
+    color: $color-error!important;
   }
 }
 
@@ -225,7 +225,7 @@ $transition: 0.25s ease;
   padding: 4px 12px!important;
   transition: background-color $transition;
   &:hover {
-    background-color: #F3F6F8!important;
+    background-color: $color-primary-light!important;
   }
 }
 

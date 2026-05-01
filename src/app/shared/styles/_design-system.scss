@@ -8,48 +8,67 @@
 // 1. COLOR PALETTE (LinkedIn Corporate Professional)
 // ============================================================================
 
-// Primary Colors - Warm Golden Palette
-$color-primary: #fcb900;              // Main Gold
-$color-primary-light: #fef4d9;        // Light gold background
-$color-primary-dark: #e8a800;         // Dark gold for hover/active
-$color-primary-lightest: #fffbf0;     // Palest gold for highlights
+// ============================================================================
+// PRIMARY COLORS - NEOHIRE AMBER PALETTE (WordPress)
+// ============================================================================
+$color-primary: #fcb900;              // Main Amber (Luminous Vivid Amber)
+$color-primary-light: #fef4d9;        // Light amber background
+$color-primary-dark: #e8a800;         // Dark amber for hover/active
+$color-primary-lightest: #fffbf0;     // Palest amber for highlights
 
-// Secondary Colors - Professional gray
-$color-secondary: #5B6B82;            // Professional gray
-$color-secondary-light: #8A94A6;      // Lighter gray for secondary text
-$color-secondary-lighter: #B5BAC1;    // Even lighter for disabled
-$color-secondary-lightest: #E8EDEE;   // Very light gray for backgrounds
+// ============================================================================
+// SECONDARY COLORS - PROFESSIONAL PALETTE (WordPress)
+// ============================================================================
+$color-secondary: #abb8c3;            // Cyan Bluish Gray (professional, subtle)
+$color-secondary-light: #d9dfe5;      // Lighter gray for secondary text
+$color-secondary-lighter: #e8f0f5;    // Very light gray for backgrounds
+$color-secondary-lightest: #f3f6f8;   // Ultra-light gray for subtle backgrounds
 
-// Accent Colors - Vibrant complements
-$color-accent: #9b51e0;               // Violet/Purple accent
+// ============================================================================
+// ACCENT COLORS - WORDPRESS PALETTE
+// ============================================================================
+$color-accent: #9b51e0;               // Vivid Purple (accent)
 $color-accent-light: #f3e8ff;         // Light purple background
-$color-accent-secondary: #ff6900;     // Orange accent
+$color-accent-secondary: #ff6900;     // Luminous Vivid Orange (warnings)
 $color-accent-secondary-light: #fff5f0;  // Light orange background
-$color-accent-tertiary: #fef84c;      // Bright yellow accent
-$color-accent-tertiary-light: #fffdf5;   // Light yellow background
-$color-danger: #DA3633;               // Red danger
-$color-danger-light: #F3DEDE;         // Light red background
-$color-warning: #ff6900;              // Orange warning
+$color-accent-tertiary: #0693e3;      // Vivid Cyan Blue (info)
+$color-accent-tertiary-light: #f0f7ff;   // Light blue background
+$color-accent-quaternary: #00d084;    // Vivid Green Cyan (success)
+$color-accent-quaternary-light: #e8f8f5; // Light green background
+$color-accent-pink: #f78da7;          // Pale Pink (subtle accent)
+$color-accent-pink-light: #fef0f5;    // Light pink background
+
+// ============================================================================
+// SEMANTIC COLORS - STATUS & STATES (WordPress Palette)
+// ============================================================================
+$color-success: #00d084;              // Vivid Green Cyan
+$color-success-light: #e8f8f5;        // Light green background
+$color-error: #cf2e2e;                // Vivid Red
+$color-error-light: #fde8e8;          // Light red background
+$color-warning: #ff6900;              // Luminous Vivid Orange
 $color-warning-light: #fff5f0;        // Light orange background
+$color-info: #0693e3;                 // Vivid Cyan Blue
+$color-info-light: #f0f7ff;           // Light blue background
+$color-danger: #cf2e2e;               // Red danger (alias for error)
+$color-danger-light: #fde8e8;         // Light red background
 
-// Neutral Colors
-$color-white: #FFFFFF;                // White background
-$color-bg: #F3F6F8;                   // Main background (light gray)
-$color-bg-light: #FAFBFC;             // Alternative light background
-$color-border: #CACED4;               // Border color
+// ============================================================================
+// NEUTRAL COLORS
+// ============================================================================
+$color-white: #ffffff;                // White background (WordPress white)
+$color-black: #000000;                // Black text (WordPress black)
+$color-bg: #f8f9fb;                   // Main background (light neutral)
+$color-bg-light: #fafbfc;             // Alternative light background
+$color-border: #d9dfe5;               // Border color (slightly lighter gray)
 
-// Text Colors
-$color-text-dark: #000000;            // Primary text
+// ============================================================================
+// TEXT COLORS
+// ============================================================================
+$color-text-dark: #000000;            // Primary text (WordPress black)
 $color-text-primary: #000000;         // Primary text (alias)
-$color-text-secondary: #5B6B82;       // Secondary text
-$color-text-muted: #65676B;           // Muted text (lowest contrast)
-$color-text-disabled: #B5BAC1;        // Disabled text
-
-// Semantic Aliases
-$color-success: #31A24C;
-$color-error: #DA3633;
-$color-info: #fcb900;
-$color-warning: #ff6900;
+$color-text-secondary: #abb8c3;       // Secondary text (WordPress cyan-gray)
+$color-text-muted: #d9dfe5;           // Muted text (lowest contrast)
+$color-text-disabled: #d9dfe5;        // Disabled text
 
 // ============================================================================
 // 2. TYPOGRAPHY VARIABLES

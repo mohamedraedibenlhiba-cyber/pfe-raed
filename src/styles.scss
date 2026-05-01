@@ -26,38 +26,39 @@ $app-theme: mat.define-light-theme((
 @include mat.all-component-themes($app-theme);
 @include mat.all-component-typographies($app-theme);
 
-// ─── CSS Variables (Updated for Warm Golden Palette) ────────────────────────
+// ─── CSS Variables (Updated for NeoHire WordPress Palette) ──────────────────
 :root {
-  --primary:         #fcb900;         // Gold
+  --primary:         #fcb900;         // Amber
   --primary-light:   #fef4d9;
   --primary-dark:    #e8a800;
   --accent:          #9b51e0;         // Purple
   --accent-orange:   #ff6900;         // Orange
-  --accent-yellow:   #fef84c;         // Bright Yellow
-  --success:         #31A24C;
+  --accent-cyan:     #0693e3;         // Cyan Blue
+  --accent-green:    #00d084;         // Green
+  --success:         #00d084;
   --warning:         #ff6900;
-  --danger:          #DA3633;
-  --info:            #fcb900;
+  --danger:          #cf2e2e;
+  --info:            #0693e3;
 
-  // Corporate Sidebar (Light gray with golden accents)
-  --sidebar-bg:      #F3F6F8;         // Light gray corporate
-  --sidebar-text:    #5B6B82;         // Professional gray
-  --sidebar-active:  #fcb900;         // Golden active
-  --sidebar-hover:   #fef4d9;         // Light gold hover
+  // Corporate Sidebar (Light background with amber accents)
+  --sidebar-bg:      #f8f9fb;         // Light neutral background
+  --sidebar-text:    #abb8c3;         // Professional gray
+  --sidebar-active:  #fcb900;         // Amber active
+  --sidebar-hover:   #fef4d9;         // Light amber hover
   --sidebar-width:   260px;
 
   // Layout
   --topbar-height:   64px;
-  --content-bg:      #F3F6F8;
+  --content-bg:      #f8f9fb;
   --card-radius:     8px;
   --card-shadow:     0 2px 4px rgba(0,0,0,0.08);
   --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
-  --border-color:    #CACED4;
+  --border-color:    #d9dfe5;
 
   // Typography
   --text-primary:    #000000;
-  --text-secondary:  #5B6B82;
-  --text-muted:      #65676B;
+  --text-secondary:  #abb8c3;
+  --text-muted:      #d9dfe5;
 }
 
 // ─── Reset & Base ─────────────────────────────────────────────────────────────
