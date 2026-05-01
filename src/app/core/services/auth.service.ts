@@ -50,6 +50,18 @@ export class AuthService {
     return this.http.post<ApiResponse<string>>(`${this.API}/change-password`, changePasswordData);
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(`${this.API}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(`${this.API}/reset-password`, { token, newPassword });
+  }
+
+  validateResetToken(token: string): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${this.API}/validate-reset-token/${token}`);
+  }
+
   // ─── Session helpers ─────────────────────────────────────────────────────────
   private storeSession(user: JwtResponse): void {
     localStorage.setItem(this.TOKEN_KEY, user.token);
