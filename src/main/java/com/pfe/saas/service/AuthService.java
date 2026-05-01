@@ -1,6 +1,7 @@
 package com.pfe.saas.service;
 
 import com.pfe.saas.dto.request.*;
+import com.pfe.saas.dto.*;
 import com.pfe.saas.dto.response.JwtResponse;
 import com.pfe.saas.entity.*;
 import com.pfe.saas.enums.Role;
@@ -13,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -23,6 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final EnterpriseRepository enterpriseRepository;
     private final CandidateRepository candidateRepository;
+    private final EmailService emailService;
 
     public JwtResponse initializeAdmin() {
         // Delete if exists
@@ -119,5 +124,63 @@ public class AuthService {
         // Mettre à jour le mot de passe
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Cet email n'existe pas dans notre système"));
+
+        // Générer un token unique
+        String resetToken = UUID.randomUUID().toString();
+
+        // Définir l'expiration à 24 heures à partir de maintenant
+        LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
+
+        // Mettre à jour l'utilisateur avec le token
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(expiryTime);
+        userRepository.save(user);
+
+        // Envoyer l'email
+        emailService.sendPasswordResetEmail(email, user.getFullName(), resetToken);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        // Valider le mot de passe
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new RuntimeException("Le mot de passe doit contenir au moins 6 caractères");
+        }
+
+        // Trouver l'utilisateur par le token
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Lien de réinitialisation invalide"));
+
+        // Vérifier que le token n'a pas expiré
+        if (user.getResetTokenExpiry() == null || LocalDateTime.now().isAfter(user.getResetTokenExpiry())) {
+            throw new RuntimeException("Lien de réinitialisation expiré. Veuillez demander un nouveau lien");
+        }
+
+        // Mettre à jour le mot de passe
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
+
+    public boolean validateResetToken(String token) {
+        User user = userRepository.findByResetToken(token).orElse(null);
+
+        if (user == null) {
+            return false;
+        }
+
+        // Vérifier que le token n'a pas expiré
+        if (user.getResetTokenExpiry() == null || LocalDateTime.now().isAfter(user.getResetTokenExpiry())) {
+            return false;
+        }
+
+        return true;
     }
 }

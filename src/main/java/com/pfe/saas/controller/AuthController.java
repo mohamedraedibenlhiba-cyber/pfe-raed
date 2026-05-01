@@ -1,6 +1,7 @@
 package com.pfe.saas.controller;
 
 import com.pfe.saas.dto.request.*;
+import com.pfe.saas.dto.*;
 import com.pfe.saas.dto.response.*;
 import com.pfe.saas.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,5 +56,31 @@ public class AuthController {
             Authentication authentication) {
         authService.changePassword(authentication.getName(), request);
         return ResponseEntity.ok(ApiResponse.ok("Mot de passe modifié avec succès", ""));
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Demander la réinitialisation du mot de passe (envoie un email)")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.ok("Email de réinitialisation envoyé. Vérifiez votre boîte de réception.", ""));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Réinitialiser le mot de passe avec le token reçu par email")
+    public ResponseEntity<ApiResponse<String>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(ApiResponse.ok("Mot de passe réinitialisé avec succès", ""));
+    }
+
+    @GetMapping("/validate-reset-token/{token}")
+    @Operation(summary = "Valider si un token de réinitialisation est valide et non expiré")
+    public ResponseEntity<ApiResponse<String>> validateResetToken(@PathVariable String token) {
+        boolean isValid = authService.validateResetToken(token);
+        if (!isValid) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Token invalide ou expiré"));
+        }
+        return ResponseEntity.ok(ApiResponse.ok("Token valide", ""));
     }
 }
