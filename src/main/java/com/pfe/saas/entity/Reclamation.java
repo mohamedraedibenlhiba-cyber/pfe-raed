@@ -18,7 +18,7 @@ public class Reclamation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -40,7 +40,7 @@ public class Reclamation {
     @Column(name = "admin_response", columnDefinition = "TEXT")
     private String adminResponse;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "handled_by_admin_id")
     private User handledByAdmin;
 

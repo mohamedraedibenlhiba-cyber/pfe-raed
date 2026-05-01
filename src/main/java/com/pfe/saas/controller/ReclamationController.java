@@ -41,12 +41,6 @@ public class ReclamationController {
         return ResponseEntity.ok(ApiResponse.ok(reclamationService.getMyReclamations()));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Détail d'une réclamation")
-    public ResponseEntity<ApiResponse<Reclamation>> getOne(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(reclamationService.getById(id)));
-    }
-
     // ── Admin endpoints ───────────────────────────────────────────────────────
 
     @GetMapping
@@ -66,6 +60,12 @@ public class ReclamationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
         return ResponseEntity.ok(ApiResponse.ok(reclamationService.getByStatus(status, page, size)));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Détail d'une réclamation")
+    public ResponseEntity<ApiResponse<Reclamation>> getOne(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(reclamationService.getById(id)));
     }
 
     @PatchMapping("/{id}/respond")

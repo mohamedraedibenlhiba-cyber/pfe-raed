@@ -61,8 +61,19 @@ public class ReclamationService {
     }
 
     public Reclamation getById(Long id) {
-        return reclamationRepository.findById(id)
+        Reclamation reclamation = reclamationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Réclamation non trouvée"));
+
+        // Vérifier que l'utilisateur owns la réclamation OU est admin
+        User current = currentUser();
+        boolean isOwner = reclamation.getUser().getId().equals(current.getId());
+        boolean isAdmin = current.getRole().toString().equals("ROLE_ADMIN");
+
+        if (!isOwner && !isAdmin) {
+            throw new RuntimeException("Accès refusé - Cette réclamation ne vous appartient pas");
+        }
+
+        return reclamation;
     }
 
     @Transactional
