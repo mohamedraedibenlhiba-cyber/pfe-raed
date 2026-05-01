@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -106,8 +107,25 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public byte[] serveProfilePicture(Long userId, String filename) throws IOException {
-        Path path = Paths.get(PROFILE_UPLOAD_DIR + userId + "/" + filename);
-        return Files.readAllBytes(path);
+        // Validation: éviter la traversée de répertoires (path traversal)
+        if (filename == null || filename.isEmpty() || filename.contains("..") || filename.contains("/")) {
+            throw new IllegalArgumentException("Nom de fichier invalide");
+        }
+
+        Path baseDir = Paths.get(PROFILE_UPLOAD_DIR + userId).toAbsolutePath();
+        Path filePath = baseDir.resolve(filename).toAbsolutePath();
+
+        // Vérifier que le fichier est bien dans le répertoire autorisé
+        if (!filePath.startsWith(baseDir)) {
+            throw new IllegalArgumentException("Accès refusé: chemin invalide");
+        }
+
+        // Vérifier que le fichier existe
+        if (!Files.exists(filePath)) {
+            throw new FileNotFoundException("Image de profil non trouvée");
+        }
+
+        return Files.readAllBytes(filePath);
     }
 
     // ✨ ──────────────────────────────────────────────────────────────

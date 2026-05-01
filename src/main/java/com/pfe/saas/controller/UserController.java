@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -60,16 +61,27 @@ public class UserController {
     }
 
     @GetMapping("/me/profile-picture/{userId}/{filename}")
-    @Operation(summary = "Servir une photo de profil")
+    @Operation(summary = "Servir une photo de profil (public)")
     public ResponseEntity<byte[]> serveProfilePicture(
             @PathVariable Long userId,
-            @PathVariable String filename) throws IOException {
-        byte[] data = userService.serveProfilePicture(userId, filename);
-        String contentType = filename.matches("(?i).*\\.(jpg|jpeg)") ? "image/jpeg"
-                : filename.matches("(?i).*\\.png") ? "image/png"
-                : filename.matches("(?i).*\\.gif") ? "image/gif"
-                : "application/octet-stream";
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(data);
+            @PathVariable String filename) {
+        try {
+            byte[] data = userService.serveProfilePicture(userId, filename);
+            String contentType = filename.matches("(?i).*\\.(jpg|jpeg)") ? "image/jpeg"
+                    : filename.matches("(?i).*\\.png") ? "image/png"
+                    : filename.matches("(?i).*\\.gif") ? "image/gif"
+                    : "application/octet-stream";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header("Cache-Control", "public, max-age=86400")
+                    .body(data);
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     // ✨ ──────────────────────────────────────────────────────────────

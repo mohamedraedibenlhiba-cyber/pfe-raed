@@ -76,6 +76,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Authentification
                 .requestMatchers("/api/auth/**").permitAll()
+                // Images de profil (public)
+                .requestMatchers(HttpMethod.GET, "/api/users/*/profile-picture/**").permitAll()
                 // Offres d'emploi publiques
                 .requestMatchers(HttpMethod.GET, "/api/offers/public/**").permitAll()
                 // Projets freelance — consultation publique
