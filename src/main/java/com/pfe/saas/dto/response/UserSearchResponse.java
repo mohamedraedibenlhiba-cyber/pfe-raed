@@ -37,4 +37,6 @@ public class UserSearchResponse {
     // ─── Statut de Messagerie ───────────────────────────────────────
     private Boolean canMessage;  // Peut-on envoyer un message?
     private String connectionStatus;  // NONE, PENDING, ACCEPTED, REJECTED
+    private Long requestId;
+    private String requestDirection;  // NONE, INCOMING, OUTGOING
 }

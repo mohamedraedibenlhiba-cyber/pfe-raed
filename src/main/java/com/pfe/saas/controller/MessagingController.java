@@ -1,10 +1,12 @@
 package com.pfe.saas.controller;
 
+import com.pfe.saas.dto.request.AddMessageReactionRequest;
 import com.pfe.saas.dto.request.MessageRequest;
 import com.pfe.saas.dto.response.ApiResponse;
+import com.pfe.saas.dto.response.MessageDetailDTO;
 import com.pfe.saas.entity.*;
 import com.pfe.saas.repository.UserRepository;
-import com.pfe.saas.service.ConnectionService;
+import com.pfe.saas.service.ConnectionRequestService;
 import com.pfe.saas.service.MessagingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,7 +31,7 @@ public class MessagingController {
 
     private final MessagingService messagingService;
     private final UserRepository userRepository;
-    private final ConnectionService connectionService;  // ✨ NEW
+    private final ConnectionRequestService connectionRequestService;
 
     @PostMapping
     @Operation(summary = "Envoyer un message à un utilisateur")
@@ -45,7 +47,10 @@ public class MessagingController {
     @Operation(summary = "Afficher les règles de connexion pour la messagerie")
     public ResponseEntity<ApiResponse<Map<String, String>>> getConnectionRules() {
         return ResponseEntity.ok(ApiResponse.ok(
-            Map.of("rules", connectionService.getConnectionRuleDescription())
+            Map.of("rules",
+                "Candidate ↔ Candidate: Toujours autorisé. " +
+                "Enterprise ↔ Enterprise: Toujours autorisé. " +
+                "Candidate ↔ Enterprise: Connexion acceptée requise.")
         ));
     }
 
@@ -55,7 +60,7 @@ public class MessagingController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long recipientId) {
         Long senderId = resolveUserId(userDetails);
-        boolean canMessage = connectionService.areConnected(senderId, recipientId);
+        boolean canMessage = connectionRequestService.canMessage(senderId, recipientId);
 
         return ResponseEntity.ok(ApiResponse.ok(
             Map.of(
@@ -104,10 +109,6 @@ public class MessagingController {
         return ResponseEntity.ok(ApiResponse.ok(Map.of("unread", messagingService.getTotalUnread(userId))));
     }
 
-    // ✨ ──────────────────────────────────────────────────────────────
-    // ✨ Obtenir ou créer une conversation
-    // ✨ ──────────────────────────────────────────────────────────────
-
     @GetMapping("/conversation/{recipientId}")
     @Operation(summary = "Obtenir ou créer une conversation avec un utilisateur")
     public ResponseEntity<ApiResponse<Conversation>> getOrCreateConversation(
@@ -119,9 +120,67 @@ public class MessagingController {
         ));
     }
 
+    // ✨ NOUVEAUX ENDPOINTS POUR LES RÉACTIONS ET ÉDITIONS
+
+    @PostMapping("/{messageId}/reactions")
+    @Operation(summary = "Ajouter une réaction à un message")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> addReaction(
+            @PathVariable Long messageId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody AddMessageReactionRequest request) {
+        Long userId = resolveUserId(userDetails);
+        messagingService.addReactionToMessage(messageId, userId, request.getReactionType());
+        return ResponseEntity.ok(ApiResponse.ok("Réaction ajoutée", Map.of("reactionType", request.getReactionType())));
+    }
+
+    @DeleteMapping("/{messageId}/reactions/{reactionType}")
+    @Operation(summary = "Retirer une réaction d'un message")
+    public ResponseEntity<ApiResponse<Void>> removeReaction(
+            @PathVariable Long messageId,
+            @PathVariable String reactionType,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = resolveUserId(userDetails);
+        ReactionType type = ReactionType.valueOf(reactionType.toUpperCase());
+        messagingService.removeReactionFromMessage(messageId, userId, type);
+        return ResponseEntity.ok(ApiResponse.ok("Réaction retirée", null));
+    }
+
+    @GetMapping("/{messageId}/detail")
+    @Operation(summary = "Obtenir les détails complets d'un message (avec réactions et attachments)")
+    public ResponseEntity<ApiResponse<MessageDetailDTO>> getMessageDetail(
+            @PathVariable Long messageId) {
+        return ResponseEntity.ok(ApiResponse.ok(messagingService.getMessageWithDetails(messageId)));
+    }
+
+    @DeleteMapping("/{messageId}")
+    @Operation(summary = "Supprimer son propre message (soft delete)")
+    public ResponseEntity<ApiResponse<Void>> deleteMessage(
+            @PathVariable Long messageId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = resolveUserId(userDetails);
+        messagingService.deleteMessage(messageId, userId);
+        return ResponseEntity.ok(ApiResponse.ok("Message supprimé", null));
+    }
+
+    @PutMapping("/{messageId}")
+    @Operation(summary = "Éditer son propre message")
+    public ResponseEntity<ApiResponse<Message>> updateMessage(
+            @PathVariable Long messageId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, String> request) {
+        Long userId = resolveUserId(userDetails);
+        String newContent = request.get("content");
+        if (newContent == null || newContent.isBlank()) {
+            throw new IllegalArgumentException("Le contenu du message ne peut pas être vide");
+        }
+        Message updated = messagingService.updateMessage(messageId, newContent, userId);
+        return ResponseEntity.ok(ApiResponse.ok("Message édité", updated));
+    }
+
     private Long resolveUserId(UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return user.getId();
     }
 }
+

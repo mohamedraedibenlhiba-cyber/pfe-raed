@@ -17,6 +17,7 @@ public class ConnectionRequestDTO {
     private String senderProfilePicture;
     private Long receiverId;
     private String receiverName;
+    private String receiverProfilePicture;
     private ConnectionRequestStatus status;
     private String message;
     private String createdAt;

@@ -339,6 +339,7 @@ public class ConnectionRequestService {
             .senderProfilePicture(request.getSender().getProfilePicture())
             .receiverId(request.getReceiver().getId())
             .receiverName(request.getReceiver().getFullName())
+            .receiverProfilePicture(request.getReceiver().getProfilePicture())
             .status(request.getStatus())
             .message(request.getMessage())
             .createdAt(request.getCreatedAt() != null ? request.getCreatedAt().toString() : null)

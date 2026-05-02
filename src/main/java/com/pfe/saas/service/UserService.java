@@ -7,14 +7,15 @@ import com.pfe.saas.dto.response.ConnectionStatusResponse;
 import com.pfe.saas.dto.response.PostSummaryDTO;
 import com.pfe.saas.dto.response.UserSearchResponse;
 import com.pfe.saas.entity.Candidate;
+import com.pfe.saas.entity.ConnectionRequest;
 import com.pfe.saas.entity.Enterprise;
 import com.pfe.saas.entity.User;
 import com.pfe.saas.entity.Post;
 import com.pfe.saas.enums.Role;
+import com.pfe.saas.repository.ConnectionRequestRepository;
 import com.pfe.saas.repository.UserRepository;
 import com.pfe.saas.repository.FollowRepository;
 import com.pfe.saas.repository.PostRepository;
-import com.pfe.saas.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -37,7 +38,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;  // ✨ NOUVEAU
-    private final ConnectionService connectionService;  // ✨ NOUVEAU
+    private final ConnectionRequestRepository connectionRequestRepository;
+    private final ConnectionRequestService connectionRequestService;
     private final CertificationService certificationService;  // ✨ NEW
     private final PostRepository postRepository;  // ✨ NEW
 
@@ -154,6 +156,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public ConnectionStatusResponse getConnectionStatus(Long userId, Long currentUserId) {
+        RelationshipState relationship = resolveRelationshipState(currentUserId, userId);
         User otherUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
@@ -162,7 +165,7 @@ public class UserService {
         boolean isFollowingMe = followRepository.existsByFollowerIdAndFollowingId(userId, currentUserId);
 
         // Vérifiez si on peut se envoyer des messages
-        boolean canMessage = connectionService.areConnected(currentUserId, userId);
+        boolean canMessage = connectionRequestService.canMessage(currentUserId, userId);
 
         // Stats
         long followersCount = followRepository.countByFollowingId(userId);
@@ -172,6 +175,9 @@ public class UserService {
                 .isFollowedByMe(isFollowedByMe)
                 .isFollowingMe(isFollowingMe)
                 .canMessage(canMessage)
+                .connectionRequestStatus(relationship.connectionStatus)
+                .requestId(relationship.requestId)
+                .requestDirection(relationship.requestDirection)
                 .followersCount(followersCount)
                 .followingCount(followingCount)
                 .build();
@@ -314,17 +320,8 @@ public class UserService {
      * Convertit un User en UserSearchResponse avec statut de connexion
      */
     private UserSearchResponse mapToSearchResponse(User user, Long currentUserId) {
-        String connectionStatus = "NONE";
-        boolean canMessage = false;
-
-        canMessage = connectionService.areConnected(currentUserId, user.getId());
-
-        // Try to get connection request status if cross-role
-        if (user instanceof Candidate cand && user.getRole() != Role.ROLE_CANDIDATE ||
-            user instanceof Enterprise ent && user.getRole() != Role.ROLE_ENTERPRISE) {
-            // Different roles - check connection request status
-            // (getConnectionRequestStatus is handled via ConnectionRequestService if needed)
-        }
+        RelationshipState relationship = resolveRelationshipState(currentUserId, user.getId());
+        boolean canMessage = connectionRequestService.canMessage(currentUserId, user.getId());
 
         UserSearchResponse.UserSearchResponseBuilder b = UserSearchResponse.builder()
                 .id(user.getId())
@@ -334,7 +331,9 @@ public class UserService {
                 .profilePicture(user.getProfilePicture())
                 .city(user.getCity())
                 .canMessage(canMessage)
-                .connectionStatus(connectionStatus);
+                .connectionStatus(relationship.connectionStatus)
+                .requestId(relationship.requestId)
+                .requestDirection(relationship.requestDirection);
 
         // Infos Candidat
         if (user instanceof Candidate cand) {
@@ -350,5 +349,39 @@ public class UserService {
         }
 
         return b.build();
+    }
+
+    private RelationshipState resolveRelationshipState(Long currentUserId, Long otherUserId) {
+        return connectionRequestRepository
+                .findBySenderIdAndReceiverId(currentUserId, otherUserId)
+                .map(RelationshipState::outgoing)
+                .or(() -> connectionRequestRepository
+                        .findBySenderIdAndReceiverId(otherUserId, currentUserId)
+                        .map(RelationshipState::incoming))
+                .orElseGet(RelationshipState::none);
+    }
+
+    private static final class RelationshipState {
+        private final String connectionStatus;
+        private final Long requestId;
+        private final String requestDirection;
+
+        private RelationshipState(String connectionStatus, Long requestId, String requestDirection) {
+            this.connectionStatus = connectionStatus;
+            this.requestId = requestId;
+            this.requestDirection = requestDirection;
+        }
+
+        private static RelationshipState outgoing(ConnectionRequest request) {
+            return new RelationshipState(request.getStatus().name(), request.getId(), "OUTGOING");
+        }
+
+        private static RelationshipState incoming(ConnectionRequest request) {
+            return new RelationshipState(request.getStatus().name(), request.getId(), "INCOMING");
+        }
+
+        private static RelationshipState none() {
+            return new RelationshipState("NONE", null, "NONE");
+        }
     }
 }

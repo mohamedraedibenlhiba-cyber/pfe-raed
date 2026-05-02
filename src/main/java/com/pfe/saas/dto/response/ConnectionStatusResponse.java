@@ -31,6 +31,9 @@ public class ConnectionStatusResponse {
      * (Basé sur les règles de messagerie sécurisée)
      */
     private boolean canMessage;
+    private String connectionRequestStatus;
+    private Long requestId;
+    private String requestDirection;
 
     /**
      * Nombre d'abonnés de cet utilisateur
