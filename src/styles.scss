@@ -1,5 +1,6 @@
 // ─── Global Theme ────────────────────────────────────────────────────────────
 @use '@angular/material' as mat;
+@import '@angular/cdk/overlay-prebuilt.css';
 
 // ─── SWEETALERT2 CSS ──────────────────────────────────────────────────────────
 @import 'sweetalert2/dist/sweetalert2.min';

@@ -17,6 +17,17 @@
 }
 
 .user-name-cell .name { font-weight: 600; color: var(--text-primary); }
+.user-name-cell .clickable-user {
+  cursor: pointer;
+  color: #667eea;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    color: #5568d3;
+    text-decoration: underline;
+  }
+}
 .email-cell { color: var(--text-secondary); font-size: 0.875rem; }
 
 .actions-cell { display: flex; gap: 4px; align-items: center; }

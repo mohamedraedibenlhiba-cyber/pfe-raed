@@ -78,6 +78,15 @@
           <mat-icon>chat_bubble_outline</mat-icon>
         </button>
 
+        <!-- Connection requests -->
+        <button mat-icon-button class="icon-btn"
+          (click)="openConnectionRequests()"
+          [matBadge]="pendingConnectionRequests > 0 ? pendingConnectionRequests : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
+          <mat-icon>person_add</mat-icon>
+        </button>
+
         <!-- User menu -->
         <button mat-button class="user-menu-btn" [matMenuTriggerFor]="userMenu">
           <div class="user-avatar-top">{{ initials() }}</div>

@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +14,7 @@ import { JobOfferService } from '../../../core/services/job-offer.service';
 import { MessagingService } from '../../../core/services/messaging.service';
 import { JobOffer, UserSearchResponse } from '../../../core/models/models';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserConnectionModalComponent } from '../../../shared/components/user-connection-modal/user-connection-modal.component';
 
 @Component({
   selector: 'app-enterprise-dashboard',
@@ -27,7 +29,8 @@ import { AuthService } from '../../../core/services/auth.service';
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './enterprise-dashboard.component.html',
   styleUrls: ['./enterprise-dashboard.component.scss']
@@ -37,6 +40,7 @@ export class EnterpriseDashboardComponent implements OnInit {
   private readonly offerSvc = inject(JobOfferService);
   private readonly msgSvc = inject(MessagingService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   loading = true;
   offers: JobOffer[] = [];
@@ -102,6 +106,14 @@ export class EnterpriseDashboardComponent implements OnInit {
 
   viewProfile(userId: number): void {
     this.router.navigate(['/profile', userId]);
+  }
+
+  openUserModal(user: UserSearchResponse): void {
+    this.dialog.open(UserConnectionModalComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: { userId: user.id }
+    });
   }
 
   clearSearch(): void {

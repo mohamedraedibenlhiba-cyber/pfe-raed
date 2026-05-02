@@ -1,204 +1,304 @@
-<div class="unified-chat-container">
-  <!-- SIDEBAR: Messages + Channels Tabs -->
-  <div class="chat-sidebar">
-    <!-- Sidebar Brand Header -->
-    <div class="sidebar-brand">
-      <div class="brand-logo">💬</div>
-      <div class="brand-info">
-        <h2>Messages</h2>
-        <p class="brand-subtitle">Conversations directes</p>
+<div class="chat-workspace">
+  <aside class="workspace-sidebar">
+    <div class="sidebar-header">
+      <div>
+        <p class="eyebrow">Espace communication</p>
+        <h2>Messagerie</h2>
       </div>
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="openRequestsCenter()"
+        [matBadge]="pendingRequests.length > 0 ? pendingRequests.length : null"
+        matBadgeColor="warn"
+        matBadgeSize="small">
+        <mat-icon>person_add</mat-icon>
+        Demandes
+      </button>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-container">
+    <div class="sidebar-search">
       <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Rechercher une personne</mat-label>
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput
-               placeholder="Rechercher..."
-               [(ngModel)]="searchQuery"
-               (input)="filterChats()" />
-        <button *ngIf="searchQuery" matSuffix mat-icon-button (click)="searchQuery = ''; filterChats()" color="accent">
+        <input
+          matInput
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          placeholder="Nom, entreprise, competences..." />
+        <button
+          *ngIf="searchQuery"
+          mat-icon-button
+          matSuffix
+          (click)="searchQuery = ''; searchResults = []">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
-    </div>
 
-    <!-- Tabs: Messages & Channels -->
-    <mat-tab-group (selectedIndexChange)="onTabChange($event)" class="chat-tabs">
-
-      <!-- ===== TAB 1: DIRECT MESSAGES ===== -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon>chat_bubble_outline</mat-icon>
-          <span>Conversations</span>
-          @if (conversations.length > 0) {
-            <span class="badge">{{ conversations.length }}</span>
-          }
-        </ng-template>
-
-        <!-- Accepted Connections Section -->
-        @if (acceptedConnections.length > 0) {
-          <div class="connections-section">
-            <div class="section-title">
-              <mat-icon>link</mat-icon>
-              <span>Vos Connexions ({{ acceptedConnections.length }})</span>
+      @if (searchQuery.trim().length >= 2) {
+        <div class="search-panel">
+          @if (searchingUsers) {
+            <div class="panel-loading">
+              <mat-spinner diameter="24"></mat-spinner>
             </div>
-            <div class="connections-grid">
-              @for (user of acceptedConnections; track user.id) {
-                <div class="connection-card"
-                     (click)="startConversationWithConnection(user)"
-                     matTooltip="{{ user.fullName }}">
-                  <div class="connection-avatar">
-                    <img *ngIf="user.profilePicture"
-                         [src]="user.profilePicture"
-                         alt="Avatar" />
-                    <div *ngIf="!user.profilePicture"
-                         class="avatar-placeholder-sm">
-                      {{ initials(user.fullName) }}
-                    </div>
-                  </div>
-                  <p class="connection-name">{{ user.fullName }}</p>
-                  <span class="connection-role">{{ getRoleLabel(user.role) }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <div class="conversations-list">
-          @if (loading) {
-            <div class="loading-center">
-              <mat-spinner diameter="32"></mat-spinner>
-            </div>
-          } @else if (conversations.length === 0) {
-            <div class="empty-state-inline">
-              <mat-icon class="empty-icon-small">mail_outline</mat-icon>
-              <p>Aucune conversation</p>
-              <span class="empty-hint">Commencez une conversation en envoyant un message</span>
+          } @else if (!searchResults.length) {
+            <div class="panel-empty">
+              <mat-icon>search_off</mat-icon>
+              <p>Aucun utilisateur trouve</p>
             </div>
           } @else {
-            @for (conv of conversations; track conv.id) {
-              <div class="chat-item"
-                   [class.active]="selectedConv?.id === conv.id"
-                   [class.has-unread]="false"
-                   (click)="selectConversation(conv)">
-                <div class="item-avatar">
-                  <img *ngIf="getOtherParticipant(conv).profilePicture"
-                       [src]="getOtherParticipant(conv).profilePicture"
-                       alt="Avatar"
-                       class="avatar-img" />
-                  <div *ngIf="!getOtherParticipant(conv).profilePicture"
-                       class="avatar-placeholder">
-                    {{ initials(getOtherParticipant(conv).fullName) }}
+            @for (user of searchResults; track user.id) {
+              <button class="search-result" (click)="openUserModal(user.id)">
+                <div class="search-avatar">
+                  <img *ngIf="user.profilePicture" [src]="user.profilePicture" [alt]="user.fullName" />
+                  <div *ngIf="!user.profilePicture" class="fallback">
+                    {{ initials(user.fullName) }}
                   </div>
-                  <div class="online-indicator"></div>
                 </div>
-                <div class="item-content">
-                  <div class="item-header">
-                    <h4 class="item-name">{{ getOtherParticipant(conv).fullName }}</h4>
-                    <span class="item-time">{{ conv.lastMessageAt | date:'short' }}</span>
-                  </div>
-                  <p class="item-role">{{ getRoleLabel(getOtherParticipant(conv).role) }}</p>
+
+                <div class="search-copy">
+                  <strong>{{ user.fullName }}</strong>
+                  <span>{{ getUserSubtitle(user) }}</span>
                 </div>
-              </div>
+
+                <span class="result-tag" [ngClass]="user.canMessage ? 'active' : 'pending'">
+                  {{ user.canMessage ? 'Message' : 'Profil' }}
+                </span>
+              </button>
             }
           }
         </div>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
+      }
+    </div>
 
-  <!-- CHAT AREA: Messages -->
-  <div class="chat-area">
-    @if (!selectedConv) {
-      <div class="empty-state-main">
-        <mat-icon class="empty-icon-large">chat_bubble_outline</mat-icon>
-        <h3>Bienvenue sur la messagerie</h3>
-        <p>Sélectionnez une conversation pour commencer à discuter</p>
-        <div class="empty-state-tips">
-          <div class="tip">
-            <mat-icon>person</mat-icon>
-            <p>Conversations directes pour échanges privés</p>
+    <div class="sidebar-body">
+      <section class="sidebar-section">
+        <div class="section-head">
+          <div>
+            <h3>Demandes en attente</h3>
+            <p>{{ pendingRequests.length }} invitation{{ pendingRequests.length > 1 ? 's' : '' }}</p>
+          </div>
+          <button mat-button *ngIf="pendingRequests.length > 3" (click)="openRequestsCenter()">
+            Tout voir
+          </button>
+        </div>
+
+        @if (loadingRequests) {
+          <div class="section-loading">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+        } @else if (!pendingRequests.length) {
+          <div class="section-empty compact">
+            <mat-icon>mail_outline</mat-icon>
+            <span>Aucune demande recue.</span>
+          </div>
+        } @else {
+          <div class="request-stack">
+            @for (request of visiblePendingRequests; track request.id) {
+              <div class="request-preview">
+                <button class="request-main" (click)="openUserModal(request.senderId)">
+                  <div class="mini-avatar">
+                    <img *ngIf="request.senderProfilePicture" [src]="request.senderProfilePicture" [alt]="request.senderName" />
+                    <div *ngIf="!request.senderProfilePicture" class="fallback">
+                      {{ initials(request.senderName) }}
+                    </div>
+                  </div>
+                  <div class="request-copy">
+                    <strong>{{ request.senderName }}</strong>
+                    <span>{{ request.message || 'Souhaite entrer en relation.' }}</span>
+                  </div>
+                </button>
+                <div class="request-buttons">
+                  <button mat-icon-button color="primary" (click)="quickAcceptRequest(request.id)" matTooltip="Accepter">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="quickRejectRequest(request.id)" matTooltip="Refuser">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="sidebar-section">
+        <div class="section-head">
+          <div>
+            <h3>Contacts</h3>
+            <p>Connexions acceptees</p>
           </div>
         </div>
-      </div>
-    }
 
-    <!-- DIRECT MESSAGE CHAT -->
-    @if (selectedConv) {
-      <div class="chat-header">
-        <div class="header-info">
+        @if (loadingConnections) {
+          <div class="section-loading">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+        } @else if (!acceptedConnections.length) {
+          <div class="section-empty compact">
+            <mat-icon>group</mat-icon>
+            <span>Vos contacts apparaitront ici.</span>
+          </div>
+        } @else {
+          <div class="contact-list">
+            @for (user of acceptedConnections; track user.id) {
+              <button class="contact-row" (click)="startConversationWithConnection(user)">
+                <div class="mini-avatar">
+                  <img *ngIf="user.profilePicture" [src]="user.profilePicture" [alt]="user.fullName" />
+                  <div *ngIf="!user.profilePicture" class="fallback">
+                    {{ initials(user.fullName) }}
+                  </div>
+                </div>
+                <div class="contact-copy">
+                  <strong>{{ user.fullName }}</strong>
+                  <span>{{ getUserSubtitle(user) }}</span>
+                </div>
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="sidebar-section conversations">
+        <div class="section-head">
+          <div>
+            <h3>Conversations</h3>
+            <p>{{ conversations.length }} fil{{ conversations.length > 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+
+        @if (loadingConversations) {
+          <div class="section-loading">
+            <mat-spinner diameter="28"></mat-spinner>
+          </div>
+        } @else if (!conversations.length) {
+          <div class="section-empty">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <h4>Aucune conversation</h4>
+            <p>Recherchez un utilisateur ou acceptez une demande pour commencer.</p>
+          </div>
+        } @else {
+          <div class="conversation-list">
+            @for (conv of conversations; track conv.id) {
+              <button class="conversation-row" [class.active]="selectedConv?.id === conv.id" (click)="selectConversation(conv)">
+                <div class="mini-avatar">
+                  <img *ngIf="getOtherParticipant(conv).profilePicture" [src]="getOtherParticipant(conv).profilePicture" [alt]="getOtherParticipant(conv).fullName" />
+                  <div *ngIf="!getOtherParticipant(conv).profilePicture" class="fallback">
+                    {{ initials(getOtherParticipant(conv).fullName) }}
+                  </div>
+                </div>
+                <div class="conversation-copy">
+                  <div class="copy-head">
+                    <strong>{{ getOtherParticipant(conv).fullName }}</strong>
+                    <span>{{ conv.lastMessageAt | date:'shortTime' }}</span>
+                  </div>
+                  <p>{{ getUserSubtitle(getOtherParticipant(conv)) }}</p>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </aside>
+
+  <section class="workspace-panel">
+    @if (!selectedConv) {
+      <div class="empty-panel">
+        <div class="panel-illustration">
+          <mat-icon>forum</mat-icon>
+        </div>
+        <h3>Une messagerie plus claire pour vos relations</h3>
+        <p>
+          Recherchez un utilisateur, envoyez une demande si necessaire,
+          puis ouvrez la conversation une fois la connexion acceptee.
+        </p>
+      </div>
+    } @else {
+      <header class="conversation-header">
+        <button class="identity" (click)="openUserModal(getOtherParticipant(selectedConv).id)">
           <div class="header-avatar">
-            <img *ngIf="getOtherParticipant(selectedConv).profilePicture"
-                 [src]="getOtherParticipant(selectedConv).profilePicture"
-                 alt="Avatar"
-                 class="avatar-img-small" />
-            <div *ngIf="!getOtherParticipant(selectedConv).profilePicture"
-                 class="avatar-placeholder-small">
+            <img *ngIf="getOtherParticipant(selectedConv).profilePicture" [src]="getOtherParticipant(selectedConv).profilePicture" [alt]="getOtherParticipant(selectedConv).fullName" />
+            <div *ngIf="!getOtherParticipant(selectedConv).profilePicture" class="fallback">
               {{ initials(getOtherParticipant(selectedConv).fullName) }}
             </div>
           </div>
-          <div>
-            <h3>{{ getOtherParticipant(selectedConv).fullName }}</h3>
-            <p>{{ getRoleLabel(getOtherParticipant(selectedConv).role) }}</p>
+          <div class="header-copy">
+            <strong>{{ getOtherParticipant(selectedConv).fullName }}</strong>
+            <span>{{ getUserSubtitle(getOtherParticipant(selectedConv)) }}</span>
           </div>
-        </div>
-      </div>
+        </button>
 
-      <div class="messages-container">
+        <button mat-stroked-button (click)="openUserModal(getOtherParticipant(selectedConv).id)">
+          <mat-icon>visibility</mat-icon>
+          Voir le profil
+        </button>
+      </header>
+
+      <div class="message-feed">
         @if (loadingMessages) {
-          <div class="loading-center">
-            <mat-spinner diameter="40"></mat-spinner>
+          <div class="section-loading">
+            <mat-spinner diameter="34"></mat-spinner>
+          </div>
+        } @else if (!messages.length) {
+          <div class="section-empty">
+            <mat-icon>mark_chat_unread</mat-icon>
+            <h4>Aucun message pour le moment</h4>
+            <p>Ouvrez l'echange avec un premier message professionnel.</p>
           </div>
         } @else {
           @for (msg of messages; track msg.id) {
-            <div class="message" [class.own]="msg.sender.id === auth.currentUser?.id">
-              <div class="message-bubble">
-                <p class="message-text">{{ msg.content }}</p>
-                <span class="message-time">{{ msg.sentAt | date:'HH:mm' }}</span>
+            <div class="message-row" [class.own]="msg.sender.id === auth.currentUser?.id">
+              <div class="bubble">
+                <p>{{ msg.content }}</p>
+                <span>{{ msg.sentAt | date:'HH:mm' }}</span>
               </div>
             </div>
           }
         }
       </div>
 
-      <div class="message-input-area">
-        <mat-form-field appearance="outline" class="input-field">
-          <mat-label>Votre message...</mat-label>
-          <input matInput
-                 [(ngModel)]="newMessage"
-                 (keyup.enter)="sendDirectMessage()"
-                 [disabled]="sendingMessage"
-                 placeholder="Tapez votre message..." />
-        </mat-form-field>
-        <button mat-raised-button color="primary"
-                (click)="sendDirectMessage()"
-                [disabled]="!newMessage.trim() || sendingMessage"
-                class="send-btn">
-          @if (sendingMessage) {
-            <mat-spinner diameter="16" class="inline-spinner"></mat-spinner>
-          } @else {
-            <mat-icon>send</mat-icon>
-          }
-          <span>Envoyer</span>
-        </button>
-      </div>
-
-      <!-- Quick Message Suggestions -->
-      <div class="suggestions-area">
-        <p class="suggestions-label">💡 Messages rapides:</p>
-        <div class="suggestions-chips">
+      <div class="composer-card">
+        <div class="suggestions" *ngIf="!newMessage.trim()">
           @for (suggestion of messageSuggestions; track suggestion) {
-            <mat-chip
-              [attr.aria-label]="suggestion"
-              (click)="useSuggestion(suggestion)"
-              class="suggestion-chip">
+            <button class="suggestion-pill" (click)="useSuggestion(suggestion)">
               {{ suggestion }}
-            </mat-chip>
+            </button>
           }
         </div>
+
+        <div class="composer-row">
+          <mat-form-field appearance="outline" class="composer-field">
+            <mat-label>Votre message</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [(ngModel)]="newMessage"
+              placeholder="Ecrivez votre message..."
+              (keydown.control.enter)="sendDirectMessage()"></textarea>
+          </mat-form-field>
+
+          <div class="composer-actions">
+            <app-emoji-picker (emojiSelected)="onEmojiSelected($event)"></app-emoji-picker>
+            <button
+              mat-raised-button
+              color="primary"
+              class="send-btn"
+              (click)="sendDirectMessage()"
+              [disabled]="!newMessage.trim() || sendingMessage">
+              @if (sendingMessage) {
+                <mat-spinner diameter="16"></mat-spinner>
+              } @else {
+                <mat-icon>send</mat-icon>
+              }
+              Envoyer
+            </button>
+          </div>
+        </div>
+
+        <p class="composer-hint">Astuce: utilisez Ctrl + Entree pour envoyer rapidement.</p>
       </div>
     }
-  </div>
+  </section>
 </div>

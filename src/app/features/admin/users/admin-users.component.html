@@ -31,7 +31,7 @@
           <th mat-header-cell *matHeaderCellDef>Nom complet</th>
           <td mat-cell *matCellDef="let u">
             <div class="user-name-cell">
-              <span class="name">{{ u.fullName }}</span>
+              <span class="name clickable-user" (click)="openUserDetails(u)">{{ u.fullName }}</span>
             </div>
           </td>
         </ng-container>

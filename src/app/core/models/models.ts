@@ -211,6 +211,8 @@ export interface Message {
   attachmentUrl?: string;
   read: boolean;
   sentAt: string;
+  deleted?: boolean;
+  editedAt?: string;
 }
 
 export interface Conversation {
@@ -225,6 +227,40 @@ export interface MessageRequest {
   recipientId: number;
   content: string;
   attachmentUrl?: string;
+}
+
+// ✨ ATTACHMENTS & REACTIONS
+export type AttachmentType = 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
+
+export interface MessageAttachment {
+  id: number;
+  type: AttachmentType;
+  fileName: string;
+  fileUrl: string;
+  contentType: string;
+  fileSize: number;
+  uploadedAt: string;
+}
+
+export interface MessageReaction {
+  id: number;
+  reactionType: ReactionType;
+  userId: number;
+  userName: string;
+  userProfilePicture?: string;
+  createdAt: string;
+}
+
+export interface MessageDetail {
+  id: number;
+  content: string;
+  sender: User;
+  read: boolean;
+  deleted: boolean;
+  sentAt: string;
+  editedAt?: string;
+  attachments: MessageAttachment[];
+  reactions: MessageReaction[];
 }
 
 // ─── Posts / Social ───────────────────────────────────────────────────────────
@@ -307,6 +343,9 @@ export interface ConnectionStatusResponse {
   isFollowedByMe: boolean;
   isFollowingMe: boolean;
   canMessage: boolean;
+  connectionRequestStatus: ConnectionRequestStatus;
+  requestId?: number;
+  requestDirection: ConnectionRequestDirection;
   followersCount: number;
   followingCount: number;
 }
@@ -425,6 +464,7 @@ export interface AdminDashboard {
 
 // ─── Connection Requests ──────────────────────────────────────────────────────
 export type ConnectionRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE';
+export type ConnectionRequestDirection = 'NONE' | 'INCOMING' | 'OUTGOING';
 
 export interface ConnectionRequest {
   id: number;
@@ -433,6 +473,7 @@ export interface ConnectionRequest {
   senderProfilePicture?: string;
   receiverId: number;
   receiverName: string;
+  receiverProfilePicture?: string;
   message?: string;
   status: ConnectionRequestStatus;
   createdAt: string;
@@ -447,6 +488,7 @@ export interface ConnectionRequestSendRequest {
 export interface ConnectionRequestResponse {
   status: ConnectionRequestStatus;
   requestId?: number;
+  direction?: ConnectionRequestDirection;
 }
 
 // ─── Certifications ───────────────────────────────────────────────────────────
@@ -491,7 +533,9 @@ export interface UserSearchResponse {
   companyName?: string;       // Entreprise
   companyDescription?: string;  // Entreprise
   canMessage: boolean;
-  connectionStatus: string;   // NONE, PENDING, ACCEPTED, REJECTED
+  connectionStatus: ConnectionRequestStatus;
+  requestId?: number;
+  requestDirection?: ConnectionRequestDirection;
 }
 
 // ─── Friendships ──────────────────────────────────────────────────────────────

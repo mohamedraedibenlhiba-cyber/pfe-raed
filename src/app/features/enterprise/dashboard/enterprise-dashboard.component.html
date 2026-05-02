@@ -21,7 +21,7 @@
           } @else {
             @for (user of searchResults; track user.id) {
               <div class="search-result-item">
-                <div class="result-left" (click)="viewProfile(user.id)">
+                <div class="result-left" (click)="openUserModal(user)">
                   <div class="avatar">{{ initials(user.fullName) }}</div>
                   <div class="user-details">
                     <p class="name">{{ user.fullName }}</p>
@@ -33,16 +33,17 @@
                 </div>
                 <div class="result-actions">
                   <button mat-icon-button
-                          (click)="viewProfile(user.id)"
+                          (click)="openUserModal(user)"
                           [matTooltip]="'Voir le profil'"
                           class="action-btn">
-                    <mat-icon>open_in_new</mat-icon>
+                    <mat-icon>visibility</mat-icon>
                   </button>
                   <button mat-raised-button
-                          (click)="startConversation(user.id)"
+                          (click)="openUserModal(user)"
                           color="primary"
                           class="msg-btn">
-                    <mat-icon>mail</mat-icon> Message
+                    <mat-icon>{{ user.canMessage ? 'mail' : 'person_add' }}</mat-icon>
+                    {{ user.canMessage ? 'Message' : 'Contacter' }}
                   </button>
                 </div>
               </div>

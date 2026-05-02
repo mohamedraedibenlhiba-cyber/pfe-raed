@@ -1,20 +1,16 @@
-import { Component, OnInit, inject, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { AlertService } from '../../../core/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ConnectionRequest } from '../../../core/models/models';
 import { ConnectionRequestService } from '../../../core/services/connection-request.service';
-import { ConnectionRequest, Page } from '../../../core/models/models';
+import { AlertService } from '../../../core/services/alert.service';
+import { UserConnectionModalComponent } from '../../../shared/components/user-connection-modal/user-connection-modal.component';
 
-/**
- * Modal component for managing connection requests
- * Shows pending requests received and sent requests
- */
 @Component({
   selector: 'app-connection-requests-modal',
   standalone: true,
@@ -24,396 +20,450 @@ import { ConnectionRequest, Page } from '../../../core/models/models';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatDividerModule,
     MatProgressSpinnerModule,
-    RouterModule,
+    MatDialogModule
   ],
   template: `
-    <div class="modal-header">
-      <h2>Demandes de Connexion</h2>
-      <button mat-icon-button class="close-btn" (click)="closeModal()">
-        <mat-icon>close</mat-icon>
-      </button>
+    <div class="requests-dialog">
+      <div class="dialog-header">
+        <div>
+          <h2>Demandes de connexion</h2>
+          <p>Gerez les invitations qui ouvrent l'acces a la messagerie.</p>
+        </div>
+        <button mat-icon-button (click)="dialogRef.close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-tab-group animationDuration="0ms" class="request-tabs">
+        <mat-tab [label]="'Recues (' + pendingRequests.length + ')'">
+          <div class="tab-body">
+            @if (loadingPending) {
+              <div class="loading-state">
+                <mat-spinner diameter="34"></mat-spinner>
+              </div>
+            } @else if (!pendingRequests.length) {
+              <div class="empty-state">
+                <mat-icon>mark_email_read</mat-icon>
+                <h3>Aucune demande en attente</h3>
+                <p>Les nouvelles invitations apparaitront ici.</p>
+              </div>
+            } @else {
+              @for (request of pendingRequests; track request.id) {
+                <mat-card class="request-card">
+                  <div class="request-head">
+                    <div class="avatar">
+                      <img *ngIf="request.senderProfilePicture" [src]="request.senderProfilePicture" [alt]="request.senderName" />
+                      <div *ngIf="!request.senderProfilePicture" class="avatar-fallback">
+                        {{ initials(request.senderName) }}
+                      </div>
+                    </div>
+
+                    <div class="request-meta">
+                      <h3>{{ request.senderName }}</h3>
+                      <span class="timestamp">{{ request.createdAt | date:'medium' }}</span>
+                    </div>
+
+                    <button mat-stroked-button (click)="openUserDetails(request.senderId)">
+                      <mat-icon>visibility</mat-icon>
+                      Voir le profil
+                    </button>
+                  </div>
+
+                  <p class="request-message" *ngIf="request.message">{{ request.message }}</p>
+
+                  <div class="request-actions">
+                    <button
+                      mat-stroked-button
+                      color="warn"
+                      (click)="rejectRequest(request.id)"
+                      [disabled]="processingRequestId === request.id">
+                      <mat-icon>close</mat-icon>
+                      Refuser
+                    </button>
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      (click)="acceptRequest(request.id)"
+                      [disabled]="processingRequestId === request.id">
+                      <mat-icon>check</mat-icon>
+                      Accepter
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            }
+          </div>
+        </mat-tab>
+
+        <mat-tab [label]="'Envoyees (' + sentRequests.length + ')'">
+          <div class="tab-body">
+            @if (loadingSent) {
+              <div class="loading-state">
+                <mat-spinner diameter="34"></mat-spinner>
+              </div>
+            } @else if (!sentRequests.length) {
+              <div class="empty-state">
+                <mat-icon>outgoing_mail</mat-icon>
+                <h3>Aucune demande envoyee</h3>
+                <p>Vous pouvez lancer une nouvelle relation depuis la recherche utilisateur.</p>
+              </div>
+            } @else {
+              @for (request of sentRequests; track request.id) {
+                <mat-card class="request-card">
+                  <div class="request-head">
+                    <div class="avatar">
+                      <img *ngIf="request.receiverProfilePicture" [src]="request.receiverProfilePicture" [alt]="request.receiverName" />
+                      <div *ngIf="!request.receiverProfilePicture" class="avatar-fallback">
+                        {{ initials(request.receiverName) }}
+                      </div>
+                    </div>
+
+                    <div class="request-meta">
+                      <h3>{{ request.receiverName }}</h3>
+                      <span class="status-pill" [ngClass]="request.status.toLowerCase()">
+                        {{ getStatusLabel(request.status) }}
+                      </span>
+                    </div>
+
+                    <button mat-stroked-button (click)="openUserDetails(request.receiverId)">
+                      <mat-icon>visibility</mat-icon>
+                      Voir le profil
+                    </button>
+                  </div>
+
+                  <p class="request-message" *ngIf="request.message">{{ request.message }}</p>
+
+                  <div class="request-actions">
+                    <button
+                      mat-stroked-button
+                      color="warn"
+                      *ngIf="request.status === 'PENDING'"
+                      (click)="cancelRequest(request.id)"
+                      [disabled]="processingRequestId === request.id">
+                      <mat-icon>cancel</mat-icon>
+                      Annuler
+                    </button>
+                  </div>
+                </mat-card>
+              }
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </div>
-
-    <mat-tab-group class="requests-tabs">
-      <!-- Pending Requests Received -->
-      <mat-tab [label]="'En attente (' + pendingRequests.length + ')'">
-        <div class="tab-content">
-          <div *ngIf="loadingPending" class="loading">
-            <mat-spinner diameter="40"></mat-spinner>
-          </div>
-
-          <div *ngIf="!loadingPending && pendingRequests.length === 0" class="empty-state">
-            <mat-icon>mail_outline</mat-icon>
-            <p>Aucune demande de connexion en attente</p>
-          </div>
-
-          <mat-card *ngFor="let req of pendingRequests" class="request-card">
-            <mat-card-header>
-              <div class="requestor-info">
-                <img
-                  *ngIf="req.senderProfilePicture"
-                  [src]="req.senderProfilePicture"
-                  alt="avatar"
-                  class="avatar"
-                />
-                <div *ngIf="!req.senderProfilePicture" class="avatar-placeholder">
-                  <mat-icon>person</mat-icon>
-                </div>
-                <div class="info">
-                  <h4>{{ req.senderName }}</h4>
-                  <p class="date">{{ req.createdAt | date:'short' }}</p>
-                </div>
-              </div>
-            </mat-card-header>
-
-            <mat-card-content *ngIf="req.message">
-              <p class="message">{{ req.message }}</p>
-            </mat-card-content>
-
-            <mat-card-actions>
-              <button
-                mat-raised-button
-                color="accent"
-                (click)="acceptRequest(req.id)"
-                [disabled]="processingRequest === req.id"
-              >
-                <mat-icon>check</mat-icon>
-                Accepter
-              </button>
-              <button
-                mat-stroked-button
-                color="warn"
-                (click)="rejectRequest(req.id)"
-                [disabled]="processingRequest === req.id"
-              >
-                <mat-icon>close</mat-icon>
-                Refuser
-              </button>
-              <a [routerLink]="['/profile', req.senderId]" mat-stroked-button class="view-profile">
-                <mat-icon>person</mat-icon>
-                Voir le profil
-              </a>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </mat-tab>
-
-      <!-- Sent Requests -->
-      <mat-tab [label]="'Envoyées (' + sentRequests.length + ')'">
-        <div class="tab-content">
-          <div *ngIf="loadingSent" class="loading">
-            <mat-spinner diameter="40"></mat-spinner>
-          </div>
-
-          <div *ngIf="!loadingSent && sentRequests.length === 0" class="empty-state">
-            <mat-icon>send</mat-icon>
-            <p>Aucune demande de connexion envoyée</p>
-          </div>
-
-          <mat-card *ngFor="let req of sentRequests" class="request-card">
-            <mat-card-header>
-              <div class="requestor-info">
-                <img
-                  *ngIf="req.receiverProfilePicture"
-                  [src]="req.receiverProfilePicture"
-                  alt="avatar"
-                  class="avatar"
-                />
-                <div *ngIf="!req.receiverProfilePicture" class="avatar-placeholder">
-                  <mat-icon>person</mat-icon>
-                </div>
-                <div class="info">
-                  <h4>{{ req.receiverName }}</h4>
-                  <p class="status" [ngClass]="'status-' + req.status.toLowerCase()">
-                    {{ getStatusLabel(req.status) }}
-                  </p>
-                </div>
-              </div>
-            </mat-card-header>
-
-            <mat-card-actions>
-              <button
-                mat-stroked-button
-                color="warn"
-                *ngIf="req.status === 'PENDING'"
-                (click)="cancelRequest(req.id)"
-                [disabled]="processingRequest === req.id"
-              >
-                <mat-icon>cancel</mat-icon>
-                Annuler
-              </button>
-              <a [routerLink]="['/profile', req.receiverId]" mat-stroked-button class="view-profile">
-                <mat-icon>person</mat-icon>
-                Voir le profil
-              </a>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
   `,
   styles: [`
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem;
-      border-bottom: 1px solid #eee;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-    }
-
-    .close-btn {
-      color: #666;
-    }
-
-    .requests-tabs {
-      min-height: 400px;
-      max-height: 600px;
-    }
-
-    .tab-content {
-      padding: 1.5rem;
-    }
-
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 300px;
-    }
-
-    .empty-state {
+    .requests-dialog {
+      width: min(820px, 95vw);
+      max-height: min(760px, 90vh);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 300px;
-      color: #999;
+      background: linear-gradient(180deg, #f7fbff 0%, #ffffff 30%);
+    }
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 22px 24px 12px;
+    }
+
+    .dialog-header h2 {
+      margin: 0;
+      color: #10233f;
+    }
+
+    .dialog-header p {
+      margin: 6px 0 0;
+      color: #607086;
+    }
+
+    .request-tabs {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .tab-body {
+      padding: 12px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 640px;
+      overflow: auto;
+    }
+
+    .loading-state,
+    .empty-state {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #6b7a90;
     }
 
     .empty-state mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 1rem;
-      opacity: 0.5;
+      width: 44px;
+      height: 44px;
+      font-size: 44px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .empty-state h3 {
+      margin: 0;
+      color: #18314f;
+    }
+
+    .empty-state p {
+      margin: 6px 0 0;
     }
 
     .request-card {
-      margin-bottom: 1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 20px;
+      border: 1px solid #d8e4f0;
+      box-shadow: none;
+      padding: 18px;
     }
 
-    .request-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    mat-card-header {
-      margin-bottom: 1rem;
+    .request-head {
       display: flex;
       align-items: center;
-    }
-
-    .requestor-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      width: 100%;
+      gap: 14px;
     }
 
     .avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #e6eef8;
+      flex-shrink: 0;
+    }
+
+    .avatar img,
+    .avatar-fallback {
+      width: 100%;
+      height: 100%;
+    }
+
+    .avatar img {
       object-fit: cover;
     }
 
-    .avatar-placeholder {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #f0f0f0;
+    .avatar-fallback {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      background: linear-gradient(135deg, #0f5ec6 0%, #2c8ae6 100%);
+      color: white;
+      font-weight: 700;
     }
 
-    .info h4 {
-      margin: 0 0 0.25rem 0;
-    }
-
-    .info p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #999;
-    }
-
-    .status {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      display: inline-block;
-      margin-top: 0.25rem;
-    }
-
-    .status-pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .status-accepted {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .status-rejected {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    mat-card-content {
-      padding: 1rem 0;
-    }
-
-    .message {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-left: 3px solid #1976d2;
-      margin: 0;
-      color: #555;
-      font-size: 0.95rem;
-      border-radius: 4px;
-    }
-
-    mat-card-actions {
+    .request-meta {
+      flex: 1;
+      min-width: 0;
       display: flex;
-      gap: 0.75rem;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .request-meta h3 {
+      margin: 0;
+      color: #10233f;
+    }
+
+    .timestamp {
+      color: #6b7a90;
+      font-size: 0.85rem;
+    }
+
+    .status-pill {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      background: #eef2f7;
+      color: #516174;
+    }
+
+    .status-pill.pending {
+      background: #fff4d6;
+      color: #9a6700;
+    }
+
+    .status-pill.accepted {
+      background: #ddf5e5;
+      color: #17653a;
+    }
+
+    .status-pill.rejected {
+      background: #ffe1e1;
+      color: #b42318;
+    }
+
+    .request-message {
+      margin: 16px 0 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #f8fbff;
+      color: #445468;
+      line-height: 1.55;
+    }
+
+    .request-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
       flex-wrap: wrap;
-      padding: 0.75rem 0;
+      margin-top: 18px;
     }
 
-    .view-profile {
-      margin-left: auto;
-    }
+    @media (max-width: 720px) {
+      .dialog-header,
+      .tab-body {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
 
-    ::ng-deep .mat-mdc-tab-labels {
-      margin-bottom: 1rem;
+      .request-head {
+        flex-wrap: wrap;
+      }
+
+      .request-head button,
+      .request-actions button {
+        width: 100%;
+      }
     }
   `]
 })
 export class ConnectionRequestsModalComponent implements OnInit {
-  @Output() close = new EventEmitter<void>();
+  readonly dialogRef = inject(MatDialogRef<ConnectionRequestsModalComponent>);
+  readonly data = inject(MAT_DIALOG_DATA, { optional: true });
 
-  private connectionRequestService = inject(ConnectionRequestService);
-  private alertSvc = inject(AlertService);
+  private readonly connectionSvc = inject(ConnectionRequestService);
+  private readonly alertSvc = inject(AlertService);
+  private readonly dialog = inject(MatDialog);
 
   pendingRequests: ConnectionRequest[] = [];
   sentRequests: ConnectionRequest[] = [];
   loadingPending = false;
   loadingSent = false;
-  processingRequest: number | null = null;
+  processingRequestId: number | null = null;
 
   ngOnInit(): void {
     this.loadRequests();
   }
 
-  private loadRequests(): void {
+  loadRequests(): void {
     this.loadPendingRequests();
     this.loadSentRequests();
   }
 
   private loadPendingRequests(): void {
     this.loadingPending = true;
-    this.connectionRequestService.getPendingRequests(0, 20).subscribe({
-      next: (res) => {
-        this.pendingRequests = res.data.content;
+    this.connectionSvc.getPendingRequests(0, 20).subscribe({
+      next: ({ data }) => {
+        this.pendingRequests = data.content;
         this.loadingPending = false;
       },
-      error: (err) => {
+      error: async () => {
         this.loadingPending = false;
-        this.snackBar.open('Erreur lors du chargement des demandes', '', { duration: 2000 });
+        await this.alertSvc.error('Chargement impossible');
       }
     });
   }
 
   private loadSentRequests(): void {
     this.loadingSent = true;
-    this.connectionRequestService.getSentRequests(0, 20).subscribe({
-      next: (res) => {
-        this.sentRequests = res.data.content;
+    this.connectionSvc.getSentRequests(0, 20).subscribe({
+      next: ({ data }) => {
+        this.sentRequests = data.content;
         this.loadingSent = false;
       },
-      error: (err) => {
+      error: async () => {
         this.loadingSent = false;
-        this.snackBar.open('Erreur lors du chargement des demandes envoyées', '', { duration: 2000 });
+        await this.alertSvc.error('Chargement impossible');
       }
     });
   }
 
   acceptRequest(requestId: number): void {
-    this.processingRequest = requestId;
-    this.connectionRequestService.acceptRequest(requestId).subscribe({
-      next: (res) => {
-        this.pendingRequests = this.pendingRequests.filter(r => r.id !== requestId);
-        this.processingRequest = null;
-        this.snackBar.open('Demande acceptée! ✨', '', { duration: 2000 });
+    this.processingRequestId = requestId;
+    this.connectionSvc.acceptRequest(requestId).subscribe({
+      next: async () => {
+        this.processingRequestId = null;
+        this.pendingRequests = this.pendingRequests.filter(request => request.id !== requestId);
+        await this.alertSvc.success('Demande acceptee');
       },
-      error: (err) => {
-        this.processingRequest = null;
-        this.snackBar.open('Erreur lors de l\'acceptation', '', { duration: 2000 });
+      error: async (error) => {
+        this.processingRequestId = null;
+        await this.alertSvc.error('Acceptation impossible', error?.error?.message);
       }
     });
   }
 
   rejectRequest(requestId: number): void {
-    this.processingRequest = requestId;
-    this.connectionRequestService.rejectRequest(requestId).subscribe({
-      next: (res) => {
-        this.pendingRequests = this.pendingRequests.filter(r => r.id !== requestId);
-        this.processingRequest = null;
-        this.snackBar.open('Demande refusée', '', { duration: 2000 });
+    this.processingRequestId = requestId;
+    this.connectionSvc.rejectRequest(requestId).subscribe({
+      next: async () => {
+        this.processingRequestId = null;
+        this.pendingRequests = this.pendingRequests.filter(request => request.id !== requestId);
+        await this.alertSvc.success('Demande refusee');
       },
-      error: (err) => {
-        this.processingRequest = null;
-        this.snackBar.open('Erreur lors du refus', '', { duration: 2000 });
+      error: async (error) => {
+        this.processingRequestId = null;
+        await this.alertSvc.error('Refus impossible', error?.error?.message);
       }
     });
   }
 
   cancelRequest(requestId: number): void {
-    this.processingRequest = requestId;
-    this.connectionRequestService.cancelRequest(requestId).subscribe({
-      next: (res) => {
-        this.sentRequests = this.sentRequests.filter(r => r.id !== requestId);
-        this.processingRequest = null;
-        this.snackBar.open('Demande annulée', '', { duration: 2000 });
+    this.processingRequestId = requestId;
+    this.connectionSvc.cancelRequest(requestId).subscribe({
+      next: async () => {
+        this.processingRequestId = null;
+        this.sentRequests = this.sentRequests.filter(request => request.id !== requestId);
+        await this.alertSvc.success('Demande annulee');
       },
-      error: (err) => {
-        this.processingRequest = null;
-        this.snackBar.open('Erreur lors de l\'annulation', '', { duration: 2000 });
+      error: async (error) => {
+        this.processingRequestId = null;
+        await this.alertSvc.error('Annulation impossible', error?.error?.message);
       }
     });
   }
 
-  getStatusLabel(status: string): string {
-    const labels: { [key: string]: string } = {
-      'PENDING': 'En attente',
-      'ACCEPTED': 'Acceptée',
-      'REJECTED': 'Refusée'
-    };
-    return labels[status] || status;
+  openUserDetails(userId: number): void {
+    this.dialog.open(UserConnectionModalComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: { userId }
+    });
   }
 
-  closeModal(): void {
-    this.close.emit();
+  getStatusLabel(status: string): string {
+    if (status === 'PENDING') {
+      return 'En attente';
+    }
+
+    if (status === 'ACCEPTED') {
+      return 'Acceptee';
+    }
+
+    if (status === 'REJECTED') {
+      return 'Refusee';
+    }
+
+    return status;
+  }
+
+  initials(name: string): string {
+    return name?.split(' ').map(part => part[0]).slice(0, 2).join('').toUpperCase() || '?';
   }
 }

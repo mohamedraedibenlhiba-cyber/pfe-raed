@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AdminService } from '../../../core/services/admin.service';
 import { User } from '../../../core/models/models';
+import { UserDetailModalComponent } from '../../../shared/components/user-detail-modal/user-detail-modal.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -25,7 +26,8 @@ import { User } from '../../../core/models/models';
     CommonModule, FormsModule, MatCardModule, MatTableModule,
     MatPaginatorModule, MatButtonModule, MatIconModule, MatInputModule,
     MatFormFieldModule, MatChipsModule, MatMenuModule, MatDialogModule,
-    MatProgressSpinnerModule, MatTooltipModule, MatSlideToggleModule
+    MatProgressSpinnerModule, MatTooltipModule, MatSlideToggleModule,
+    UserDetailModalComponent
   ],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss']
@@ -97,5 +99,14 @@ export class AdminUsersComponent implements OnInit {
 
   initials(name: string): string {
     return name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+  }
+
+  openUserDetails(user: User): void {
+    this.dialog.open(UserDetailModalComponent, {
+      data: user,
+      width: '500px',
+      maxHeight: '90vh',
+      disableClose: false
+    });
   }
 }

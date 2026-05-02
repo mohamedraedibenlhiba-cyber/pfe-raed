@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ApiResponse,
@@ -16,34 +16,45 @@ import {
 export class ConnectionRequestService {
   private readonly http = inject(HttpClient);
   private readonly API = `${environment.apiUrl}/connection-requests`;
+  private readonly requestChangesSubject = new Subject<void>();
+
+  readonly requestChanges$ = this.requestChangesSubject.asObservable();
 
   /**
    * Send a connection request to a user
    */
   sendRequest(userId: number, message?: string): Observable<ApiResponse<ConnectionRequest>> {
     const req: ConnectionRequestSendRequest = { receiverId: userId, message };
-    return this.http.post<ApiResponse<ConnectionRequest>>(`${this.API}`, req);
+    return this.http.post<ApiResponse<ConnectionRequest>>(`${this.API}`, req).pipe(
+      tap(() => this.notifyRequestChanges())
+    );
   }
 
   /**
    * Accept a pending connection request
    */
   acceptRequest(requestId: number): Observable<ApiResponse<ConnectionRequest>> {
-    return this.http.put<ApiResponse<ConnectionRequest>>(`${this.API}/${requestId}/accept`, {});
+    return this.http.put<ApiResponse<ConnectionRequest>>(`${this.API}/${requestId}/accept`, {}).pipe(
+      tap(() => this.notifyRequestChanges())
+    );
   }
 
   /**
    * Reject a pending connection request
    */
   rejectRequest(requestId: number): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(`${this.API}/${requestId}/reject`, {});
+    return this.http.put<ApiResponse<void>>(`${this.API}/${requestId}/reject`, {}).pipe(
+      tap(() => this.notifyRequestChanges())
+    );
   }
 
   /**
    * Cancel a sent connection request
    */
   cancelRequest(requestId: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.API}/${requestId}`);
+    return this.http.delete<ApiResponse<void>>(`${this.API}/${requestId}`).pipe(
+      tap(() => this.notifyRequestChanges())
+    );
   }
 
   /**
@@ -83,5 +94,9 @@ export class ConnectionRequestService {
    */
   getAcceptedConnections(): Observable<ApiResponse<User[]>> {
     return this.http.get<ApiResponse<User[]>>(`${this.API}/accepted`);
+  }
+
+  notifyRequestChanges(): void {
+    this.requestChangesSubject.next();
   }
 }
