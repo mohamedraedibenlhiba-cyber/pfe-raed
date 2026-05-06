@@ -1,0 +1,18 @@
+<div class="cs-wrap" [class.cs-open]="isOpen" [class.cs-disabled]="isDisabled">
+  @if (label) {
+    <span class="cs-label">{{ label }}</span>
+  }
+  <div class="cs-trigger" (click)="toggle()">
+    <span [class.cs-ph]="!selectedLabel">{{ selectedLabel || placeholder }}</span>
+    <span class="material-icons-round cs-chevron">expand_more</span>
+  </div>
+  @if (isOpen) {
+    <div class="cs-panel">
+      @for (opt of options; track opt.value) {
+        <div class="cs-opt" [class.cs-sel]="opt.value === currentValue" (click)="select(opt)">
+          {{ opt.label }}
+        </div>
+      }
+    </div>
+  }
+</div>

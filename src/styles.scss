@@ -1,0 +1,321 @@
+// ─── Global Theme ────────────────────────────────────────────────────────────
+@use '@angular/material' as mat;
+@import '@angular/cdk/overlay-prebuilt.css';
+
+// ─── SWEETALERT2 CSS ──────────────────────────────────────────────────────────
+@import 'sweetalert2/dist/sweetalert2.min';
+
+// ─── IMPORT DESIGN SYSTEM ─────────────────────────────────────────────────────
+// Core design system with colors, spacing, typography, animations
+@import 'app/shared/styles/_design-system';
+@import 'app/shared/styles/_typography';
+@import 'app/shared/styles/_animations';
+@import 'app/shared/styles/_responsive';
+
+// Custom palette — Warm Golden & Vibrant Accents
+// Primary: #fcb900 (Gold), Accents: Purple (#9b51e0), Orange (#ff6900), Yellow (#fef84c)
+$primary-palette: mat.define-palette(mat.$amber-palette, 500, 50, 800);
+$accent-palette:  mat.define-palette(mat.$purple-palette, 500, 200, 900);
+$warn-palette:    mat.define-palette(mat.$orange-palette);
+
+$app-theme: mat.define-light-theme((
+  color: (primary: $primary-palette, accent: $accent-palette, warn: $warn-palette),
+  typography: mat.define-typography-config($font-family: 'Inter, sans-serif'),
+  density: 0,
+));
+
+@include mat.all-component-themes($app-theme);
+@include mat.all-component-typographies($app-theme);
+
+// ─── CSS Variables (Updated for NeoHire WordPress Palette) ──────────────────
+:root {
+  --primary:         #fcb900;         // Amber
+  --primary-light:   #fef4d9;
+  --primary-dark:    #e8a800;
+  --accent:          #9b51e0;         // Purple
+  --accent-orange:   #ff6900;         // Orange
+  --accent-cyan:     #0693e3;         // Cyan Blue
+  --accent-green:    #00d084;         // Green
+  --success:         #00d084;
+  --warning:         #ff6900;
+  --danger:          #cf2e2e;
+  --info:            #0693e3;
+
+  // Corporate Sidebar (Light background with amber accents)
+  --sidebar-bg:      #f8f9fb;         // Light neutral background
+  --sidebar-text:    #abb8c3;         // Professional gray
+  --sidebar-active:  #fcb900;         // Amber active
+  --sidebar-hover:   #fef4d9;         // Light amber hover
+  --sidebar-width:   260px;
+
+  // Layout
+  --topbar-height:   64px;
+  --content-bg:      #f8f9fb;
+  --card-radius:     8px;
+  --card-shadow:     0 2px 4px rgba(0,0,0,0.08);
+  --card-shadow-hover: 0 4px 12px rgba(0,0,0,0.12);
+  --border-color:    #d9dfe5;
+
+  // Typography
+  --text-primary:    #000000;
+  --text-secondary:  #abb8c3;
+  --text-muted:      #d9dfe5;
+}
+
+// ─── Reset & Base ─────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--content-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+// ─── Scrollbar ────────────────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+// ─── Utility Classes ─────────────────────────────────────────────────────────
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  transition: box-shadow 0.2s ease;
+  &:hover { box-shadow: var(--card-shadow-hover); }
+}
+
+.stat-card {
+  @extend .card;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  .stat-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    .material-icons-round { font-size: 26px; color: #fff; }
+  }
+  .stat-info { flex: 1; }
+  .stat-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 1.875rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+  .stat-change { font-size: 0.75rem; margin-top: 4px; }
+  .stat-change.positive { color: var(--success); }
+  .stat-change.negative { color: var(--danger); }
+}
+
+// ─── Icon background colors ───────────────────────────────────────────────────
+.bg-primary   { background: var(--primary)!important; }
+.bg-success   { background: var(--success)!important; }
+.bg-warning   { background: var(--warning)!important; }
+.bg-danger    { background: var(--danger)!important; }
+.bg-info      { background: var(--info)!important; }
+.bg-accent    { background: var(--accent)!important; }
+
+// ─── Badge chips ──────────────────────────────────────────────────────────────
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  gap: 4px;
+
+  &.chip-success   { background: #dcfce7; color: #166534; }
+  &.chip-danger    { background: #fee2e2; color: #991b1b; }
+  &.chip-warning   { background: #fef3c7; color: #92400e; }
+  &.chip-info      { background: #dbeafe; color: #1e40af; }
+  &.chip-gray      { background: #f1f5f9; color: #475569; }
+  &.chip-primary   { background: #e0e7ff; color: #3730a3; }
+  &.chip-accent    { background: #cffafe; color: #164e63; }
+}
+
+// ─── Table ────────────────────────────────────────────────────────────────────
+.mat-mdc-table {
+  width: 100%;
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .mat-mdc-cell { color: var(--text-primary); }
+}
+
+// ─── Dialog ───────────────────────────────────────────────────────────────────
+.mat-mdc-dialog-container { border-radius: 16px!important; }
+.mat-mdc-dialog-title     { font-weight: 700!important; font-size: 1.125rem!important; }
+
+// ─── Form fields ──────────────────────────────────────────────────────────────
+.mat-mdc-form-field { width: 100%; }
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+.btn-primary {
+  background: var(--primary-light)!important;
+  color: #fff!important;
+}
+
+// ─── Snackbar ─────────────────────────────────────────────────────────────────
+.success-snack .mat-mdc-snack-bar-label { color: #fff; }
+.success-snack { --mdc-snackbar-container-color: #059669; }
+.error-snack   { --mdc-snackbar-container-color: #dc2626; }
+
+// ─── Loading overlay ──────────────────────────────────────────────────────────
+.loading-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; border-radius: var(--card-radius);
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 60px 20px; text-align: center;
+  .empty-icon { font-size: 64px; color: #cbd5e1; margin-bottom: 16px; }
+  .empty-title { font-size: 1.125rem; font-weight: 600; color: var(--text-secondary); }
+  .empty-desc  { font-size: 0.875rem; color: var(--text-muted); margin-top: 8px; }
+}
+
+// ─── Select dropdown ─────────────────────────────────────────────────────────
+// Seul le z-index et le style visuel sont surchargés.
+// NE PAS toucher à transform, max-height, overflow, min-width — MDC les gère.
+.cdk-overlay-container { z-index: 9999 !important; }
+
+.mat-mdc-select-panel {
+  box-shadow: 0 4px 20px rgba(0,0,0,.13) !important;
+}
+
+// ─── mat-tab-group : CDK overlay positioning fix ──────────────────────────────
+// mat-tab-body-wrapper a overflow:hidden pour clips les animations de tabs.
+// L'onglet actif doit rester visible pour que le CDK positionne l'overlay correctement.
+.mat-mdc-tab-body.mat-mdc-tab-body-active,
+.mat-mdc-tab-body.mat-mdc-tab-body-active > .mat-mdc-tab-body-content {
+  overflow: visible !important;
+}
+
+// ─── Menu Fix: Force proper width and padding ────────────────────────────────
+.mat-mdc-menu-panel {
+  min-width: 200px !important;
+}
+
+.mat-mdc-menu-content {
+  padding: 4px 0 !important;
+  padding-left: 0 !important;
+}
+
+.mat-mdc-menu-item {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+// ─── SweetAlert2 Customization ────────────────────────────────────────────────
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.swal-dialog-container .swal2-popup {
+  border-radius: 12px !important;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+}
+
+.swal-toast-container .swal2-popup {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
+  padding: 16px !important;
+}
+
+.swal2-title {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 12px !important;
+}
+
+.swal2-html-container {
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  padding: 10px 24px !important;
+  font-size: 0.95rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal2-confirm {
+  background-color: var(--primary) !important;
+  border: none !important;
+
+  &:hover {
+    background-color: #0a5aa8 !important;
+    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3) !important;
+  }
+}
+
+.swal2-cancel {
+  background-color: #cbd5e0 !important;
+  color: #2d3748 !important;
+  border: none !important;
+
+  &:hover {
+    background-color: #a0aec0 !important;
+  }
+}
+
+// Success toast styling
+.swal-toast-popup.swal2-show[data-icon="success"] {
+  .swal2-icon {
+    color: var(--success) !important;
+  }
+}
+
+// Error toast styling
+.swal-toast-popup.swal2-show[data-icon="error"] {
+  .swal2-icon {
+    color: var(--danger) !important;
+  }
+}
+
+// Warning toast styling
+.swal-toast-popup.swal2-show[data-icon="warning"] {
+  .swal2-icon {
+    color: var(--warning) !important;
+  }
+}
+
+// Info toast styling
+.swal-toast-popup.swal2-show[data-icon="info"] {
+  .swal2-icon {
+    color: var(--info) !important;
+  }
+}

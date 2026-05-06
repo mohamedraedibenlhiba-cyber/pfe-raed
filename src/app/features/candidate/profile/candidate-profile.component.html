@@ -1,0 +1,349 @@
+@if (loading) {
+  <div class="loading-center">
+    <mat-spinner diameter="40" />
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <!-- Header Banner with Avatar -->
+    <div class="profile-wrapper">
+      <div class="profile-header">
+        <div class="profile-avatar-container">
+          @if (profile?.profilePicture) {
+            <img [src]="profile!.profilePicture" alt="Photo de profil" class="profile-avatar" />
+          } @else {
+            <div class="profile-avatar profile-avatar-placeholder">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+          }
+          <label class="photo-upload-btn" [class.loading]="uploadingPhoto" matTooltip="Cliquer pour changer la photo">
+            @if (uploadingPhoto) {
+              <mat-spinner diameter="16" />
+            } @else {
+              <mat-icon>photo_camera</mat-icon>
+            }
+            <input type="file" accept="image/*" (change)="onPhotoSelect($event)" hidden [disabled]="uploadingPhoto" />
+          </label>
+        </div>
+
+        <div class="profile-header-info">
+          <h1>{{ profile?.fullName || 'Profil Candidat' }}</h1>
+          <p>{{ profile?.email }}</p>
+          @if (profile?.openToWork) {
+            <span class="badge badge-success">
+              <mat-icon>check_circle</mat-icon>
+              Ouvert aux opportunités
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="profile-container">
+        <!-- Main Content Area with Tabs -->
+        <div class="profile-main">
+          <mat-tab-group class="profile-content" [(selectedIndex)]="selectedTabIndex">
+            <!-- Tab 1: Informations Générales -->
+            <mat-tab label="Informations">
+              <div class="form-section">
+                <h3 class="form-section-title">
+                  <mat-icon>person</mat-icon>
+                  Informations générales
+                </h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Nom complet</mat-label>
+                    <mat-icon matPrefix>account_box</mat-icon>
+                    <input matInput formControlName="fullName" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Téléphone</mat-label>
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <input matInput formControlName="phoneNumber" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ville</mat-label>
+                    <mat-icon matPrefix>location_city</mat-icon>
+                    <input matInput formControlName="city" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Pays</mat-label>
+                    <mat-icon matPrefix>public</mat-icon>
+                    <input matInput formControlName="country" />
+                  </mat-form-field>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Tab 2: Profil Professionnel -->
+            <mat-tab label="Professionnel">
+              <div class="form-section">
+                <h3 class="form-section-title">
+                  <mat-icon>work</mat-icon>
+                  Profil professionnel
+                </h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Titre / Poste recherché</mat-label>
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <input matInput formControlName="headline"
+                      placeholder="Ex: Développeur Full Stack React/Node.js" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Résumé professionnel</mat-label>
+                    <textarea matInput formControlName="summary" rows="4"
+                      placeholder="Décrivez votre expérience, vos objectifs professionnels..."></textarea>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Années d'expérience</mat-label>
+                    <mat-icon matPrefix>history</mat-icon>
+                    <input matInput type="number" formControlName="yearsExperience" min="0" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Salaire souhaité (€/an)</mat-label>
+                    <mat-icon matPrefix>euro</mat-icon>
+                    <input matInput formControlName="desiredSalary" placeholder="Ex: 45000" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Compétences</mat-label>
+                    <mat-icon matPrefix>code</mat-icon>
+                    <input matInput formControlName="skills"
+                      placeholder="Ex: Java, Angular, Spring Boot, SQL..." />
+                    <mat-hint>Séparez les compétences par des virgules</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Langues</mat-label>
+                    <mat-icon matPrefix>language</mat-icon>
+                    <input matInput formControlName="languages"
+                      placeholder="Ex: Français (natif), Anglais (courant)" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Formation / Diplômes</mat-label>
+                    <textarea matInput formControlName="education" rows="3"
+                      placeholder="Ex: Master Informatique - Université Paris-Saclay (2022), BTS SIO (2020)..."></textarea>
+                  </mat-form-field>
+                </div>
+
+                <mat-checkbox formControlName="openToWork" color="primary" class="open-to-work-check">
+                  <span style="font-weight: 500;">Je suis ouvert(e) aux opportunités professionnelles</span>
+                </mat-checkbox>
+              </div>
+            </mat-tab>
+
+            <!-- Tab 3: Liens Professionnels -->
+            <mat-tab label="Liens">
+              <div class="form-section">
+                <h3 class="form-section-title">
+                  <mat-icon>link</mat-icon>
+                  Liens professionnels
+                </h3>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>LinkedIn</mat-label>
+                    <mat-icon matPrefix>business</mat-icon>
+                    <input matInput formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>GitHub</mat-label>
+                    <mat-icon matPrefix>code</mat-icon>
+                    <input matInput formControlName="githubUrl" placeholder="https://github.com/..." />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Portfolio</mat-label>
+                    <mat-icon matPrefix>language</mat-icon>
+                    <input matInput formControlName="portfolioUrl" placeholder="https://monportfolio.com" />
+                  </mat-form-field>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Tab 4: Sécurité -->
+            <mat-tab label="Sécurité">
+              @if (showChangePassword) {
+                <div class="form-section">
+                  <h3 class="form-section-title">
+                    <mat-icon>lock</mat-icon>
+                    Changer de mot de passe
+                  </h3>
+                  <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" class="password-form">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Ancien mot de passe</mat-label>
+                      <mat-icon matPrefix>password</mat-icon>
+                      <input matInput type="password" formControlName="oldPassword" />
+                      <mat-error *ngIf="changePasswordForm.get('oldPassword')?.hasError('required')">
+                        Requis
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Nouveau mot de passe</mat-label>
+                      <mat-icon matPrefix>vpn_key</mat-icon>
+                      <input matInput type="password" formControlName="newPassword" />
+                      <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('required')">
+                        Requis
+                      </mat-error>
+                      <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('minlength')">
+                        Minimum 6 caractères
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Confirmer mot de passe</mat-label>
+                      <mat-icon matPrefix>vpn_key</mat-icon>
+                      <input matInput type="password" formControlName="confirmPassword" />
+                      <mat-error *ngIf="changePasswordForm.get('confirmPassword')?.hasError('required')">
+                        Requis
+                      </mat-error>
+                      <mat-error *ngIf="changePasswordForm.get('confirmPassword')?.hasError('minlength')">
+                        Minimum 6 caractères
+                      </mat-error>
+                    </mat-form-field>
+
+                    <div class="password-form-actions">
+                      <button mat-raised-button color="primary" type="submit"
+                        [disabled]="changingPassword || changePasswordForm.invalid">
+                        @if (changingPassword) {
+                          <mat-spinner diameter="18" />
+                        } @else {
+                          <mat-icon>lock</mat-icon>
+                        }
+                        Changer mot de passe
+                      </button>
+                      <button mat-stroked-button color="accent" type="button"
+                        (click)="showChangePassword = false; changePasswordForm.reset()">
+                        <mat-icon>close</mat-icon>
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              } @else {
+                <div class="form-section">
+                  <h3 class="form-section-title">
+                    <mat-icon>shield</mat-icon>
+                    Sécurité du compte
+                  </h3>
+                  <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Gérez les paramètres de sécurité de votre compte
+                  </p>
+                  <button mat-stroked-button type="button" (click)="showChangePassword = true">
+                    <mat-icon>vpn_key</mat-icon>
+                    Changer mot de passe
+                  </button>
+                </div>
+              }
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+          <!-- Experience Card -->
+          <div class="sidebar-card">
+            <span class="card-label">Expérience</span>
+            <span class="card-value">{{ form.get('yearsExperience')?.value || 0 }}</span>
+            <span class="card-subtext">ans d'expérience</span>
+            <div style="margin-top: 12px;">
+              <span [class]="'badge ' + experienceLevelColor">
+                {{ experienceLevelBadge }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Salary Card -->
+          @if (form.get('desiredSalary')?.value) {
+            <div class="sidebar-card">
+              <span class="card-label">Salaire</span>
+              <span class="card-value">{{ form.get('desiredSalary')?.value }}</span>
+              <span class="card-subtext">€ / an</span>
+            </div>
+          }
+
+          <!-- Skills Preview Card -->
+          @if (skillsPreview.length > 0) {
+            <div class="sidebar-card">
+              <span class="card-label">Compétences</span>
+              <div class="skills-container" style="margin-top: 8px; margin-bottom: 8px;">
+                @for (skill of skillsPreview; track skill) {
+                  <mat-chip>{{ skill }}</mat-chip>
+                }
+              </div>
+              @if (hasMoreSkills) {
+                <a class="link-icon">
+                  +{{ skillsArray.length - 6 }} plus
+                  <mat-icon>arrow_forward</mat-icon>
+                </a>
+              }
+            </div>
+          }
+
+          <!-- Profile Status Card -->
+          <div class="sidebar-card">
+            <span class="card-label">Statut</span>
+            @if (profile?.openToWork) {
+              <div style="margin-top: 8px;">
+                <span class="badge badge-success">
+                  <mat-icon>check_circle</mat-icon>
+                  Actif
+                </span>
+              </div>
+            } @else {
+              <div style="margin-top: 8px;">
+                <span class="badge badge-warning">
+                  <mat-icon>schedule</mat-icon>
+                  Non actif
+                </span>
+              </div>
+            }
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; margin-bottom: 0;">
+              Mettez à jour votre disponibilité dans l'onglet Professionnel
+            </p>
+          </div>
+
+          <!-- Quick Links Card -->
+          <div class="sidebar-card">
+            <span class="card-label">Réseaux</span>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+              @if (form.get('linkedinUrl')?.value) {
+                <a href="{{ form.get('linkedinUrl')?.value }}" target="_blank" class="link-icon">
+                  <mat-icon>business</mat-icon>
+                  LinkedIn
+                </a>
+              }
+              @if (form.get('githubUrl')?.value) {
+                <a href="{{ form.get('githubUrl')?.value }}" target="_blank" class="link-icon">
+                  <mat-icon>code</mat-icon>
+                  GitHub
+                </a>
+              }
+              @if (form.get('portfolioUrl')?.value) {
+                <a href="{{ form.get('portfolioUrl')?.value }}" target="_blank" class="link-icon">
+                  <mat-icon>language</mat-icon>
+                  Portfolio
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving || form.invalid">
+        @if (saving) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+}

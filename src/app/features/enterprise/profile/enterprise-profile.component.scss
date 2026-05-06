@@ -1,0 +1,311 @@
+@import '../../../shared/styles/profile.shared.scss';
+
+// ============ ENTERPRISE-SPECIFIC STYLES ============
+
+.profile-wrapper {
+  margin-top: 80px;
+  animation: fadeIn 300ms ease-in;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #9b51e0, rgba(155, 81, 224, 0.7));
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(248, 249, 251, 0), #f8f9fb);
+    pointer-events: none;
+  }
+}
+
+.profile-avatar {
+  &.enterprise {
+    border-radius: 12px;
+    width: 140px;
+    height: 140px;
+  }
+
+  &.enterprise.profile-avatar-placeholder {
+    border-radius: 12px;
+
+    mat-icon {
+      font-size: 70px;
+      width: 70px;
+      height: 70px;
+      color: #7c3aed;
+    }
+  }
+}
+
+.photo-upload-btn {
+  position: absolute;
+  bottom: 50px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #9b51e0;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 150ms ease;
+
+  &:hover:not(.loading) {
+    background: #7c3aed;
+    transform: scale(1.1);
+  }
+
+  &.loading {
+    background: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  input {
+    display: none;
+  }
+}
+
+// ============ FORM OVERRIDES ============
+
+.form-section {
+  background: white;
+
+  &:first-child {
+    padding-top: 24px;
+  }
+}
+
+.form-grid {
+  mat-form-field {
+    ::ng-deep {
+      .mat-mdc-text-field-wrapper {
+        padding-bottom: 0.75rem;
+      }
+
+      .mdc-text-field--filled {
+        &.mdc-text-field--focused {
+          .mdc-text-field__ripple {
+            background-color: rgba(155, 81, 224, 0.08);
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============ PASSWORD FORM ============
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.password-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 24px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    mat-spinner {
+      margin-right: 4px;
+    }
+  }
+
+  @include sm {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// ============ HINT TEXT ============
+::ng-deep {
+  .mat-mdc-form-field-hint {
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem;
+  }
+
+  .mat-mdc-form-field-error {
+    color: var(--color-error) !important;
+    font-size: 0.75rem;
+  }
+}
+
+// ============ RESPONSIVE STYLES ============
+
+@include lg {
+  .profile-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .sidebar-card {
+      flex: 1 1 calc(50% - 8px);
+      min-width: 200px;
+    }
+  }
+
+  .profile-main {
+    width: 100%;
+  }
+}
+
+@include md {
+  .profile-header {
+    height: 160px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .profile-avatar {
+    &.enterprise {
+      width: 120px;
+      height: 120px;
+
+      &.profile-avatar-placeholder {
+        mat-icon {
+          font-size: 60px;
+          width: 60px;
+          height: 60px;
+        }
+      }
+    }
+  }
+
+  .profile-header-info {
+    bottom: 16px;
+    right: 16px;
+
+    h1 {
+      font-size: 1.375rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  .photo-upload-btn {
+    bottom: 40px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@include sm {
+  .profile-sidebar {
+    flex-direction: column;
+    gap: 12px;
+
+    .sidebar-card {
+      flex: 1 1 100%;
+    }
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  ::ng-deep {
+    .profile-content {
+      .mat-mdc-tab-labels {
+        padding: 0 12px;
+      }
+
+      .mat-mdc-tab-label {
+        min-width: 70px;
+        padding: 0 8px;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// ============ ANIMATIONS ============
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-section {
+  animation: fadeIn 300ms ease-out;
+}
+
+// ============ LOADING STATE ============
+.loading-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 24px;
+  min-height: 600px;
+  background: #f8f9fb;
+}
+
+// ============ PRINT STYLES ============
+@media print {
+  .photo-upload-btn,
+  .form-actions,
+  .password-form {
+    display: none !important;
+  }
+
+  .profile-content {
+    box-shadow: none;
+    border: none;
+  }
+}

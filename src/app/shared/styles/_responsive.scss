@@ -1,0 +1,418 @@
+// ============================================================================
+// RESPONSIVE DESIGN MIXINS & UTILITIES
+// ============================================================================
+// Media query mixins, responsive utilities, mobile-first approach
+// ===================================================================
+
+@import '_design-system';
+
+// ============================================================================
+// 1. MEDIA QUERY MIXINS (Mobile-First Approach)
+// ============================================================================
+
+// Extra small devices (< 480px)
+@mixin xs {
+  @media (max-width: $breakpoint-sm - 1px) {
+    @content;
+  }
+}
+
+// Small devices (>= 480px)
+@mixin sm {
+  @media (min-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+// Medium devices (>= 768px) - Tablet Portrait
+@mixin md {
+  @media (min-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+// Large devices (>= 1024px) - Desktop
+@mixin lg {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+// Extra large devices (>= 1280px) - Wide Desktop
+@mixin xl {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}
+
+// 2XL devices (>= 1536px) - Ultra-wide
+@mixin xl2 {
+  @media (min-width: $breakpoint-2xl) {
+    @content;
+  }
+}
+
+// ============================================================================
+// 2. ORIENTATION MEDIA QUERIES
+// ============================================================================
+
+@mixin landscape {
+  @media (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin portrait {
+  @media (orientation: portrait) {
+    @content;
+  }
+}
+
+// ============================================================================
+// 3. DEVICE-SPECIFIC MIXINS
+// ============================================================================
+
+// Mobile device (phone, small hand-held)
+@mixin mobile {
+  @media (max-width: $breakpoint-md - 1px) {
+    @content;
+  }
+}
+
+// Tablet device
+@mixin tablet {
+  @media (min-width: $breakpoint-md) and (max-width: $breakpoint-lg - 1px) {
+    @content;
+  }
+}
+
+// Desktop device
+@mixin desktop {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+// ============================================================================
+// 4. FEATURE-BASED MEDIA QUERIES
+// ============================================================================
+
+// Touch device (supports touch)
+@mixin touch {
+  @media (hover: none) and (pointer: coarse) {
+    @content;
+  }
+}
+
+// Non-touch device (mouse/keyboard)
+@mixin no-touch {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}
+
+// High density display (retina)
+@mixin retina {
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    @content;
+  }
+}
+
+// Light mode
+@mixin light-mode {
+  @media (prefers-color-scheme: light) {
+    @content;
+  }
+}
+
+// Dark mode
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+}
+
+// ============================================================================
+// 5. GRID & LAYOUT UTILITIES
+// ============================================================================
+
+// Responsive container
+@mixin container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 $space-4;
+
+  @include sm {
+    max-width: $breakpoint-sm;
+  }
+
+  @include md {
+    max-width: $breakpoint-md;
+    padding: 0 $space-6;
+  }
+
+  @include lg {
+    max-width: 1200px;
+  }
+
+  @include xl {
+    max-width: 1300px;
+  }
+
+  @include xl2 {
+    max-width: 1400px;
+  }
+}
+
+// Responsive grid columns
+@mixin grid-cols($cols-mobile, $cols-tablet: null, $cols-desktop: null) {
+  display: grid;
+  grid-template-columns: repeat($cols-mobile, 1fr);
+  gap: $space-4;
+
+  @if $cols-tablet {
+    @include md {
+      grid-template-columns: repeat($cols-tablet, 1fr);
+    }
+  }
+
+  @if $cols-desktop {
+    @include lg {
+      grid-template-columns: repeat($cols-desktop, 1fr);
+    }
+  }
+}
+
+// Responsive flex direction
+@mixin flex-direction-responsive($dir-mobile, $dir-tablet: $dir-mobile, $dir-desktop: $dir-mobile) {
+  display: flex;
+  flex-direction: $dir-mobile;
+
+  @if $dir-tablet != $dir-mobile {
+    @include md {
+      flex-direction: $dir-tablet;
+    }
+  }
+
+  @if $dir-desktop != $dir-mobile {
+    @include lg {
+      flex-direction: $dir-desktop;
+    }
+  }
+}
+
+// ============================================================================
+// 6. SPACING RESPONSIVE UTILITIES
+// ============================================================================
+
+@mixin padding-responsive($p-mobile, $p-tablet: $p-mobile, $p-desktop: $p-mobile) {
+  padding: $p-mobile;
+
+  @include md {
+    padding: $p-tablet;
+  }
+
+  @include lg {
+    padding: $p-desktop;
+  }
+}
+
+@mixin margin-responsive($m-mobile, $m-tablet: $m-mobile, $m-desktop: $m-mobile) {
+  margin: $m-mobile;
+
+  @include md {
+    margin: $m-tablet;
+  }
+
+  @include lg {
+    margin: $m-desktop;
+  }
+}
+
+// ============================================================================
+// 7. FONT SIZE RESPONSIVE UTILITIES
+// ============================================================================
+
+@mixin font-size-responsive($size-mobile, $size-tablet: $size-mobile, $size-desktop: $size-mobile) {
+  font-size: $size-mobile;
+
+  @include md {
+    font-size: $size-tablet;
+  }
+
+  @include lg {
+    font-size: $size-desktop;
+  }
+}
+
+// ============================================================================
+// 8. VISIBILITY UTILITIES
+// ============================================================================
+
+// Hide on mobile
+.hidden-mobile {
+  @include mobile {
+    display: none;
+  }
+}
+
+// Hide on tablet
+.hidden-tablet {
+  @include tablet {
+    display: none;
+  }
+}
+
+// Hide on desktop
+.hidden-desktop {
+  @include desktop {
+    display: none;
+  }
+}
+
+// Show only on mobile
+.visible-mobile {
+  display: none;
+
+  @include mobile {
+    display: block;
+  }
+}
+
+// Show only on tablet
+.visible-tablet {
+  display: none;
+
+  @include tablet {
+    display: block;
+  }
+}
+
+// Show only on desktop
+.visible-desktop {
+  display: none;
+
+  @include desktop {
+    display: block;
+  }
+}
+
+// ============================================================================
+// 9. COMMON RESPONSIVE PATTERNS
+// ============================================================================
+
+// Responsive sidebar layout: Side-by-side on desktop, stacked on mobile
+@mixin sidebar-layout($sidebar-width: 280px) {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+
+  @include lg {
+    flex-direction: row;
+
+    .sidebar {
+      width: $sidebar-width;
+      flex-shrink: 0;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+// Responsive grid auto-fit
+@mixin grid-auto-fit($min-width: 250px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $space-4;
+
+  @include md {
+    gap: $space-6;
+  }
+}
+
+// Responsive grid auto-fill
+@mixin grid-auto-fill($min-width: 250px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr));
+  gap: $space-4;
+
+  @include md {
+    gap: $space-6;
+  }
+}
+
+// ============================================================================
+// 10. UTILITY CLASSES FOR COMMON PATTERNS
+// ============================================================================
+
+// Responsive full bleed (extends to edges)
+.full-bleed {
+  margin-left: -$space-4;
+  margin-right: -$space-4;
+  padding-left: $space-4;
+  padding-right: $space-4;
+
+  @include md {
+    margin-left: -$space-6;
+    margin-right: -$space-6;
+    padding-left: $space-6;
+    padding-right: $space-6;
+  }
+}
+
+// Container with max-width
+.container {
+  @include container;
+}
+
+// Responsive grid
+.grid-2-cols {
+  @include grid-cols(1, 2, 2);
+}
+
+.grid-3-cols {
+  @include grid-cols(1, 2, 3);
+}
+
+.grid-4-cols {
+  @include grid-cols(1, 2, 4);
+}
+
+.grid-auto-fit-250 {
+  @include grid-auto-fit(250px);
+}
+
+// Responsive padding
+.px-responsive {
+  padding-left: $space-4;
+  padding-right: $space-4;
+
+  @include md {
+    padding-left: $space-6;
+    padding-right: $space-6;
+  }
+
+  @include lg {
+    padding-left: $space-8;
+    padding-right: $space-8;
+  }
+}
+
+.py-responsive {
+  padding-top: $space-4;
+  padding-bottom: $space-4;
+
+  @include md {
+    padding-top: $space-6;
+    padding-bottom: $space-6;
+  }
+
+  @include lg {
+    padding-top: $space-8;
+    padding-bottom: $space-8;
+  }
+}

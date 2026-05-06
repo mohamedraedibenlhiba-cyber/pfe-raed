@@ -1,0 +1,126 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Tableau de bord</h1>
+    <p class="page-subtitle">Vue d'ensemble de NeoHire</p>
+  </div>
+  <a mat-flat-button routerLink="/admin/users" class="btn-primary">
+    <mat-icon>people</mat-icon> Gérer les utilisateurs
+  </a>
+</div>
+
+@if (loading) {
+  <div class="loading-center"><mat-spinner diameter="48" /></div>
+} @else if (stats) {
+
+  <!-- ── Stat Cards ──────────────────────────────────────────────────────── -->
+  <div class="stats-grid">
+    @for (card of statCards; track card.label) {
+      <div class="stat-card">
+        <div class="stat-icon {{ card.bgClass }}">
+          <span class="material-icons-round">{{ card.icon }}</span>
+        </div>
+        <div class="stat-info">
+          <p class="stat-label">{{ card.label }}</p>
+          <h3 class="stat-value">{{ card.value | number }}</h3>
+          @if (card.trend) {
+            <p class="stat-change positive">{{ card.trend }}</p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ── Charts Row 1 ────────────────────────────────────────────────────── -->
+  <div class="charts-row">
+    <!-- Bar chart: activité globale -->
+    <div class="card chart-card wide">
+      <div class="chart-header">
+        <h3>Activité globale de la plateforme</h3>
+        <span class="chip chip-primary">Statistiques</span>
+      </div>
+      <div class="chart-container">
+        <canvas baseChart
+          [data]="offersChartData"
+          [options]="offersChartOptions"
+          type="bar">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Doughnut: répartition utilisateurs -->
+    <div class="card chart-card">
+      <div class="chart-header">
+        <h3>Répartition des utilisateurs</h3>
+      </div>
+      <div class="chart-container donut-container">
+        <canvas baseChart
+          [data]="usersChartData"
+          [options]="usersChartOptions"
+          type="doughnut">
+        </canvas>
+        <div class="donut-center">
+          <span class="donut-value">{{ stats.totalUsers }}</span>
+          <span class="donut-label">utilisateurs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row 2 ────────────────────────────────────────────────────── -->
+  <div class="charts-row">
+    <!-- KPI cards -->
+    <div class="card kpi-card">
+      <h3>Analyse IA des candidatures</h3>
+      <p class="kpi-value">{{ applicationRate }}%</p>
+      <mat-progress-bar mode="determinate" [value]="applicationRate" color="primary" />
+      <p class="kpi-desc">{{ stats.analyzedApplications }} sur {{ stats.totalApplications }} candidatures analysées par IA</p>
+    </div>
+
+    <div class="card kpi-card">
+      <h3>Taux de résolution réclamations</h3>
+      <p class="kpi-value {{ reclamationResolutionRate >= 70 ? 'good' : 'bad' }}">{{ reclamationResolutionRate }}%</p>
+      <mat-progress-bar mode="determinate" [value]="reclamationResolutionRate" [color]="reclamationResolutionRate >= 70 ? 'primary' : 'warn'" />
+      <p class="kpi-desc">{{ stats.resolvedReclamations }} résolues sur {{ stats.totalReclamations }}</p>
+    </div>
+
+    <!-- Pie: réclamations -->
+    <div class="card chart-card">
+      <div class="chart-header">
+        <h3>État des réclamations</h3>
+        <a mat-button routerLink="/admin/reclamations" class="view-all">
+          Voir tout <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </div>
+      <div class="chart-container">
+        <canvas baseChart
+          [data]="reclamationsChartData"
+          [options]="reclamationsChartOptions"
+          type="pie">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick actions ───────────────────────────────────────────────────── -->
+  <div class="card actions-card">
+    <h3>Actions rapides</h3>
+    <div class="quick-actions">
+      <a routerLink="/admin/users" class="action-item">
+        <div class="action-icon bg-primary"><span class="material-icons-round">person_add</span></div>
+        <span>Gérer les utilisateurs</span>
+      </a>
+      <a routerLink="/admin/reclamations" class="action-item">
+        <div class="action-icon bg-danger"><span class="material-icons-round">report_problem</span></div>
+        <span>Traiter les réclamations</span>
+        @if (stats.openReclamations > 0) {
+          <span class="action-badge">{{ stats.openReclamations }}</span>
+        }
+      </a>
+      <a routerLink="/admin/offers" class="action-item">
+        <div class="action-icon bg-success"><span class="material-icons-round">work</span></div>
+        <span>Aperçu des offres</span>
+      </a>
+    </div>
+  </div>
+}
