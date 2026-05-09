@@ -1,0 +1,104 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import * as i0 from "@angular/core";
+import * as i1 from "@angular/material/button";
+import * as i2 from "@angular/material/icon";
+export class AdminDashboardComponent {
+    static { this.ɵfac = function AdminDashboardComponent_Factory(t) { return new (t || AdminDashboardComponent)(); }; }
+    static { this.ɵcmp = /*@__PURE__*/ i0.ɵɵdefineComponent({ type: AdminDashboardComponent, selectors: [["app-admin-dashboard"]], standalone: true, features: [i0.ɵɵStandaloneFeature], decls: 81, vars: 0, consts: [[1, "powerbi-page"], [1, "page-header"], [1, "page-title"], [1, "page-subtitle"], [1, "header-actions"], ["mat-stroked-button", "", "routerLink", "/admin/users"], ["mat-stroked-button", "", "routerLink", "/admin/reclamations"], [1, "quick-links"], [1, "quick-link-card"], [1, "material-icons-round"], [1, "reports-stack"], [1, "report-card"], [1, "report-card-header"], ["mat-flat-button", "", "href", "https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/91e572f3525931c6631b?experience=power-bi", "target", "_blank", "rel", "noopener noreferrer", 1, "btn-primary"], [1, "report-frame"], ["title", "powerbi-accueil-admin", "src", i0.ɵɵtrustConstantResourceUrl `https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=91e572f3525931c6631b`, "frameborder", "0", "allowfullscreen", "true", "loading", "lazy"], ["mat-flat-button", "", "href", "https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/df4b4805ae795e469eb9?experience=power-bi", "target", "_blank", "rel", "noopener noreferrer", 1, "btn-primary"], ["title", "powerbi-reclamations-admin", "src", i0.ɵɵtrustConstantResourceUrl `https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=df4b4805ae795e469eb9`, "frameborder", "0", "allowfullscreen", "true", "loading", "lazy"], ["mat-flat-button", "", "href", "https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/e0724968b25e60c79522?experience=power-bi", "target", "_blank", "rel", "noopener noreferrer", 1, "btn-primary"], ["title", "powerbi-offres-admin", "src", i0.ɵɵtrustConstantResourceUrl `https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=e0724968b25e60c79522`, "frameborder", "0", "allowfullscreen", "true", "loading", "lazy"]], template: function AdminDashboardComponent_Template(rf, ctx) { if (rf & 1) {
+            i0.ɵɵelementStart(0, "section", 0)(1, "div", 1)(2, "div")(3, "h1", 2);
+            i0.ɵɵtext(4, "Accueil admin");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(5, "p", 3);
+            i0.ɵɵtext(6, "Les trois vues Power BI sont reunies ici pour un pilotage centralise.");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(7, "div", 4)(8, "a", 5)(9, "mat-icon");
+            i0.ɵɵtext(10, "people");
+            i0.ɵɵelementEnd();
+            i0.ɵɵtext(11, " Utilisateurs ");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(12, "a", 6)(13, "mat-icon");
+            i0.ɵɵtext(14, "report_problem");
+            i0.ɵɵelementEnd();
+            i0.ɵɵtext(15, " Reclamations ");
+            i0.ɵɵelementEnd()()();
+            i0.ɵɵelementStart(16, "div", 7)(17, "div", 8)(18, "span", 9);
+            i0.ɵɵtext(19, "home");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(20, "div")(21, "strong");
+            i0.ɵɵtext(22, "Accueil Power BI");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(23, "p");
+            i0.ɵɵtext(24, "Vue generale de la plateforme");
+            i0.ɵɵelementEnd()()();
+            i0.ɵɵelementStart(25, "div", 8)(26, "span", 9);
+            i0.ɵɵtext(27, "assessment");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(28, "div")(29, "strong");
+            i0.ɵɵtext(30, "Statistiques reclamations");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(31, "p");
+            i0.ɵɵtext(32, "Suivi des demandes et resolution");
+            i0.ɵɵelementEnd()()();
+            i0.ɵɵelementStart(33, "div", 8)(34, "span", 9);
+            i0.ɵɵtext(35, "business_center");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(36, "div")(37, "strong");
+            i0.ɵɵtext(38, "Offres job");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(39, "p");
+            i0.ɵɵtext(40, "Analyse Power BI des offres");
+            i0.ɵɵelementEnd()()()();
+            i0.ɵɵelementStart(41, "div", 10)(42, "div", 11)(43, "div", 12)(44, "div")(45, "h2");
+            i0.ɵɵtext(46, "Rapport Accueil");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(47, "p");
+            i0.ɵɵtext(48, "Vue Power BI principale du dashboard NeoHire.");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(49, "a", 13)(50, "mat-icon");
+            i0.ɵɵtext(51, "open_in_new");
+            i0.ɵɵelementEnd();
+            i0.ɵɵtext(52, " Ouvrir ");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(53, "div", 14);
+            i0.ɵɵelement(54, "iframe", 15);
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(55, "div", 11)(56, "div", 12)(57, "div")(58, "h2");
+            i0.ɵɵtext(59, "Rapport Reclamations");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(60, "p");
+            i0.ɵɵtext(61, "Analyse Power BI dediee au suivi des reclamations.");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(62, "a", 16)(63, "mat-icon");
+            i0.ɵɵtext(64, "open_in_new");
+            i0.ɵɵelementEnd();
+            i0.ɵɵtext(65, " Ouvrir ");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(66, "div", 14);
+            i0.ɵɵelement(67, "iframe", 17);
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(68, "div", 11)(69, "div", 12)(70, "div")(71, "h2");
+            i0.ɵɵtext(72, "Rapport Offres job");
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(73, "p");
+            i0.ɵɵtext(74, "Vue Power BI dediee aux offres d'emploi de la plateforme.");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(75, "a", 18)(76, "mat-icon");
+            i0.ɵɵtext(77, "open_in_new");
+            i0.ɵɵelementEnd();
+            i0.ɵɵtext(78, " Ouvrir ");
+            i0.ɵɵelementEnd()();
+            i0.ɵɵelementStart(79, "div", 14);
+            i0.ɵɵelement(80, "iframe", 19);
+            i0.ɵɵelementEnd()()()();
+        } }, dependencies: [CommonModule, RouterLink, MatButtonModule, i1.MatAnchor, MatIconModule, i2.MatIcon], styles: [".powerbi-page[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 24px;\n}\n\n.page-header[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 16px;\n  flex-wrap: wrap;\n}\n\n.header-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n\n.quick-links[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 16px;\n}\n\n.quick-link-card[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n  padding: 18px;\n  border-radius: 18px;\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  background: linear-gradient(135deg, #fffdf7, #ffffff);\n  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);\n  color: inherit;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n\n  .material-icons-round {\n    width: 48px;\n    height: 48px;\n    display: grid;\n    place-items: center;\n    border-radius: 14px;\n    background: linear-gradient(135deg, #f59e0b, #f97316);\n    color: #fff;\n    font-size: 24px;\n    flex-shrink: 0;\n  }\n\n  strong {\n    display: block;\n    margin-bottom: 4px;\n    font-size: 1rem;\n    color: var(--text-primary);\n  }\n\n  p {\n    margin: 0;\n    color: var(--text-secondary);\n    font-size: 0.9rem;\n  }\n}\n\n.reports-stack[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 24px;\n}\n\n.report-card[_ngcontent-%COMP%] {\n  background: linear-gradient(180deg, #ffffff, #fffaf1);\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  border-radius: 24px;\n  padding: 20px;\n  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);\n}\n\n.report-card-header[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 16px;\n  margin-bottom: 18px;\n  flex-wrap: wrap;\n\n  h2 {\n    margin: 0 0 6px;\n    font-size: 1.2rem;\n    color: var(--text-primary);\n  }\n\n  p {\n    margin: 0;\n    color: var(--text-secondary);\n  }\n}\n\n.report-frame[_ngcontent-%COMP%] {\n  overflow: hidden;\n  border-radius: 18px;\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  background: #fff;\n\n  iframe {\n    display: block;\n    width: 100%;\n    min-height: 76vh;\n    border: 0;\n  }\n}\n\n.btn-primary[_ngcontent-%COMP%] {\n  background: linear-gradient(135deg, #f97316, #f59e0b) !important;\n  color: #fff !important;\n}\n\n@media (max-width: 768px) {\n  .report-card[_ngcontent-%COMP%] {\n    padding: 16px;\n  }\n\n  .report-frame[_ngcontent-%COMP%]   iframe[_ngcontent-%COMP%] {\n    min-height: 68vh;\n  }\n}"] }); }
+}
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(AdminDashboardComponent, [{
+        type: Component,
+        args: [{ selector: 'app-admin-dashboard', standalone: true, imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule], template: "<section class=\"powerbi-page\">\n  <div class=\"page-header\">\n    <div>\n      <h1 class=\"page-title\">Accueil admin</h1>\n      <p class=\"page-subtitle\">Les trois vues Power BI sont reunies ici pour un pilotage centralise.</p>\n    </div>\n\n    <div class=\"header-actions\">\n      <a mat-stroked-button routerLink=\"/admin/users\">\n        <mat-icon>people</mat-icon>\n        Utilisateurs\n      </a>\n      <a mat-stroked-button routerLink=\"/admin/reclamations\">\n        <mat-icon>report_problem</mat-icon>\n        Reclamations\n      </a>\n    </div>\n  </div>\n\n  <div class=\"quick-links\">\n    <div class=\"quick-link-card\">\n      <span class=\"material-icons-round\">home</span>\n      <div>\n        <strong>Accueil Power BI</strong>\n        <p>Vue generale de la plateforme</p>\n      </div>\n    </div>\n\n    <div class=\"quick-link-card\">\n      <span class=\"material-icons-round\">assessment</span>\n      <div>\n        <strong>Statistiques reclamations</strong>\n        <p>Suivi des demandes et resolution</p>\n      </div>\n    </div>\n\n    <div class=\"quick-link-card\">\n      <span class=\"material-icons-round\">business_center</span>\n      <div>\n        <strong>Offres job</strong>\n        <p>Analyse Power BI des offres</p>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"reports-stack\">\n    <div class=\"report-card\">\n      <div class=\"report-card-header\">\n        <div>\n          <h2>Rapport Accueil</h2>\n          <p>Vue Power BI principale du dashboard NeoHire.</p>\n        </div>\n        <a\n          mat-flat-button\n          class=\"btn-primary\"\n          href=\"https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/91e572f3525931c6631b?experience=power-bi\"\n          target=\"_blank\"\n          rel=\"noopener noreferrer\">\n          <mat-icon>open_in_new</mat-icon>\n          Ouvrir\n        </a>\n      </div>\n\n      <div class=\"report-frame\">\n        <iframe\n          title=\"powerbi-accueil-admin\"\n          src=\"https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=91e572f3525931c6631b\"\n          frameborder=\"0\"\n          allowfullscreen=\"true\"\n          loading=\"lazy\">\n        </iframe>\n      </div>\n    </div>\n\n    <div class=\"report-card\">\n      <div class=\"report-card-header\">\n        <div>\n          <h2>Rapport Reclamations</h2>\n          <p>Analyse Power BI dediee au suivi des reclamations.</p>\n        </div>\n        <a\n          mat-flat-button\n          class=\"btn-primary\"\n          href=\"https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/df4b4805ae795e469eb9?experience=power-bi\"\n          target=\"_blank\"\n          rel=\"noopener noreferrer\">\n          <mat-icon>open_in_new</mat-icon>\n          Ouvrir\n        </a>\n      </div>\n\n      <div class=\"report-frame\">\n        <iframe\n          title=\"powerbi-reclamations-admin\"\n          src=\"https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=df4b4805ae795e469eb9\"\n          frameborder=\"0\"\n          allowfullscreen=\"true\"\n          loading=\"lazy\">\n        </iframe>\n      </div>\n    </div>\n\n    <div class=\"report-card\">\n      <div class=\"report-card-header\">\n        <div>\n          <h2>Rapport Offres job</h2>\n          <p>Vue Power BI dediee aux offres d'emploi de la plateforme.</p>\n        </div>\n        <a\n          mat-flat-button\n          class=\"btn-primary\"\n          href=\"https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/e0724968b25e60c79522?experience=power-bi\"\n          target=\"_blank\"\n          rel=\"noopener noreferrer\">\n          <mat-icon>open_in_new</mat-icon>\n          Ouvrir\n        </a>\n      </div>\n\n      <div class=\"report-frame\">\n        <iframe\n          title=\"powerbi-offres-admin\"\n          src=\"https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=e0724968b25e60c79522\"\n          frameborder=\"0\"\n          allowfullscreen=\"true\"\n          loading=\"lazy\">\n        </iframe>\n      </div>\n    </div>\n  </div>\n</section>\n", styles: [".powerbi-page {\n  display: flex;\n  flex-direction: column;\n  gap: 24px;\n}\n\n.page-header {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 16px;\n  flex-wrap: wrap;\n}\n\n.header-actions {\n  display: flex;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n\n.quick-links {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 16px;\n}\n\n.quick-link-card {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n  padding: 18px;\n  border-radius: 18px;\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  background: linear-gradient(135deg, #fffdf7, #ffffff);\n  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);\n  color: inherit;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n\n  .material-icons-round {\n    width: 48px;\n    height: 48px;\n    display: grid;\n    place-items: center;\n    border-radius: 14px;\n    background: linear-gradient(135deg, #f59e0b, #f97316);\n    color: #fff;\n    font-size: 24px;\n    flex-shrink: 0;\n  }\n\n  strong {\n    display: block;\n    margin-bottom: 4px;\n    font-size: 1rem;\n    color: var(--text-primary);\n  }\n\n  p {\n    margin: 0;\n    color: var(--text-secondary);\n    font-size: 0.9rem;\n  }\n}\n\n.reports-stack {\n  display: flex;\n  flex-direction: column;\n  gap: 24px;\n}\n\n.report-card {\n  background: linear-gradient(180deg, #ffffff, #fffaf1);\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  border-radius: 24px;\n  padding: 20px;\n  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);\n}\n\n.report-card-header {\n  display: flex;\n  align-items: flex-start;\n  justify-content: space-between;\n  gap: 16px;\n  margin-bottom: 18px;\n  flex-wrap: wrap;\n\n  h2 {\n    margin: 0 0 6px;\n    font-size: 1.2rem;\n    color: var(--text-primary);\n  }\n\n  p {\n    margin: 0;\n    color: var(--text-secondary);\n  }\n}\n\n.report-frame {\n  overflow: hidden;\n  border-radius: 18px;\n  border: 1px solid rgba(15, 23, 42, 0.08);\n  background: #fff;\n\n  iframe {\n    display: block;\n    width: 100%;\n    min-height: 76vh;\n    border: 0;\n  }\n}\n\n.btn-primary {\n  background: linear-gradient(135deg, #f97316, #f59e0b) !important;\n  color: #fff !important;\n}\n\n@media (max-width: 768px) {\n  .report-card {\n    padding: 16px;\n  }\n\n  .report-frame iframe {\n    min-height: 68vh;\n  }\n}\n"] }]
+    }], null, null); })();
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassDebugInfo(AdminDashboardComponent, { className: "AdminDashboardComponent", filePath: "app\\features\\admin\\dashboard\\admin-dashboard.component.ts", lineNumber: 14 }); })();
+//# sourceMappingURL=admin-dashboard.component.js.map

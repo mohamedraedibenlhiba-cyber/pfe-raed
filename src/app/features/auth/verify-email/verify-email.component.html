@@ -1,0 +1,48 @@
+<div class="verify-email-container">
+  <mat-card class="verify-card">
+    <!-- Verifying State -->
+    <div *ngIf="verifying" class="state-container">
+      <mat-spinner diameter="50" class="spinner"></mat-spinner>
+      <h2>Vérification de votre email...</h2>
+      <p>Veuillez patienter pendant que nous vérifions votre adresse email.</p>
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="verified && !verifying" class="state-container success">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h2>Email vérifié avec succès ! ✨</h2>
+      <p>Bienvenue sur NeoHire!</p>
+      <p class="subtext">Vous allez être redirigé vers la page de connexion...</p>
+      <button mat-raised-button color="primary" (click)="backToLogin()" class="action-button">
+        Aller à la connexion
+      </button>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!verified && !verifying" class="state-container error">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h2>Erreur de vérification</h2>
+      <p>Le lien de vérification est invalide ou expiré.</p>
+
+      <!-- Resend Email Option -->
+      <div class="resend-section">
+        <p class="resend-label">Vous pouvez renvoyer le lien de vérification :</p>
+        <div class="button-group">
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="resendEmail()"
+            [disabled]="!email || resendLoading"
+            class="resend-button">
+            <mat-icon *ngIf="!resendLoading">mail_outline</mat-icon>
+            <mat-spinner diameter="20" *ngIf="resendLoading"></mat-spinner>
+            {{ resendLoading ? 'Envoi en cours...' : 'Renvoyer le lien' }}
+          </button>
+          <button mat-stroked-button (click)="backToLogin()" class="back-button">
+            Retour à la connexion
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+</div>

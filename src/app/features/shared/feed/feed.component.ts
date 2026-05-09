@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AlertService } from '../../../core/services/alert.service';
 import { PostService } from '../../../core/services/post.service';
 import { FollowService } from '../../../core/services/follow.service';
@@ -22,131 +23,253 @@ import { MediaViewerComponent } from '../../../shared/components/media-viewer/me
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,
     MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatMenuModule, MatProgressSpinnerModule,
+    MatMenuModule, MatProgressSpinnerModule, MatTooltipModule,
     AttachmentUploaderComponent, MediaViewerComponent
   ],
   template: `
 <div class="feed-layout">
+  <section class="feed-hero card">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">Gestion des publications</span>
+      <h1>Votre fil social</h1>
+      <p>Publiez des actualites, partagez vos pieces jointes et interagissez avec la communaute dans une interface plus claire.</p>
+    </div>
 
-  <!-- Create post -->
-  <div class="card create-post-card">
+    <div class="hero-metrics">
+      <div class="metric-pill">
+        <strong>{{ posts.length }}</strong>
+        <span>publication(s) chargee(s)</span>
+      </div>
+      <div class="metric-pill accent">
+        <strong>{{ showCreateForm ? 'Brouillon' : 'Pret' }}</strong>
+        <span>{{ showCreateForm ? 'formulaire ouvert' : 'a publier' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="card create-post-card" [class.expanded]="showCreateForm">
     <div class="post-author-row">
       <div class="avatar-sm">{{ initials(auth.currentUser?.fullName) }}</div>
-      <button class="create-trigger" (click)="showCreateForm = !showCreateForm">
-        Partagez quelque chose…
+
+      <button type="button" class="create-trigger" (click)="showCreateForm = !showCreateForm">
+        <span class="trigger-title">Partager une publication</span>
+        <span class="trigger-subtitle">Texte, image, video ou document</span>
+      </button>
+
+      <button
+        type="button"
+        class="mini-action-btn"
+        (click)="showCreateForm = !showCreateForm"
+        [matTooltip]="showCreateForm ? 'Fermer le formulaire' : 'Ouvrir le formulaire'">
+        <mat-icon>{{ showCreateForm ? 'expand_less' : 'edit' }}</mat-icon>
       </button>
     </div>
+
     @if (showCreateForm) {
       <form [formGroup]="postForm" (ngSubmit)="createPost()" class="post-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Votre publication</mat-label>
-          <textarea matInput formControlName="content" rows="4" placeholder="Écrivez votre publication…"></textarea>
-        </mat-form-field>
-        <div class="upload-section">
-          <app-attachment-uploader
-            [maxSizeMb]="50"
-            [acceptTypes]="'all'"
-            (fileSelected)="onFilePreviewSelected($event)">
-          </app-attachment-uploader>
-          @if(selectedPostAttachment) {
-            <div class="attachment-badge">
-              <mat-icon>check_circle</mat-icon>
-              <span>{{ selectedPostAttachment.file.name }}</span>
-              <button mat-icon-button (click)="removePostAttachment()" matTooltip="Retirer">
-                <mat-icon>close</mat-icon>
-              </button>
+        <div class="form-panel">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Votre publication</mat-label>
+            <textarea matInput formControlName="content" rows="4" placeholder="Ecrivez votre message..."></textarea>
+          </mat-form-field>
+
+          <div class="upload-section">
+            <div class="section-label">
+              <mat-icon>attach_file</mat-icon>
+              <span>Piece jointe</span>
             </div>
-          }
+
+            <app-attachment-uploader
+              [maxSizeMb]="50"
+              [acceptTypes]="'all'"
+              (fileSelected)="onFilePreviewSelected($event)">
+            </app-attachment-uploader>
+
+            @if (selectedPostAttachment) {
+              <div class="attachment-badge">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ selectedPostAttachment.file.name }}</span>
+                <button type="button" mat-icon-button (click)="removePostAttachment()" matTooltip="Retirer">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Lien media optionnel</mat-label>
+            <input matInput formControlName="mediaUrl" placeholder="https://...">
+          </mat-form-field>
         </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>URL Media (optionnel - legacy)</mat-label>
-          <input matInput formGroupName="mediaUrl" placeholder="https://…">
-        </mat-form-field>
+
         <div class="form-actions">
-          <button mat-button type="button" (click)="showCreateForm=false">Annuler</button>
+          <button type="button" class="btn-soft" (click)="showCreateForm = false">Annuler</button>
           <button class="btn-primary" type="submit" [disabled]="postForm.invalid || creating">
-            @if(creating){<mat-spinner diameter="18"></mat-spinner>}@else{Publier}
+            @if (creating) {
+              <mat-spinner diameter="18"></mat-spinner>
+              <span>Publication...</span>
+            } @else {
+              <mat-icon>send</mat-icon>
+              <span>Publier</span>
+            }
           </button>
         </div>
       </form>
     }
   </div>
 
-  @if(loading){ <div class="center-spinner"><mat-spinner></mat-spinner></div> }
+  @if (loading) {
+    <div class="center-spinner"><mat-spinner></mat-spinner></div>
+  }
 
-  @for(post of posts; track post.id) {
-    <div class="card post-card">
+  @for (post of posts; track post.id) {
+    <article class="card post-card">
       <div class="post-header">
         <div class="post-header-left">
           <div class="avatar">{{ initials(post.author.fullName) }}</div>
           <div class="post-header-info">
-            <span class="author-name">{{ post.author.fullName }}</span>
-            <span class="post-time">{{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <div class="post-author-line">
+              <span class="author-name">{{ post.author.fullName }}</span>
+              @if (post.author.id === auth.currentUser?.id) {
+                <span class="owner-badge">Vous</span>
+              }
+            </div>
+            <span class="post-time">
+              <mat-icon>schedule</mat-icon>
+              {{ post.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
           </div>
         </div>
+
         <div class="post-header-right">
-          @if(post.author.id !== auth.currentUser?.id) {
-            <button class="follow-btn" [class.followed]="followingMap[post.author.id]"
-                    (click)="toggleFollow(post.author.id)">
-              {{ followingMap[post.author.id] ? '✓ Abonné' : '+ Suivre' }}
+          @if (post.author.id !== auth.currentUser?.id) {
+            <button
+              type="button"
+              class="follow-btn"
+              [class.followed]="followingMap[post.author.id]"
+              (click)="toggleFollow(post.author.id)">
+              <mat-icon>{{ followingMap[post.author.id] ? 'check' : 'person_add' }}</mat-icon>
+              <span>{{ followingMap[post.author.id] ? 'Abonne' : 'Suivre' }}</span>
             </button>
           } @else {
-            <button class="icon-btn" [matMenuTriggerFor]="postMenu"><mat-icon>more_vert</mat-icon></button>
-            <mat-menu #postMenu><button mat-menu-item (click)="deletePost(post)"><mat-icon>delete</mat-icon>Supprimer</button></mat-menu>
+            <button type="button" class="icon-btn" [matMenuTriggerFor]="postMenu" matTooltip="Plus d'actions">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #postMenu="matMenu">
+              <button mat-menu-item (click)="deletePost(post)">
+                <mat-icon>delete</mat-icon>
+                <span>Supprimer</span>
+              </button>
+            </mat-menu>
           }
         </div>
       </div>
-      <p class="post-content">{{ post.content }}</p>
-      @if(post.attachmentFileUrl) {
-        <app-media-viewer
-          [attachmentFileUrl]="post.attachmentFileUrl"
-          [attachmentFileType]="post.attachmentFileType || 'IMAGE'"
-          [fileName]="post.attachmentFileName || ''"
-          [attachmentFileSize]="post.attachmentFileSize || 0">
-        </app-media-viewer>
-      } @else if(post.mediaUrl) {
-        <app-media-viewer
-          [attachmentFileUrl]="post.mediaUrl"
-          [attachmentFileType]="'IMAGE'"
-          [fileName]="'Image'"
-          [attachmentFileSize]="0">
-        </app-media-viewer>
+
+      <div class="post-body">
+        <p class="post-content">{{ post.content }}</p>
+      </div>
+
+      @if (post.attachmentFileUrl) {
+        <div class="media-surface">
+          <app-media-viewer
+            [attachmentFileUrl]="post.attachmentFileUrl"
+            [attachmentFileType]="post.attachmentFileType || 'IMAGE'"
+            [fileName]="post.attachmentFileName || ''"
+            [attachmentFileSize]="post.attachmentFileSize || 0">
+          </app-media-viewer>
+        </div>
+      } @else if (post.mediaUrl) {
+        <div class="media-surface">
+          <app-media-viewer
+            [attachmentFileUrl]="post.mediaUrl"
+            [attachmentFileType]="'IMAGE'"
+            [fileName]="'Image'"
+            [attachmentFileSize]="0">
+          </app-media-viewer>
+        </div>
       }
-      <div class="post-counts">
-        @if((post.reactionCount||0)>0){<span>👍 {{post.reactionCount}}</span>}
-        @if((post.commentCount||0)>0){<span>💬 {{post.commentCount}} commentaire(s)</span>}
-      </div>
+
+      @if ((post.reactionCount || 0) > 0 || (post.commentCount || 0) > 0) {
+        <div class="post-counts">
+          @if ((post.reactionCount || 0) > 0) {
+            <span class="count-pill">
+              <mat-icon>thumb_up</mat-icon>
+              {{ post.reactionCount }}
+            </span>
+          }
+          @if ((post.commentCount || 0) > 0) {
+            <span class="count-pill">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              {{ post.commentCount }} commentaire(s)
+            </span>
+          }
+        </div>
+      }
+
       <div class="post-actions">
-        <button class="action-btn" [class.reacted]="post.userReaction==='LIKE'" (click)="react(post,'LIKE')"><mat-icon>thumb_up</mat-icon>J'aime</button>
-        <button class="action-btn" [class.reacted]="post.userReaction==='LOVE'" (click)="react(post,'LOVE')"><mat-icon>favorite</mat-icon>J'adore</button>
-        <button class="action-btn" [class.reacted]="post.userReaction==='CELEBRATE'" (click)="react(post,'CELEBRATE')"><mat-icon>celebration</mat-icon>Bravo</button>
-        <button class="action-btn" (click)="toggleComments(post)"><mat-icon>chat_bubble_outline</mat-icon>Commenter</button>
+        <button type="button" class="action-btn" [class.reacted]="post.userReaction === 'LIKE'" (click)="react(post, 'LIKE')">
+          <mat-icon>thumb_up</mat-icon>
+          <span>J'aime</span>
+        </button>
+        <button type="button" class="action-btn" [class.reacted]="post.userReaction === 'LOVE'" (click)="react(post, 'LOVE')">
+          <mat-icon>favorite</mat-icon>
+          <span>J'adore</span>
+        </button>
+        <button type="button" class="action-btn" [class.reacted]="post.userReaction === 'CELEBRATE'" (click)="react(post, 'CELEBRATE')">
+          <mat-icon>celebration</mat-icon>
+          <span>Bravo</span>
+        </button>
+        <button type="button" class="action-btn" [class.opened]="openComments[post.id]" (click)="toggleComments(post)">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <span>Commenter</span>
+        </button>
       </div>
-      @if(openComments[post.id]) {
+
+      @if (openComments[post.id]) {
         <div class="comments-section">
-          @for(c of commentsMap[post.id]||[]; track c.id) {
+          @if (replyTarget[post.id]) {
+            <div class="reply-indicator">
+              <mat-icon>reply</mat-icon>
+              <span>Reponse a {{ replyTarget[post.id]!.author.fullName }}</span>
+              <button type="button" class="icon-btn-small" (click)="clearReply(post.id)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+
+          @for (c of commentsMap[post.id] || []; track c.id) {
             <div class="comment">
               <div class="avatar-xs">{{ initials(c.author.fullName) }}</div>
-              <div class="comment-body">
-                <span class="comment-author">{{ c.author.fullName }}</span>
-                <p>{{ c.content }}</p>
-                @if(c.attachmentFileUrl) {
-                  <div class="comment-media-wrapper">
-                    <app-media-viewer
-                      [attachmentFileUrl]="c.attachmentFileUrl"
-                      [attachmentFileType]="c.attachmentFileType || 'IMAGE'"
-                      [fileName]="c.attachmentFileName || ''"
-                      [attachmentFileSize]="c.attachmentFileSize || 0">
-                    </app-media-viewer>
+
+              <div class="comment-thread">
+                <div class="comment-body">
+                  <div class="comment-top">
+                    <span class="comment-author">{{ c.author.fullName }}</span>
                   </div>
-                }
-                <button class="reply-btn" (click)="setReply(post.id,c)">Répondre</button>
-                @for(r of c.replies||[]; track r.id) {
-                  <div class="reply"><div class="avatar-xs">{{ initials(r.author.fullName) }}</div>
-                    <div class="comment-body">
+                  <p>{{ c.content }}</p>
+
+                  @if (c.attachmentFileUrl) {
+                    <div class="comment-media-wrapper">
+                      <app-media-viewer
+                        [attachmentFileUrl]="c.attachmentFileUrl"
+                        [attachmentFileType]="c.attachmentFileType || 'IMAGE'"
+                        [fileName]="c.attachmentFileName || ''"
+                        [attachmentFileSize]="c.attachmentFileSize || 0">
+                      </app-media-viewer>
+                    </div>
+                  }
+
+                  <button type="button" class="reply-btn" (click)="setReply(post.id, c)">Repondre</button>
+                </div>
+
+                @for (r of c.replies || []; track r.id) {
+                  <div class="reply">
+                    <div class="avatar-xs">{{ initials(r.author.fullName) }}</div>
+                    <div class="comment-body reply-body">
                       <span class="comment-author">{{ r.author.fullName }}</span>
                       <p>{{ r.content }}</p>
-                      @if(r.attachmentFileUrl) {
+
+                      @if (r.attachmentFileUrl) {
                         <div class="comment-media-wrapper">
                           <app-media-viewer
                             [attachmentFileUrl]="r.attachmentFileUrl"
@@ -162,80 +285,411 @@ import { MediaViewerComponent } from '../../../shared/components/media-viewer/me
               </div>
             </div>
           }
+
+          @if ((commentsMap[post.id] || []).length === 0) {
+            <div class="comments-empty">
+              <mat-icon>forum</mat-icon>
+              <p>Aucun commentaire pour le moment. Soyez le premier a reagir.</p>
+            </div>
+          }
+
           <div class="comment-input-row">
             <div class="avatar-xs">{{ initials(auth.currentUser?.fullName) }}</div>
             <mat-form-field appearance="outline" class="comment-field">
-              <mat-label>{{ replyTarget[post.id] ? 'Répondre à '+replyTarget[post.id]!.author.fullName : 'Commenter…' }}</mat-label>
+              <mat-label>{{ replyTarget[post.id] ? 'Votre reponse' : 'Ajouter un commentaire' }}</mat-label>
               <input matInput [(ngModel)]="commentText[post.id]" (keyup.enter)="submitComment(post)">
-              @if(replyTarget[post.id]){<button matSuffix class="icon-btn-small" (click)="clearReply(post.id)"><mat-icon>close</mat-icon></button>}
             </mat-form-field>
-            <button mat-icon-button class="submit-comment-btn" (click)="submitComment(post)" [disabled]="!commentText[post.id]?.trim()">
+            <button type="button" class="submit-comment-btn" (click)="submitComment(post)" [disabled]="!(commentText[post.id] || '').trim()">
               <mat-icon>send</mat-icon>
             </button>
           </div>
         </div>
       }
+    </article>
+  }
+
+  @if (!loading && posts.length === 0) {
+    <div class="card empty-state">
+      <mat-icon>newspaper</mat-icon>
+      <h3>Aucune publication visible</h3>
+      <p>Suivez des utilisateurs ou creez votre premiere publication pour lancer l'activite.</p>
     </div>
   }
 
-  @if(!loading && posts.length===0) {
-    <div class="card empty-state">
-      <mat-icon>newspaper</mat-icon>
-      <p>Votre fil est vide. Suivez des utilisateurs pour voir leurs publications.</p>
+  @if (!loading && !lastPage && posts.length > 0) {
+    <div class="load-more">
+      <button type="button" class="btn-outline" (click)="loadMore()">
+        <mat-icon>expand_more</mat-icon>
+        <span>Voir plus</span>
+      </button>
     </div>
-  }
-  @if(!loading && !lastPage && posts.length>0) {
-    <div class="load-more"><button class="btn-outline" (click)="loadMore()">Voir plus</button></div>
   }
 </div>
   `,
   styles: [`
     :host {
-      --orange: #FF8C00;
-      --orange-dark: #E67600;
-      --orange-light: #FFA333;
-      --black: #1A1A1A;
-      --black-light: #2C2C2C;
-      --white: #FFFFFF;
-      --gray-light: #F5F5F5;
-      --gray-medium: #E0E0E0;
+      --orange: #ff8c00;
+      --orange-dark: #e67600;
+      --orange-soft: #fff1df;
+      --orange-light: #ffb347;
+      --orange-outline: rgba(255, 140, 0, 0.16);
+      --black: #1a1a1a;
+      --black-light: #4b5563;
+      --white: #ffffff;
+      --surface: #fffaf4;
+      --surface-strong: #fff5e8;
+      --gray-light: #f7f4ef;
+      --gray-medium: #ebe4d9;
+      --border: rgba(26, 26, 26, 0.08);
+      --shadow-soft: 0 12px 32px rgba(26, 26, 26, 0.08);
+      --shadow-card: 0 22px 40px rgba(26, 26, 26, 0.06);
     }
 
     .feed-layout {
-      max-width: 700px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px 20px 40px;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      background: #f0f2f5;
+      background:
+        radial-gradient(circle at top left, rgba(255, 179, 71, 0.18), transparent 24%),
+        linear-gradient(180deg, #fffdf9 0%, #fff7ef 100%);
       min-height: 100vh;
     }
 
     .card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      backdrop-filter: blur(12px);
     }
 
     .card:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card);
+      border-color: var(--orange-outline);
+    }
+
+    .feed-hero {
+      padding: 26px 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      background:
+        linear-gradient(135deg, rgba(255, 140, 0, 0.08), rgba(255, 179, 71, 0.02)),
+        #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .feed-hero::after {
+      content: '';
+      position: absolute;
+      top: -48px;
+      right: -48px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 179, 71, 0.24), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 140, 0, 0.12);
+      color: var(--orange-dark);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 2.3rem);
+      line-height: 1.1;
+      color: var(--black);
+    }
+
+    .hero-copy p {
+      margin: 0;
+      color: var(--black-light);
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .hero-metrics {
+      display: grid;
+      gap: 12px;
+      min-width: 210px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-pill {
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 140, 0, 0.08);
+      box-shadow: 0 10px 22px rgba(255, 140, 0, 0.08);
+    }
+
+    .metric-pill.accent {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.14), rgba(255, 179, 71, 0.08));
+    }
+
+    .metric-pill strong {
+      display: block;
+      font-size: 1.2rem;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+
+    .metric-pill span {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--black-light);
+    }
+
+    .create-post-card {
+      padding: 18px 18px 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .create-post-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-light));
+    }
+
+    .create-post-card.expanded {
+      box-shadow: 0 24px 42px rgba(255, 140, 0, 0.12);
+    }
+
+    .post-author-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .create-trigger {
+      width: 100%;
+      border: 1px solid var(--gray-medium);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fffefc, var(--surface));
+      padding: 14px 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .create-trigger:hover {
+      border-color: rgba(255, 140, 0, 0.25);
+      box-shadow: 0 14px 28px rgba(255, 140, 0, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .trigger-title {
+      display: block;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 3px;
+    }
+
+    .trigger-subtitle {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--black-light);
+    }
+
+    .mini-action-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 140, 0, 0.12);
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .mini-action-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 140, 0, 0.14);
+    }
+
+    .post-form {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #fff, var(--surface));
+      border: 1px solid rgba(255, 140, 0, 0.08);
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 10px;
+    }
+
+    .section-label mat-icon {
+      color: var(--orange);
+    }
+
+    .upload-section {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 140, 0, 0.03);
+      border: 1px dashed rgba(255, 140, 0, 0.22);
+    }
+
+    .attachment-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.14), rgba(255, 179, 71, 0.08));
+      border: 1px solid rgba(255, 140, 0, 0.12);
+      color: var(--black);
+    }
+
+    .attachment-badge mat-icon {
+      color: var(--orange);
+    }
+
+    .attachment-badge span {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-soft,
+    .btn-outline {
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      min-height: 46px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: var(--white);
+      box-shadow: 0 12px 24px rgba(255, 140, 0, 0.24);
+    }
+
+    .btn-primary:hover:not(:disabled) {
       transform: translateY(-2px);
+      box-shadow: 0 18px 30px rgba(255, 140, 0, 0.28);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-primary mat-spinner {
+      --mdc-circular-progress-active-indicator-color: #fff;
+    }
+
+    .btn-soft {
+      min-height: 46px;
+      padding: 0 16px;
+      background: #fff;
+      color: var(--black-light);
+      border: 1px solid var(--gray-medium);
+    }
+
+    .btn-soft:hover {
+      transform: translateY(-1px);
+      background: var(--gray-light);
+      color: var(--black);
+    }
+
+    .btn-outline {
+      min-height: 48px;
+      padding: 0 20px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--orange-dark);
+      border: 1px solid rgba(255, 140, 0, 0.24);
+      box-shadow: 0 10px 20px rgba(255, 140, 0, 0.08);
+    }
+
+    .btn-outline:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 140, 0, 0.08);
     }
 
     .post-card {
-      background: var(--white);
       overflow: hidden;
-      animation: slideIn 0.4s ease;
+      animation: slideIn 0.35s ease;
     }
 
     @keyframes slideIn {
       from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(14px);
       }
       to {
         opacity: 1;
@@ -243,822 +697,592 @@ import { MediaViewerComponent } from '../../../shared/components/media-viewer/me
       }
     }
 
-    .create-post-card {
-      background: var(--white);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: none;
-      padding: 20px;
-    }
-
-    .post-author-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .create-trigger {
-      flex: 1;
-      background: var(--gray-light);
-      border: 1px solid var(--gray-medium);
-      border-radius: 24px;
-      padding: 10px 20px;
-      text-align: left;
-      cursor: pointer;
-      color: var(--black-light);
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-
-    .create-trigger:hover {
-      background: linear-gradient(135deg, var(--orange-light), var(--orange));
-      border-color: var(--orange);
-      color: var(--white);
-      box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
-    }
-
-    .post-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-      color: var(--white);
-      border: none;
-      padding: 10px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: linear-gradient(135deg, var(--orange-dark), #D66F00);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--orange);
-      border: 2px solid var(--orange);
-      padding: 8px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .btn-outline:hover {
-      background: var(--orange);
-      color: var(--white);
-      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
-      transform: translateY(-1px);
-    }
-
-    .action-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--black-light);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .action-btn:hover {
-      background: rgba(255, 140, 0, 0.08);
-      color: var(--orange);
-      transform: translateY(-1px);
-    }
-
-    .action-btn.reacted {
-      color: var(--orange);
-      background: rgba(255, 140, 0, 0.15);
-      font-weight: 700;
-    }
-
-    .action-btn.reacted:hover {
-      background: rgba(255, 140, 0, 0.2);
-      color: var(--orange-dark);
-    }
-
     .post-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--gray-medium);
+      gap: 12px;
+      padding: 18px 22px 14px;
     }
 
     .post-header-left {
       display: flex;
       align-items: center;
       gap: 12px;
-      flex: 1;
+      min-width: 0;
     }
 
     .post-header-info {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .post-author-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .author-name {
-      font-weight: 600;
-      font-size: 15px;
+      font-weight: 700;
+      font-size: 0.98rem;
       color: var(--black);
     }
 
+    .owner-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 140, 0, 0.12);
+      color: var(--orange-dark);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
     .post-time {
-      font-size: 13px;
-      color: #65676B;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: #6b7280;
+    }
+
+    .post-time mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     .post-header-right {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .follow-btn {
-      background: var(--orange);
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
       color: var(--white);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s;
+      box-shadow: 0 10px 18px rgba(255, 140, 0, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
     .follow-btn:hover {
-      background: var(--orange-dark);
-      box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(255, 140, 0, 0.24);
     }
 
     .follow-btn.followed {
-      background: transparent;
-      color: var(--black-light);
-      border: 1px solid var(--gray-medium);
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      border-color: rgba(255, 140, 0, 0.18);
+      box-shadow: none;
     }
 
-    .follow-btn.followed:hover {
-      background: var(--gray-light);
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #6b7280;
+      display: inline-grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      transform: translateY(-1px);
+    }
+
+    .post-body {
+      padding: 0 22px 8px;
     }
 
     .post-content {
-      padding: 12px 20px;
-      font-size: 15px;
-      color: var(--black);
-      line-height: 1.5;
       margin: 0;
+      font-size: 0.97rem;
+      line-height: 1.72;
+      color: var(--black);
       word-break: break-word;
+      white-space: pre-line;
     }
 
-    app-media-viewer {
-      width: 100%;
-      display: block;
-    }
-
-    .post-media {
-      width: 100%;
-      display: block;
-      background: var(--black);
-      max-height: 600px;
-      object-fit: cover;
-    }
-
-    .media-container {
-      width: 100%;
+    .media-surface {
+      margin: 0 18px 14px;
+      border-radius: 20px;
       overflow: hidden;
-      background: #000;
-    }
-
-    .media-container img,
-    .media-container video {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .video-container {
-      aspect-ratio: 16 / 9;
-    }
-
-    .audio-container {
-      padding: 16px 20px;
-      background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 163, 51, 0.05));
-      border-top: 1px solid var(--gray-medium);
-    }
-
-    .post-audio {
-      width: 100%;
-      outline: none;
-    }
-
-    .document-preview-card {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
-      border: 1px solid var(--gray-medium);
-      border-radius: 0;
-      margin: 0;
-      margin-top: -1px;
-    }
-
-    .document-icon {
-      flex-shrink: 0;
-    }
-
-    .document-icon mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-      color: var(--orange);
-    }
-
-    .document-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .document-name {
-      margin: 0;
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--black);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .document-size {
-      font-size: 12px;
-      color: #999;
-      display: block;
-      margin-top: 2px;
-    }
-
-    .document-link {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: var(--orange);
-      color: var(--white);
-      border-radius: 50%;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .document-link:hover {
-      background: var(--orange-dark);
-      transform: scale(1.1);
-      box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
-    }
-
-    .document-link mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      border: 1px solid var(--border);
+      background: #fafafa;
     }
 
     .post-counts {
       display: flex;
-      gap: 16px;
-      padding: 12px 20px;
-      font-size: 13px;
-      color: #65676B;
-      border-bottom: 1px solid var(--gray-medium);
-      background: linear-gradient(180deg, #fafafa 0%, transparent 100%);
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 0 22px 14px;
     }
 
-    .post-counts span {
-      display: flex;
+    .count-pill {
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 500;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .count-pill mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     .post-actions {
-      display: flex;
-      gap: 0;
-      padding: 8px 0;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-medium);
-      transition: all 0.2s ease;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 18px 18px;
     }
 
-    .post-actions:hover {
-      background: #fafafa;
+    .action-btn {
+      min-height: 46px;
+      padding: 0 10px;
+      border: 1px solid rgba(26, 26, 26, 0.08);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--black-light);
+      font-weight: 700;
+      font-size: 0.84rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .action-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      border-color: rgba(255, 140, 0, 0.18);
+      box-shadow: 0 12px 20px rgba(255, 140, 0, 0.08);
+    }
+
+    .action-btn.reacted,
+    .action-btn.opened {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.16), rgba(255, 179, 71, 0.08));
+      color: var(--orange-dark);
+      border-color: rgba(255, 140, 0, 0.22);
     }
 
     .comments-section {
-      margin-top: 16px;
-      border-top: 1px solid var(--gray-medium);
-      padding-top: 16px;
+      padding: 0 18px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .comment, .reply {
+    .reply-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      font-weight: 700;
+      align-self: flex-start;
+    }
+
+    .reply-indicator mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .comment {
       display: flex;
-      gap: 12px;
       align-items: flex-start;
+      gap: 12px;
     }
 
-    .reply {
-      margin-left: 40px;
-      margin-top: 12px;
-      animation: slideIn 0.3s ease;
-    }
-
-    .reply .comment-body {
-      background: linear-gradient(135deg, rgba(255, 140, 0, 0.05), rgba(255, 163, 51, 0.02));
-      border-left: 3px solid var(--orange-light);
-      padding-left: 12px;
-    }
-
-    .reply .comment-body:hover {
-      background: linear-gradient(135deg, rgba(255, 140, 0, 0.08), rgba(255, 163, 51, 0.04));
+    .comment-thread {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .comment-body {
-      flex: 1;
-      background: var(--gray-light);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 13px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(180deg, var(--surface), #fff);
+      border: 1px solid rgba(255, 140, 0, 0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 18px rgba(255, 140, 0, 0.04);
     }
 
-    .comment-body:hover {
-      background: #eeeeee;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-
-    .comment-author {
-      font-weight: 700;
-      font-size: 13px;
-      display: block;
-      color: var(--black);
+    .comment-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: 4px;
     }
 
+    .comment-author {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 0.87rem;
+      color: var(--black);
+    }
+
     .comment-body p {
-      margin: 4px 0;
-      font-size: 14px;
+      margin: 0;
+      line-height: 1.65;
       color: var(--black-light);
+      font-size: 0.9rem;
+      white-space: pre-line;
     }
 
     .comment-media-wrapper {
-      margin: 12px 0;
-      border-radius: 8px;
+      margin-top: 12px;
+      border-radius: 14px;
       overflow: hidden;
-      background: #f9f9f9;
+      border: 1px solid rgba(255, 140, 0, 0.08);
+      background: #fff;
     }
 
-    app-media-viewer {
-      width: 100%;
+    .reply {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-left: 18px;
+    }
+
+    .reply-body {
+      background: linear-gradient(135deg, rgba(255, 140, 0, 0.08), rgba(255, 179, 71, 0.04));
     }
 
     .reply-btn {
-      background: transparent;
+      margin-top: 10px;
+      padding: 7px 11px;
       border: none;
-      font-size: 12px;
-      padding: 4px 8px;
-      min-width: unset;
-      color: var(--orange);
+      border-radius: 999px;
+      background: rgba(255, 140, 0, 0.08);
+      color: var(--orange-dark);
+      font-size: 0.78rem;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 8px;
-      font-weight: 600;
-      border-radius: 4px;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, transform 0.2s ease;
     }
 
     .reply-btn:hover {
-      background: rgba(255, 140, 0, 0.1);
-      color: var(--orange-dark);
+      background: rgba(255, 140, 0, 0.14);
+      transform: translateY(-1px);
+    }
+
+    .comments-empty {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 140, 0, 0.04);
+      color: var(--black-light);
+    }
+
+    .comments-empty mat-icon {
+      color: var(--orange);
     }
 
     .comment-input-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      margin-top: 8px;
-      padding-top: 12px;
-      border-top: 1px solid var(--gray-medium);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: end;
+      padding: 14px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fff, var(--surface));
+      border: 1px solid rgba(255, 140, 0, 0.08);
     }
 
     .comment-field {
-      flex: 1;
+      width: 100%;
+    }
+
+    .submit-comment-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: #fff;
+      display: inline-grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(255, 140, 0, 0.22);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .submit-comment-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(255, 140, 0, 0.28);
+    }
+
+    .submit-comment-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .avatar,
+    .avatar-sm,
+    .avatar-xs {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      box-shadow: 0 10px 20px rgba(255, 140, 0, 0.2);
     }
 
     .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 16px;
-      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      font-size: 1rem;
     }
 
     .avatar-sm {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      font-size: 0.84rem;
     }
 
     .avatar-xs {
       width: 32px;
       height: 32px;
-      border-radius: 50%;
-      background: var(--orange-light);
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px;
-      color: var(--black-light);
-    }
-
-    .empty-state mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      color: var(--orange);
-    }
-
-    .load-more {
-      text-align: center;
-      margin-top: 8px;
-      padding: 16px;
-    }
-
-    .load-more .btn-outline {
-      display: inline-block;
+      font-size: 0.75rem;
+      background: linear-gradient(135deg, var(--orange-light), var(--orange));
+      box-shadow: none;
     }
 
     .icon-btn-small {
-      background: transparent;
+      width: 28px;
+      height: 28px;
       border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--orange-dark);
+      display: inline-grid;
+      place-items: center;
       cursor: pointer;
-      color: var(--black-light);
-      display: flex;
-      align-items: center;
     }
 
     .icon-btn-small:hover {
+      background: rgba(255, 140, 0, 0.08);
+    }
+
+    .empty-state {
+      padding: 42px 32px;
+      text-align: center;
+    }
+
+    .empty-state mat-icon {
+      font-size: 52px;
+      width: 52px;
+      height: 52px;
       color: var(--orange);
+      margin-bottom: 12px;
     }
 
-    .icon-btn {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      color: #65676B;
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: var(--gray-light);
+    .empty-state h3 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
       color: var(--black);
     }
 
-    .upload-section {
-      margin: 12px 0;
-    }
-
-    .attachment-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: linear-gradient(135deg, rgba(255,140,0,0.1) 0%, rgba(255,163,51,0.05) 100%);
-      border-left: 4px solid var(--orange);
-      border-radius: 8px;
-      margin-top: 12px;
-      color: var(--black-light);
-      font-size: 14px;
-    }
-
-    .attachment-badge mat-icon {
-      color: var(--orange);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    .attachment-badge span {
-      flex: 1;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .attachment-badge button {
-      flex-shrink: 0;
-    }
-
-    .attachment-info {
-      padding: 12px;
-      background-color: #e8f5e9;
-      border-radius: 8px;
-      margin-top: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .attachment-info p {
+    .empty-state p {
       margin: 0;
       color: var(--black-light);
-      font-size: 14px;
+      line-height: 1.6;
     }
 
-    .document-preview {
+    .load-more {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background-color: #f5f5f5;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      border: 1px solid var(--gray-medium);
-    }
-
-    .document-preview mat-icon {
-      color: var(--orange);
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-    }
-
-    .document-preview a {
-      color: var(--orange);
-      text-decoration: none;
-      font-weight: 500;
-      flex: 1;
-    }
-
-    .document-preview a:hover {
-      text-decoration: underline;
-    }
-
-    .document-preview span {
-      color: #999;
-      font-size: 12px;
-      margin-left: auto;
-    }
-
-    .comment-media {
-      width: 100%;
-      max-width: 250px;
-      border-radius: 8px;
-      margin: 8px 0;
-      border: 1px solid var(--gray-medium);
-      display: block;
-    }
-
-    .doc-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--orange);
-      text-decoration: none;
-      font-size: 13px;
-      margin: 4px 0;
-      font-weight: 500;
-      padding: 8px 12px;
-      background: rgba(255, 140, 0, 0.05);
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-
-    .doc-link:hover {
-      text-decoration: none;
-      background: rgba(255, 140, 0, 0.1);
-      color: var(--orange-dark);
+      justify-content: center;
+      padding-top: 2px;
     }
 
     .center-spinner {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 40px;
+      padding: 32px;
     }
 
-    .submit-comment-btn {
-      color: var(--orange);
-      transition: all 0.2s;
+    ::ng-deep .feed-layout .mat-mdc-form-field-subscript-wrapper {
+      display: none;
     }
 
-    .submit-comment-btn:hover:not(:disabled) {
-      transform: scale(1.2);
-      color: var(--orange-dark);
+    ::ng-deep .feed-layout .mat-mdc-text-field-wrapper {
+      border-radius: 18px !important;
+      background: #fff !important;
     }
 
-    .submit-comment-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    ::ng-deep .feed-layout .mdc-notched-outline__leading,
+    ::ng-deep .feed-layout .mdc-notched-outline__notch,
+    ::ng-deep .feed-layout .mdc-notched-outline__trailing {
+      border-color: rgba(255, 140, 0, 0.14) !important;
     }
 
-    /* RESPONSIVE DESIGN */
-    @media (max-width: 768px) {
-      .feed-layout {
-        padding: 12px;
-        gap: 12px;
-      }
+    ::ng-deep .feed-layout .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+    ::ng-deep .feed-layout .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+    ::ng-deep .feed-layout .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+      border-color: var(--orange) !important;
+    }
 
-      .post-card,
-      .create-post-card {
-        border-radius: 8px;
-      }
+    ::ng-deep .feed-layout .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+      color: var(--orange) !important;
+    }
 
-      .post-header {
-        padding: 12px 16px;
-      }
-
-      .post-content {
-        padding: 12px 16px;
-        font-size: 14px;
-      }
-
-      .post-actions {
-        flex-direction: row;
-      }
-
-      .action-btn {
-        padding: 8px;
-        font-size: 12px;
-      }
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 14px;
-      }
-
-      .avatar-sm {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
-      }
-
-      .reply {
-        margin-left: 20px;
-      }
-
-      .comment {
+    @media (max-width: 900px) {
+      .feed-hero {
         flex-direction: column;
       }
 
-      .comment-media-wrapper {
-        max-width: 100%;
-      }
-
-      .follow-btn {
-        padding: 6px 12px;
-        font-size: 12px;
+      .hero-metrics {
+        width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 720px) {
       .feed-layout {
-        padding: 8px;
-        gap: 8px;
+        padding: 16px 12px 32px;
+        gap: 16px;
       }
 
-      .post-header-left {
-        gap: 8px;
+      .feed-hero,
+      .create-post-card,
+      .post-card {
+        border-radius: 20px;
       }
 
-      .post-header-info {
-        gap: 2px;
+      .post-author-row,
+      .comment-input-row {
+        grid-template-columns: auto 1fr;
       }
 
-      .author-name {
-        font-size: 14px;
-      }
-
-      .post-time {
-        font-size: 12px;
+      .mini-action-btn,
+      .submit-comment-btn {
+        grid-column: 2;
+        justify-self: end;
       }
 
       .post-actions {
-        padding: 4px 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .action-btn {
-        padding: 6px;
-        font-size: 11px;
-        gap: 4px;
+      .post-header,
+      .post-body,
+      .post-counts,
+      .post-actions,
+      .comments-section {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .media-surface {
+        margin-left: 14px;
+        margin-right: 14px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero-copy h1 {
+        font-size: 1.6rem;
+      }
+
+      .post-header {
+        align-items: flex-start;
+      }
+
+      .follow-btn {
+        padding: 0 12px;
+      }
+
+      .follow-btn span {
+        display: none;
       }
 
       .reply {
-        margin-left: 12px;
+        margin-left: 8px;
       }
 
-      .comment-input-row {
-        gap: 8px;
-      }
-
-      .avatar-xs {
-        width: 28px;
-        height: 28px;
-        font-size: 11px;
+      .comment {
+        align-items: stretch;
       }
     }
   `]
 })
 export class FeedComponent implements OnInit {
-  readonly auth  = inject(AuthService);
-  private readonly postSvc   = inject(PostService);
+  readonly auth = inject(AuthService);
+  private readonly postSvc = inject(PostService);
   private readonly followSvc = inject(FollowService);
   private readonly alertSvc = inject(AlertService);
   private readonly configSvc = inject(ConfigService);
-  private readonly fb        = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder);
 
-  loading    = true;
-  creating   = false;
+  loading = true;
+  creating = false;
   posts: Post[] = [];
-  page       = 0;
-  lastPage   = false;
+  page = 0;
+  lastPage = false;
   showCreateForm = false;
 
-  followingMap: Record<number,boolean> = {};
-  openComments: Record<number,boolean> = {};
-  commentsMap:  Record<number,Comment[]> = {};
-  commentText:  Record<number,string>  = {};
-  replyTarget:  Record<number,Comment|null> = {};
+  followingMap: Record<number, boolean> = {};
+  openComments: Record<number, boolean> = {};
+  commentsMap: Record<number, Comment[]> = {};
+  commentText: Record<number, string> = {};
+  replyTarget: Record<number, Comment | null> = {};
 
   selectedPostAttachment: FilePreview | null = null;
   pendingFileToUpload: File | null = null;
   commentAttachmentMap: Record<number, FilePreview | null> = {};
 
   postForm = this.fb.group({
-    content:  ['', [Validators.required, Validators.minLength(1)]],
+    content: ['', [Validators.required, Validators.minLength(1)]],
     mediaUrl: ['']
   });
 
@@ -1070,7 +1294,7 @@ export class FeedComponent implements OnInit {
       next: res => {
         this.posts.push(...res.data.content);
         this.lastPage = res.data.last;
-        this.loading  = false;
+        this.loading = false;
         this.updateFollowMap();
       },
       error: () => { this.loading = false; }
@@ -1089,27 +1313,25 @@ export class FeedComponent implements OnInit {
         this.posts.unshift(newPost);
         this.postForm.reset();
         this.showCreateForm = false;
-        this.alertSvc.success('Publication créée');
+        this.alertSvc.success('Publication creee');
 
-        // Upload attachment si un fichier est en attente
         if (this.pendingFileToUpload && newPost.id) {
           this.postSvc.uploadPostAttachment(newPost.id, this.pendingFileToUpload).subscribe({
             next: () => {
-              // Recharger le post pour avoir l'attachement
-              this.postSvc.getById(newPost.id).subscribe(res => {
+              this.postSvc.getById(newPost.id).subscribe(postRes => {
                 const idx = this.posts.findIndex(p => p.id === newPost.id);
                 if (idx >= 0) {
-                  this.posts[idx] = res.data;
+                  this.posts[idx] = postRes.data;
                 }
               });
-              this.alertSvc.success('Fichier uploadé');
+              this.alertSvc.success('Fichier uploade');
               this.pendingFileToUpload = null;
               this.removePostAttachment();
               this.creating = false;
             },
-            error: (err) => {
+            error: err => {
               console.error('Erreur upload:', err);
-              this.alertSvc.error('Erreur lors de l\'upload du fichier');
+              this.alertSvc.error("Erreur lors de l'upload du fichier");
               this.creating = false;
             }
           });
@@ -1125,7 +1347,7 @@ export class FeedComponent implements OnInit {
     this.postSvc.delete(post.id).subscribe({
       next: () => {
         this.posts = this.posts.filter(p => p.id !== post.id);
-        this.alertSvc.success('Supprimée');
+        this.alertSvc.success('Publication supprimee');
       }
     });
   }
@@ -1133,11 +1355,12 @@ export class FeedComponent implements OnInit {
   react(post: Post, type: ReactionType): void {
     if (post.userReaction === type) {
       this.postSvc.removeReaction(post.id).subscribe(() => {
-        post.userReaction = undefined; post.reactionCount = Math.max(0,(post.reactionCount||1)-1);
+        post.userReaction = undefined;
+        post.reactionCount = Math.max(0, (post.reactionCount || 1) - 1);
       });
     } else {
       this.postSvc.react(post.id, type).subscribe(() => {
-        if (!post.userReaction) post.reactionCount = (post.reactionCount||0)+1;
+        if (!post.userReaction) post.reactionCount = (post.reactionCount || 0) + 1;
         post.userReaction = type;
       });
     }
@@ -1160,13 +1383,17 @@ export class FeedComponent implements OnInit {
     this.postSvc.addComment(post.id, text, parent?.id).subscribe(res => {
       if (!this.commentsMap[post.id]) this.commentsMap[post.id] = [];
       if (parent) {
-        const p = this.commentsMap[post.id].find(c => c.id === parent.id);
-        if (p) { if(!p.replies) p.replies=[]; p.replies.push(res.data); }
+        const target = this.commentsMap[post.id].find(c => c.id === parent.id);
+        if (target) {
+          if (!target.replies) target.replies = [];
+          target.replies.push(res.data);
+        }
       } else {
         this.commentsMap[post.id].push(res.data);
-        post.commentCount = (post.commentCount||0)+1;
+        post.commentCount = (post.commentCount || 0) + 1;
       }
-      this.commentText[post.id] = ''; this.replyTarget[post.id] = null;
+      this.commentText[post.id] = '';
+      this.replyTarget[post.id] = null;
     });
   }
 
@@ -1180,7 +1407,7 @@ export class FeedComponent implements OnInit {
 
   private updateFollowMap(): void {
     const myId = this.auth.currentUser?.id;
-    const ids  = [...new Set(this.posts.map(p => p.author.id).filter(id => id !== myId))];
+    const ids = [...new Set(this.posts.map(p => p.author.id).filter(id => id !== myId))];
     ids.forEach(id => {
       if (this.followingMap[id] === undefined) {
         this.followSvc.getStatus(id).subscribe(res => { this.followingMap[id] = res.data.isFollowing; });
@@ -1188,9 +1415,10 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  onImgError(e: Event): void { (e.target as HTMLImageElement).style.display='none'; }
-  initials(name?: string|null): string {
-    return name?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
+  onImgError(e: Event): void { (e.target as HTMLImageElement).style.display = 'none'; }
+
+  initials(name?: string | null): string {
+    return name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?';
   }
 
   getMediaUrl(url: string): string {

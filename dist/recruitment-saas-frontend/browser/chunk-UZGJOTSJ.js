@@ -1,1 +1,0 @@
-function o(r,i){let t=r?.error?.data;if(t&&typeof t=="object"&&!Array.isArray(t)){let s=Object.values(t).find(n=>typeof n=="string"&&n.trim().length>0);if(s)return s}let e=r?.error?.message;return typeof e=="string"&&e.trim().length>0?e:i}export{o as a};

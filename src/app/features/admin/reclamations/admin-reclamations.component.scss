@@ -39,6 +39,7 @@
 
       .stat-icon {
         font-size: 28px;
+        color: #ff6900;
       }
 
       .stat-label {
@@ -69,7 +70,6 @@
   }
 }
 
-// Tabs bar
 .tabs-bar-modern {
   display: flex;
   gap: 6px;
@@ -100,10 +100,6 @@
     font-size: 18px;
   }
 
-  .tab-label {
-    display: inline;
-  }
-
   &:hover {
     background: rgba(255, 105, 0, 0.05);
     color: #ff6900;
@@ -116,15 +112,8 @@
     box-shadow: 0 4px 15px rgba(255, 105, 0, 0.2);
     border-color: #ff6900;
   }
-
-  @media (max-width: 600px) {
-    .tab-label {
-      display: none;
-    }
-  }
 }
 
-// Layout with optional side panel
 .reclamation-layout-modern {
   display: grid;
   grid-template-columns: 1fr;
@@ -257,11 +246,6 @@
     background: #dbeafe;
     color: #1e40af;
   }
-
-  &[data-type='OTHER'] {
-    background: #f3f4f6;
-    color: #6b7280;
-  }
 }
 
 .subject-cell-modern {
@@ -331,11 +315,6 @@
     background: linear-gradient(135deg, rgba(255, 105, 0, 0.15), rgba(252, 185, 0, 0.15)) !important;
     box-shadow: 0 4px 12px rgba(255, 105, 0, 0.15) !important;
   }
-
-  .mat-icon {
-    font-size: 16px !important;
-    margin-right: 4px;
-  }
 }
 
 .mat-mdc-row.table-row-modern {
@@ -383,7 +362,6 @@
   background: linear-gradient(135deg, #fafafa, #f5f5f5);
 }
 
-// Detail panel
 .detail-panel-modern {
   display: flex;
   flex-direction: column;
@@ -401,23 +379,12 @@
   justify-content: space-between;
   padding: 20px;
   border-bottom: 1px solid #eee;
-  position: relative;
 
   h3 {
     font-size: 1.1rem;
     font-weight: 800;
     margin: 0;
     color: #000;
-  }
-
-  .close-btn {
-    color: #999 !important;
-    transition: all 0.2s ease !important;
-
-    &:hover {
-      color: #ff6900 !important;
-      background: rgba(255, 105, 0, 0.08) !important;
-    }
   }
 }
 
@@ -472,10 +439,6 @@
   justify-content: space-between;
   padding: 10px 0;
   border-bottom: 1px solid #f0f0f0;
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 .detail-label {
@@ -523,11 +486,6 @@
       color: #d97706;
       font-size: 18px;
     }
-
-    .detail-label {
-      margin: 0;
-      color: #b45309;
-    }
   }
 
   .response-text {
@@ -553,31 +511,6 @@
 
   mat-form-field {
     width: 100%;
-
-    ::ng-deep {
-      .mdc-text-field--filled {
-        background-color: #f9f9f9 !important;
-      }
-
-      .mat-mdc-floating-label {
-        color: #666 !important;
-      }
-
-      .mdc-line-ripple::after {
-        border-bottom-color: #ff6900 !important;
-      }
-
-      .mat-focused {
-        .mdc-line-ripple::after {
-          border-bottom-color: #ff6900 !important;
-        }
-
-        .mat-mdc-floating-label {
-          color: #ff6900 !important;
-          font-weight: 600;
-        }
-      }
-    }
   }
 }
 
@@ -587,37 +520,12 @@
   font-weight: 700 !important;
   height: 44px !important;
   border-radius: 10px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 15px rgba(255, 105, 0, 0.2) !important;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-  margin-top: 4px;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 105, 0, 0.3) !important;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-  }
-
-  .mat-icon {
-    font-size: 18px;
-  }
 }
 
 .w-full {
   width: 100% !important;
 }
 
-mat-divider {
-  margin: 8px 0 !important;
-}
-
-// Material table header overrides
 ::ng-deep {
   .admin-reclamations-wrapper {
     .mat-mdc-header-cell {
@@ -628,22 +536,12 @@ mat-divider {
       font-size: 0.8rem !important;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-
-      .col-header {
-        display: inline-block;
-      }
     }
 
     .mat-mdc-cell {
       border-bottom: 1px solid #f0f0f0;
       padding: 12px 16px !important;
       font-size: 0.875rem;
-    }
-
-    .mat-mdc-row {
-      &:last-child .mat-mdc-cell {
-        border-bottom: none;
-      }
     }
   }
 }

@@ -86,7 +86,10 @@ export class RegisterComponent implements OnInit {
     if (this.enterpriseForm.invalid) return;
     this.loading = true;
     this.auth.registerEnterprise(this.enterpriseForm.value).subscribe({
-      next: () => this.auth.redirectToDashboard(),
+      next: () => {
+        this.alertSvc.success('Succès', 'Inscription réussie! Bienvenue sur NeoHire.');
+        this.auth.redirectToDashboard();
+      },
       error: err => {
         this.loading = false;
         this.alertSvc.error('Erreur', getApiErrorMessage(err, 'Erreur lors de l\'inscription'));
@@ -98,7 +101,10 @@ export class RegisterComponent implements OnInit {
     if (this.candidateForm.invalid) return;
     this.loading = true;
     this.auth.registerCandidate(this.candidateForm.value).subscribe({
-      next: () => this.auth.redirectToDashboard(),
+      next: () => {
+        this.alertSvc.success('Succès', 'Inscription réussie! Bienvenue sur NeoHire.');
+        this.auth.redirectToDashboard();
+      },
       error: err => {
         this.loading = false;
         this.alertSvc.error('Erreur', getApiErrorMessage(err, 'Erreur lors de l\'inscription'));

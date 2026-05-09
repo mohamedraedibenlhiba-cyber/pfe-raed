@@ -29,10 +29,9 @@ export class AdminLayoutComponent {
   sidebarOpen = signal(true);
 
   navItems: NavItem[] = [
-    { label: 'Tableau de bord', icon: 'dashboard',         route: '/admin/dashboard' },
-    { label: 'Utilisateurs',   icon: 'people',             route: '/admin/users' },
-    { label: 'Réclamations',   icon: 'report_problem',     route: '/admin/reclamations' },
-    { label: 'Offres d\'emploi', icon: 'work_outline',     route: '/admin/offers' },
+    { label: 'Accueil', icon: 'dashboard', route: '/admin/dashboard' },
+    { label: 'Utilisateurs', icon: 'people', route: '/admin/users' },
+    { label: 'Reclamations', icon: 'report_problem', route: '/admin/reclamations' },
   ];
 
   toggleSidebar(): void { this.sidebarOpen.update(v => !v); }
