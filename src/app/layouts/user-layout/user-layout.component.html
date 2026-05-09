@@ -1,5 +1,4 @@
 <div class="app-shell" [class.sidebar-collapsed]="!sidebarOpen()">
-  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo">
@@ -11,7 +10,6 @@
       </button>
     </div>
 
-    <!-- Role tag -->
     <div class="role-badge">
       @if (isEnterprise) {
         <span class="material-icons-round">business</span>
@@ -24,11 +22,12 @@
 
     <nav class="sidebar-nav">
       @for (item of navItems; track item.route) {
-        <a class="nav-item"
-           [routerLink]="item.route"
-           routerLinkActive="active"
-           [matTooltip]="!sidebarOpen() ? item.label : ''"
-           matTooltipPosition="after">
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [matTooltip]="!sidebarOpen() ? item.label : ''"
+          matTooltipPosition="after">
           <span class="material-icons-round nav-icon">{{ item.icon }}</span>
           <span class="nav-label">{{ item.label }}</span>
         </a>
@@ -36,9 +35,14 @@
     </nav>
 
     <div class="sidebar-divider"></div>
+
     <nav class="sidebar-nav">
-      <a class="nav-item" [routerLink]="profileRoute" routerLinkActive="active"
-         [matTooltip]="!sidebarOpen() ? 'Mon profil' : ''" matTooltipPosition="after">
+      <a
+        class="nav-item"
+        [routerLink]="profileRoute"
+        routerLinkActive="active"
+        [matTooltip]="!sidebarOpen() ? 'Mon profil' : ''"
+        matTooltipPosition="after">
         <span class="material-icons-round nav-icon">account_circle</span>
         <span class="nav-label">Mon profil</span>
       </a>
@@ -50,36 +54,44 @@
         <span class="user-name">{{ auth.currentUser?.fullName }}</span>
         <span class="user-email">{{ auth.currentUser?.email }}</span>
       </div>
-      <button mat-icon-button class="logout-btn" (click)="logout()" matTooltip="Déconnexion">
+      <button mat-icon-button class="logout-btn" (click)="logout()" matTooltip="Deconnexion">
         <span class="material-icons-round">logout</span>
       </button>
     </div>
   </aside>
 
-  <!-- ── Main ─────────────────────────────────────────────────────────────── -->
   <div class="main-area">
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
         <button class="mobile-menu-btn" (click)="toggleSidebar()">
           <span class="material-icons-round">menu</span>
         </button>
       </div>
+
       <div class="topbar-right">
-        <!-- Notifications bell -->
-        <button mat-icon-button class="icon-btn" [routerLink]="basePath + '/feed'"
-          [matBadge]="unreadNotifications > 0 ? unreadNotifications : null" matBadgeColor="warn" matBadgeSize="small">
+        <button
+          mat-icon-button
+          class="icon-btn"
+          [routerLink]="basePath + '/feed'"
+          [matBadge]="unreadNotifications > 0 ? unreadNotifications : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
           <mat-icon>notifications_none</mat-icon>
         </button>
 
-        <!-- Messages -->
-        <button mat-icon-button class="icon-btn" [routerLink]="basePath + '/messages'"
-          [matBadge]="unreadMessages > 0 ? unreadMessages : null" matBadgeColor="warn" matBadgeSize="small">
+        <button
+          mat-icon-button
+          class="icon-btn"
+          [routerLink]="basePath + '/messages'"
+          [matBadge]="unreadMessages > 0 ? unreadMessages : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
           <mat-icon>chat_bubble_outline</mat-icon>
         </button>
 
-        <!-- Connection requests -->
-        <button mat-icon-button class="icon-btn"
+        <button
+          mat-icon-button
+          class="icon-btn"
           (click)="openConnectionRequests()"
           [matBadge]="pendingConnectionRequests > 0 ? pendingConnectionRequests : null"
           matBadgeColor="warn"
@@ -87,7 +99,6 @@
           <mat-icon>person_add</mat-icon>
         </button>
 
-        <!-- User menu -->
         <button mat-button class="user-menu-btn" [matMenuTriggerFor]="userMenu">
           <div class="user-avatar-top">{{ initials() }}</div>
           <span class="topbar-username">{{ auth.currentUser?.fullName }}</span>
@@ -99,19 +110,20 @@
             <mat-icon>account_circle</mat-icon> Mon profil
           </a>
           <a mat-menu-item [routerLink]="basePath + '/reclamations'">
-            <mat-icon>report_problem</mat-icon> Mes réclamations
+            <mat-icon>report_problem</mat-icon> Mes reclamations
           </a>
           <mat-divider />
           <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon> Déconnexion
+            <mat-icon>logout</mat-icon> Deconnexion
           </button>
         </mat-menu>
       </div>
     </header>
 
-    <!-- Content -->
     <main class="page-content">
       <router-outlet />
     </main>
   </div>
+
+  <app-project-chatbot />
 </div>

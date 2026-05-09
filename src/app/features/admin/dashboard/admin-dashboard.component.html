@@ -1,8 +1,11 @@
-<section class="powerbi-page">
+<section class="admin-hub">
   <div class="page-header">
-    <div>
+    <div class="header-copy">
+      <span class="eyebrow">Pilotage Power BI</span>
       <h1 class="page-title">Accueil admin</h1>
-      <p class="page-subtitle">Les trois vues Power BI sont reunies ici pour un pilotage centralise.</p>
+      <p class="page-subtitle">
+        Une seule page pour naviguer entre vos dashboards Power BI et garder une lecture claire des priorites.
+      </p>
     </div>
 
     <div class="header-actions">
@@ -17,115 +20,100 @@
     </div>
   </div>
 
-  <div class="quick-links">
-    <div class="quick-link-card">
-      <span class="material-icons-round">home</span>
-      <div>
-        <strong>Accueil Power BI</strong>
-        <p>Vue generale de la plateforme</p>
+  <div class="summary-grid">
+    <article class="summary-card hero-card">
+      <span class="summary-icon material-icons-round">{{ activeView.icon }}</span>
+      <div class="summary-content">
+        <p class="summary-kicker">{{ activeView.label }}</p>
+        <h2>{{ activeView.headline }}</h2>
+        <p>{{ activeView.summaryBody }}</p>
       </div>
-    </div>
+    </article>
 
-    <div class="quick-link-card">
-      <span class="material-icons-round">assessment</span>
-      <div>
-        <strong>Statistiques reclamations</strong>
-        <p>Suivi des demandes et resolution</p>
-      </div>
-    </div>
+    <article class="summary-card">
+      <p class="mini-title">{{ activeView.summaryTitle }}</p>
+      <p class="summary-text">{{ activeView.intro }}</p>
+    </article>
 
-    <div class="quick-link-card">
-      <span class="material-icons-round">business_center</span>
-      <div>
-        <strong>Offres job</strong>
-        <p>Analyse Power BI des offres</p>
+    <article class="summary-card">
+      <p class="mini-title">Points de lecture</p>
+      <div class="focus-pills">
+        @for (point of activeView.focusPoints; track point) {
+          <span class="focus-pill">{{ point }}</span>
+        }
       </div>
-    </div>
+    </article>
   </div>
 
-  <div class="reports-stack">
-    <div class="report-card">
-      <div class="report-card-header">
-        <div>
-          <h2>Rapport Accueil</h2>
-          <p>Vue Power BI principale du dashboard NeoHire.</p>
-        </div>
-        <a
-          mat-flat-button
-          class="btn-primary"
-          href="https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/91e572f3525931c6631b?experience=power-bi"
-          target="_blank"
-          rel="noopener noreferrer">
-          <mat-icon>open_in_new</mat-icon>
-          Ouvrir
-        </a>
+  <div class="dashboard-switcher">
+    @for (view of views; track view.id) {
+      <button
+        type="button"
+        class="switcher-btn"
+        [class.active]="activeView.id === view.id"
+        (click)="selectView(view)">
+        <span class="material-icons-round switcher-icon">{{ view.icon }}</span>
+        <span class="switcher-copy">
+          <strong>{{ view.label }}</strong>
+          <span>{{ view.headline }}</span>
+        </span>
+      </button>
+    }
+  </div>
+
+  <div class="report-shell">
+    <div class="report-toolbar">
+      <div>
+        <p class="toolbar-kicker">Dashboard actif</p>
+        <h2>{{ activeView.label }}</h2>
+        <p>{{ activeView.intro }}</p>
       </div>
 
-      <div class="report-frame">
-        <iframe
-          title="powerbi-accueil-admin"
-          src="https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=91e572f3525931c6631b"
-          frameborder="0"
-          allowfullscreen="true"
-          loading="lazy">
-        </iframe>
+      <a
+        mat-flat-button
+        class="btn-primary"
+        [href]="activeView.openUrl"
+        target="_blank"
+        rel="noopener noreferrer">
+        <mat-icon>open_in_new</mat-icon>
+        Ouvrir dans Power BI
+      </a>
+    </div>
+
+    <div class="report-summary">
+      <div class="report-summary-card">
+        <span class="material-icons-round">insights</span>
+        <div>
+          <strong>Lecture rapide</strong>
+          <p>{{ activeView.summaryBody }}</p>
+        </div>
+      </div>
+
+      <div class="report-summary-card">
+        <span class="material-icons-round">track_changes</span>
+        <div>
+          <strong>Ce que cette vue pilote</strong>
+          <p>{{ activeView.headline }}</p>
+        </div>
+      </div>
+
+      <div class="report-summary-card">
+        <span class="material-icons-round">rocket_launch</span>
+        <div>
+          <strong>Conseil d usage</strong>
+          <p>Utilisez les onglets ci dessus pour changer de perspective sans quitter l accueil admin.</p>
+        </div>
       </div>
     </div>
 
-    <div class="report-card">
-      <div class="report-card-header">
-        <div>
-          <h2>Rapport Reclamations</h2>
-          <p>Analyse Power BI dediee au suivi des reclamations.</p>
-        </div>
-        <a
-          mat-flat-button
-          class="btn-primary"
-          href="https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/df4b4805ae795e469eb9?experience=power-bi"
-          target="_blank"
-          rel="noopener noreferrer">
-          <mat-icon>open_in_new</mat-icon>
-          Ouvrir
-        </a>
-      </div>
-
-      <div class="report-frame">
-        <iframe
-          title="powerbi-reclamations-admin"
-          src="https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=df4b4805ae795e469eb9"
-          frameborder="0"
-          allowfullscreen="true"
-          loading="lazy">
-        </iframe>
-      </div>
-    </div>
-
-    <div class="report-card">
-      <div class="report-card-header">
-        <div>
-          <h2>Rapport Offres job</h2>
-          <p>Vue Power BI dediee aux offres d'emploi de la plateforme.</p>
-        </div>
-        <a
-          mat-flat-button
-          class="btn-primary"
-          href="https://app.powerbi.com/groups/me/reports/268cbfa1-d988-423e-b528-0620ead92157/e0724968b25e60c79522?experience=power-bi"
-          target="_blank"
-          rel="noopener noreferrer">
-          <mat-icon>open_in_new</mat-icon>
-          Ouvrir
-        </a>
-      </div>
-
-      <div class="report-frame">
-        <iframe
-          title="powerbi-offres-admin"
-          src="https://app.powerbi.com/reportEmbed?reportId=268cbfa1-d988-423e-b528-0620ead92157&autoAuth=true&ctid=604f1a96-cbe8-43f8-abbf-f8eaf5d85730&pageName=e0724968b25e60c79522"
-          frameborder="0"
-          allowfullscreen="true"
-          loading="lazy">
-        </iframe>
-      </div>
+    <div class="report-frame">
+      <iframe
+        title="powerbi-admin-hub"
+        [src]="safeEmbedUrl"
+        frameborder="0"
+        allowfullscreen="true"
+        loading="lazy">
+      </iframe>
     </div>
   </div>
 </section>

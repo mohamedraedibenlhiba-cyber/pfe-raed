@@ -1,6 +1,7 @@
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { adminAuthGuard } from './core/auth/admin-auth.guard';
+import { UserLayoutComponent } from './layouts/user-layout/user-layout.component';
 export const routes = [
     { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
     {
@@ -26,7 +27,7 @@ export const routes = [
     },
     {
         path: 'enterprise',
-        loadComponent: () => import('./layouts/user-layout/user-layout.component').then(m => m.UserLayoutComponent),
+        component: UserLayoutComponent,
         canActivate: [authGuard, roleGuard],
         data: { role: 'ROLE_ENTERPRISE' },
         children: [
@@ -45,7 +46,7 @@ export const routes = [
     },
     {
         path: 'candidate',
-        loadComponent: () => import('./layouts/user-layout/user-layout.component').then(m => m.UserLayoutComponent),
+        component: UserLayoutComponent,
         canActivate: [authGuard, roleGuard],
         data: { role: 'ROLE_CANDIDATE' },
         children: [

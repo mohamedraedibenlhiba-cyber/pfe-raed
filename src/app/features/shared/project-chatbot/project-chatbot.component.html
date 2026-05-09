@@ -1,0 +1,98 @@
+<div class="assistant-widget">
+  @if (panelOpen()) {
+    <section class="assistant-panel">
+      <header class="assistant-header">
+        <div>
+          <p class="assistant-kicker">Assistant projet</p>
+          <h3>NeoHire {{ roleLabel }}</h3>
+        </div>
+
+        <div class="assistant-header-actions">
+          <button mat-icon-button type="button" (click)="resetConversation()" matTooltip="Reinitialiser">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button mat-icon-button type="button" (click)="closePanel()" matTooltip="Fermer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </header>
+
+      <div class="assistant-intro">
+        <span class="status-dot"></span>
+        <p>Reponses guidees sur les modules et les parcours de votre plateforme.</p>
+      </div>
+
+      <div class="assistant-messages">
+        @for (message of messages; track $index) {
+          <div class="message-row" [class.user-row]="message.role === 'user'">
+            <div class="message-avatar">
+              {{ message.role === 'assistant' ? 'N' : userInitials() }}
+            </div>
+
+            <div class="message-bubble" [class.user-bubble]="message.role === 'user'">
+              <p>{{ message.text }}</p>
+
+              @if (message.actions?.length) {
+                <div class="message-actions">
+                  @for (action of message.actions; track action.route) {
+                    <button type="button" class="chip-action" (click)="openRoute(action.route)">
+                      {{ action.label }}
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (message.suggestions?.length && message.role === 'assistant') {
+                <div class="message-suggestions">
+                  @for (suggestion of message.suggestions; track suggestion) {
+                    <button type="button" class="chip-suggestion" (click)="ask(suggestion)">
+                      {{ suggestion }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (thinking) {
+          <div class="message-row">
+            <div class="message-avatar">N</div>
+            <div class="message-bubble typing-bubble">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="starter-prompts">
+        @for (prompt of quickPrompts; track prompt) {
+          <button type="button" class="starter-chip" (click)="ask(prompt)">
+            {{ prompt }}
+          </button>
+        }
+      </div>
+
+      <form class="assistant-composer" (ngSubmit)="sendPrompt()">
+        <textarea
+          [(ngModel)]="draft"
+          name="assistantPrompt"
+          rows="2"
+          placeholder="Posez une question sur NeoHire..."
+          (keydown)="handleComposerKeydown($event)"></textarea>
+
+        <button mat-flat-button type="submit" class="send-btn" [disabled]="!draft.trim() || thinking">
+          <mat-icon>send</mat-icon>
+          Envoyer
+        </button>
+      </form>
+    </section>
+  }
+
+  <button type="button" class="assistant-trigger" [class.active]="panelOpen()" (click)="togglePanel()">
+    <span class="material-icons-round">smart_toy</span>
+    <span class="trigger-copy">Assistant NeoHire</span>
+  </button>
+</div>
