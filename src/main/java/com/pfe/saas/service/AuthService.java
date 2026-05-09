@@ -77,7 +77,13 @@ public class AuthService {
         enterprise.setCompanySector(req.getCompanySector());
         enterprise.setCompanySize(req.getCompanySize());
         enterprise.setSiretNumber(req.getSiretNumber());
+        enterprise.setVerified(true);
+
         Enterprise saved = enterpriseRepository.save(enterprise);
+
+        // Send welcome email for enterprise
+        emailService.sendWelcomeEmailEnterprise(saved.getEmail(), saved.getFullName(), saved.getCompanyName());
+
         String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
         return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
     }
@@ -101,7 +107,13 @@ public class AuthService {
         candidate.setPhoneNumber(req.getPhoneNumber());
         candidate.setCity(req.getCity());
         candidate.setCountry(req.getCountry());
+        candidate.setVerified(true);
+
         Candidate saved = candidateRepository.save(candidate);
+
+        // Send welcome email for candidate
+        emailService.sendWelcomeEmailCandidate(saved.getEmail(), saved.getFullName());
+
         String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
         return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
     }

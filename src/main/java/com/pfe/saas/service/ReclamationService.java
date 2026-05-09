@@ -8,6 +8,7 @@ import com.pfe.saas.enums.ReclamationStatus;
 import com.pfe.saas.repository.ReclamationRepository;
 import com.pfe.saas.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,10 +21,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReclamationService {
 
     private final ReclamationRepository reclamationRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     private User currentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -86,7 +89,21 @@ public class ReclamationService {
         if (req.getStatus() == ReclamationStatus.RESOLVED || req.getStatus() == ReclamationStatus.CLOSED) {
             r.setResolvedAt(LocalDateTime.now());
         }
-        return reclamationRepository.save(r);
+        Reclamation saved = reclamationRepository.save(r);
+
+        // Send notification email to user
+        try {
+            emailService.sendReclamationResolvedEmail(
+                    r.getUser().getEmail(),
+                    r.getUser().getFullName(),
+                    r.getSubject(),
+                    r.getAdminResponse()
+            );
+        } catch (Exception e) {
+            log.warn("Failed to send reclamation notification email: {}", e.getMessage());
+        }
+
+        return saved;
     }
 
     public long countByStatus(ReclamationStatus status) {

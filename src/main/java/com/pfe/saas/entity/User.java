@@ -59,7 +59,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Password Reset
+    // Email Verification
     @Column(name = "reset_token")
     private String resetToken;
 

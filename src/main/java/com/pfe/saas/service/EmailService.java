@@ -51,6 +51,294 @@ public class EmailService {
         }
     }
 
+    public void sendWelcomeEmailEnterprise(String email, String fullName, String companyName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("Bienvenue sur NeoHire - Plateforme de recrutement IA");
+
+            String htmlContent = buildWelcomeEmailEnterpriseContent(fullName, companyName);
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+            log.info("Welcome email sent successfully to enterprise: {}", email);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send welcome email to: {} - Error: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de bienvenue");
+        }
+    }
+
+    public void sendWelcomeEmailCandidate(String email, String fullName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("Bienvenue sur NeoHire - Votre plateforme de carrière");
+
+            String htmlContent = buildWelcomeEmailCandidateContent(fullName);
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+            log.info("Welcome email sent successfully to candidate: {}", email);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send welcome email to: {} - Error: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de bienvenue");
+        }
+    }
+
+    public void sendReclamationResolvedEmail(String email, String fullName, String subject, String adminResponse) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(email);
+            helper.setSubject("Votre réclamation a été traitée - NeoHire");
+
+            String htmlContent = buildReclamationResolvedEmailContent(fullName, subject, adminResponse);
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+            log.info("Reclamation resolved email sent successfully to: {}", email);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send reclamation email to: {} - Error: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de réclamation");
+        }
+    }
+
+
+    private String buildVerificationEmailContent(String fullName, String verificationLink) {
+        String userName = fullName != null ? fullName : "Utilisateur";
+
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <style>" +
+                "    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }" +
+                "    .container { max-width: 600px; margin: 0 auto; background: #f9f9f9; border-radius: 8px; padding: 30px; }" +
+                "    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ff6900; padding-bottom: 20px; }" +
+                "    .logo { font-size: 28px; font-weight: 900; color: #ff6900; }" +
+                "    .content { background: white; padding: 30px; border-radius: 8px; }" +
+                "    .greeting { font-size: 18px; font-weight: 600; color: #000; margin-bottom: 15px; }" +
+                "    .message { font-size: 14px; color: #666; line-height: 1.8; margin-bottom: 25px; }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <div class='logo'>NeoHire</div>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <div class='greeting'>Bienvenue " + userName + " ! 🎉</div>" +
+                "      <p>Merci de vous être inscrit sur NeoHire!</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+    }
+
+    private String buildWelcomeEmailEnterpriseContent(String fullName, String companyName) {
+        String userName = fullName != null ? fullName : "Entreprise";
+
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <style>" +
+                "    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }" +
+                "    .container { max-width: 600px; margin: 0 auto; background: #f9f9f9; border-radius: 8px; padding: 30px; }" +
+                "    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ff6900; padding-bottom: 20px; }" +
+                "    .logo { font-size: 28px; font-weight: 900; color: #ff6900; }" +
+                "    .content { background: white; padding: 30px; border-radius: 8px; }" +
+                "    .greeting { font-size: 20px; font-weight: 600; color: #000; margin-bottom: 20px; }" +
+                "    .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-left: 4px solid #ff6900; border-radius: 4px; }" +
+                "    .section-title { font-weight: 600; color: #ff6900; margin-bottom: 10px; font-size: 16px; }" +
+                "    .message { font-size: 14px; color: #666; line-height: 1.8; }" +
+                "    ul { margin: 10px 0; padding-left: 20px; }" +
+                "    li { margin: 8px 0; font-size: 14px; }" +
+                "    .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <div class='logo'>NeoHire</div>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <div class='greeting'>Bienvenue " + userName + " ! 🎯</div>" +
+                "      <div class='message'>" +
+                "        Bienvenue sur <strong>NeoHire</strong>, la plateforme IA révolutionnaire pour le recrutement.<br>" +
+                "        Nous sommes ravis d'accueillir <strong>" + companyName + "</strong> parmi nos partenaires." +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>📊 Vos avantages en tant qu'Entreprise :</div>" +
+                "        <ul>" +
+                "          <li><strong>Analyse IA avancée :</strong> Nos algorithmes analysent les candidatures pour vous proposer les meilleurs profils</li>" +
+                "          <li><strong>Gestion simplifiée :</strong> Tableaux de bord intuitifs pour gérer vos offres et candidats</li>" +
+                "          <li><strong>Pool de talents :</strong> Accédez à une base de plus de 10 000 candidats qualifiés</li>" +
+                "          <li><strong>Communication directe :</strong> Système de messagerie intégré avec les candidats</li>" +
+                "          <li><strong>Analytics et rapports :</strong> Suivez vos recrutements avec des statistiques détaillées</li>" +
+                "        </ul>" +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>🚀 Prochaines étapes :</div>" +
+                "        <ul>" +
+                "          <li>Complétez votre profil d'entreprise</li>" +
+                "          <li>Publiez votre première offre d'emploi</li>" +
+                "          <li>Explorez les candidats correspondants</li>" +
+                "          <li>Lancez votre campagne de recrutement</li>" +
+                "        </ul>" +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>💡 Besoin d'aide ?</div>" +
+                "        <div class='message'>" +
+                "          Notre équipe de support est disponible pour vous aider. N'hésitez pas à nous contacter via l'interface NeoHire." +
+                "        </div>" +
+                "      </div>" +
+                "    </div>" +
+                "    <div class='footer'>" +
+                "      <p>© 2026 NeoHire - La plateforme IA qui révolutionne le recrutement</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+    }
+
+    private String buildWelcomeEmailCandidateContent(String fullName) {
+        String userName = fullName != null ? fullName : "Candidat";
+
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <style>" +
+                "    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }" +
+                "    .container { max-width: 600px; margin: 0 auto; background: #f9f9f9; border-radius: 8px; padding: 30px; }" +
+                "    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ff6900; padding-bottom: 20px; }" +
+                "    .logo { font-size: 28px; font-weight: 900; color: #ff6900; }" +
+                "    .content { background: white; padding: 30px; border-radius: 8px; }" +
+                "    .greeting { font-size: 20px; font-weight: 600; color: #000; margin-bottom: 20px; }" +
+                "    .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-left: 4px solid #ff6900; border-radius: 4px; }" +
+                "    .section-title { font-weight: 600; color: #ff6900; margin-bottom: 10px; font-size: 16px; }" +
+                "    .message { font-size: 14px; color: #666; line-height: 1.8; }" +
+                "    ul { margin: 10px 0; padding-left: 20px; }" +
+                "    li { margin: 8px 0; font-size: 14px; }" +
+                "    .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <div class='logo'>NeoHire</div>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <div class='greeting'>Bienvenue " + userName + " ! 🌟</div>" +
+                "      <div class='message'>" +
+                "        Bienvenue sur <strong>NeoHire</strong>, votre plateforme de carrière alimentée par l'IA.<br>" +
+                "        Nous sommes heureux de vous aider à trouver votre prochaine opportunité professionnelle." +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>💼 Vos avantages en tant que Candidat :</div>" +
+                "        <ul>" +
+                "          <li><strong>Matching intelligent :</strong> Recevez des offres d'emploi adaptées à votre profil</li>" +
+                "          <li><strong>Profil complet :</strong> Mettez en avant vos compétences et votre expérience</li>" +
+                "          <li><strong>Application facile :</strong> Postulez aux offres en un clic</li>" +
+                "          <li><strong>Suivi en temps réel :</strong> Suivez l'évolution de vos candidatures</li>" +
+                "          <li><strong>Réseau professionnel :</strong> Connectez-vous avec d'autres professionnels et entreprises</li>" +
+                "          <li><strong>Analyse de candidature :</strong> Recevez des feedbacks alimentés par l'IA</li>" +
+                "        </ul>" +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>🎯 Comment commencer :</div>" +
+                "        <ul>" +
+                "          <li>Complétez votre profil avec vos compétences et expérience</li>" +
+                "          <li>Téléchargez votre CV et portfolios</li>" +
+                "          <li>Parcourez les offres d'emploi disponibles</li>" +
+                "          <li>Commencez à postuler aux positions qui vous intéressent</li>" +
+                "        </ul>" +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>📞 Besoin d'aide ?</div>" +
+                "        <div class='message'>" +
+                "          Consultez notre centre d'aide ou contactez notre support via l'interface NeoHire. Nous sommes là pour vous !" +
+                "        </div>" +
+                "      </div>" +
+                "    </div>" +
+                "    <div class='footer'>" +
+                "      <p>© 2026 NeoHire - La plateforme IA qui révolutionne le recrutement</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+    }
+
+    private String buildReclamationResolvedEmailContent(String fullName, String subject, String adminResponse) {
+        String userName = fullName != null ? fullName : "Utilisateur";
+
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "  <meta charset='UTF-8'>" +
+                "  <style>" +
+                "    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }" +
+                "    .container { max-width: 600px; margin: 0 auto; background: #f9f9f9; border-radius: 8px; padding: 30px; }" +
+                "    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #4caf50; padding-bottom: 20px; }" +
+                "    .logo { font-size: 28px; font-weight: 900; color: #ff6900; }" +
+                "    .content { background: white; padding: 30px; border-radius: 8px; }" +
+                "    .greeting { font-size: 20px; font-weight: 600; color: #4caf50; margin-bottom: 20px; }" +
+                "    .status-badge { background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; border-radius: 4px; margin: 20px 0; }" +
+                "    .badge-title { font-weight: 600; color: #4caf50; margin-bottom: 5px; }" +
+                "    .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-left: 4px solid #ff6900; border-radius: 4px; }" +
+                "    .section-title { font-weight: 600; color: #ff6900; margin-bottom: 10px; }" +
+                "    .message { font-size: 14px; color: #666; line-height: 1.8; }" +
+                "    .response-box { background: #fff9e6; border-left: 4px solid #ff6900; padding: 15px; margin: 15px 0; border-radius: 4px; }" +
+                "    .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <div class='logo'>NeoHire</div>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <div class='greeting'>✅ Votre réclamation a été traitée</div>" +
+                "      <div class='message'>" +
+                "        Bonjour " + userName + ",<br><br>" +
+                "        Nous sommes heureux de vous informer que votre réclamation a été examinée et traitée par notre équipe d'administration." +
+                "      </div>" +
+                "      <div class='status-badge'>" +
+                "        <div class='badge-title'>📋 Sujet de la réclamation :</div>" +
+                "        <div style='font-size: 14px; color: #333;'>" + subject + "</div>" +
+                "      </div>" +
+                "      <div class='response-box'>" +
+                "        <div class='section-title'>📝 Réponse de l'administrateur :</div>" +
+                "        <div class='message'>" + adminResponse + "</div>" +
+                "      </div>" +
+                "      <div class='section'>" +
+                "        <div class='section-title'>Prochaines étapes :</div>" +
+                "        <div class='message'>" +
+                "          Si vous avez d'autres questions ou préoccupations, n'hésitez pas à nous contacter via l'interface NeoHire." +
+                "        </div>" +
+                "      </div>" +
+                "    </div>" +
+                "    <div class='footer'>" +
+                "      <p>© 2026 NeoHire - La plateforme IA qui révolutionne le recrutement</p>" +
+                "      <p>Merci de nous aider à améliorer NeoHire</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+    }
+
     private String buildEmailContent(String fullName, String resetLink) {
         String userName = fullName != null ? fullName : "Utilisateur";
 
