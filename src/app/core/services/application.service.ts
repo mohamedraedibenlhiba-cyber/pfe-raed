@@ -45,4 +45,8 @@ export class ApplicationService {
   getApplicationCv(id: number): Observable<Blob> {
     return this.http.get(`${this.API}/${id}/cv`, { responseType: 'blob' });
   }
+
+  triggerAnalysis(id: number): Observable<ApiResponse<null>> {
+    return this.http.post<ApiResponse<null>>(`${this.API}/${id}/analyze`, {});
+  }
 }

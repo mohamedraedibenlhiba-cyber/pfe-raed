@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1 class="page-title">Candidatures</h1>
-      <p class="page-subtitle">Offre #{{ offerId }} - {{ ranked.length }} candidature(s) recue(s)</p>
+      <p class="page-subtitle">Offre #{{ offerId }} — {{ ranked.length }} candidature(s) reçue(s)</p>
     </div>
     <a mat-button routerLink="/enterprise/offers" class="back-btn">
       <mat-icon>arrow_back</mat-icon> Mes offres
@@ -10,7 +10,7 @@
   </div>
 
   @if (loading) {
-    <div class="loading-center"><mat-spinner diameter="40" /></div>
+    <div class="loading-center"><mat-spinner diameter="44" /></div>
   } @else if (!ranked.length) {
     <div class="empty-state card">
       <span class="material-icons-round empty-icon">people_outline</span>
@@ -19,56 +19,172 @@
     </div>
   } @else {
     <div class="ranking-header card">
-      <div class="ranking-legend">
-        <span class="material-icons-round" style="color:#7c3aed">psychology</span>
+      <span class="material-icons-round ai-icon">psychology</span>
+      <div class="ranking-text">
         <strong>Classement IA</strong>
-        <span class="legend-desc">Les candidatures sont triees par score de compatibilite IA</span>
+        <span class="legend-desc">Les candidatures sont classées automatiquement par score de compatibilité</span>
       </div>
     </div>
 
     <div class="applications-list">
       @for (app of ranked; track app.id; let i = $index) {
-        <div class="app-card card">
-          <div class="rank-badge rank-{{ i < 3 ? i+1 : 'other' }}">{{ i + 1 }}</div>
+        <div class="app-card card" [class.analyzing]="analyzingIds.has(app.id)">
 
-          <div class="candidate-info">
-            <div class="candidate-avatar">{{ initials(app.candidate?.fullName) }}</div>
-            <div class="candidate-details">
-              <h4>{{ app.candidate?.fullName }}</h4>
-              @if (app.candidate?.headline) {
-                <p class="candidate-headline">{{ app.candidate?.headline }}</p>
-              }
-              <div class="candidate-meta">
-                @if (app.candidate?.city) {
-                  <span class="meta-chip"><span class="material-icons-round">place</span>{{ app.candidate!.city }}</span>
+          <!-- ── En-tête de la carte ── -->
+          <div class="card-top">
+            <div class="rank-badge rank-{{ i < 3 ? i+1 : 'other' }}">{{ i + 1 }}</div>
+
+            <div class="candidate-section">
+              <div class="candidate-avatar">{{ initials(app.candidate?.fullName) }}</div>
+              <div class="candidate-details">
+                <h4 class="candidate-name">{{ app.candidate?.fullName }}</h4>
+                @if (app.candidate?.headline) {
+                  <p class="candidate-headline">{{ app.candidate?.headline }}</p>
                 }
-                @if (app.candidate?.email) {
-                  <span class="meta-chip"><span class="material-icons-round">mail</span>{{ app.candidate!.email }}</span>
-                }
+                <div class="candidate-meta">
+                  @if (app.candidate?.city) {
+                    <span class="meta-chip">
+                      <span class="material-icons-round">place</span>
+                      {{ app.candidate!.city }}
+                    </span>
+                  }
+                  @if (app.candidate?.email) {
+                    <span class="meta-chip">
+                      <span class="material-icons-round">alternate_email</span>
+                      {{ app.candidate!.email }}
+                    </span>
+                  }
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="ai-score-section">
-            <div class="score-circle {{ scoreClass(app.aiScore) }}">
-              <span class="score-value">{{ app.aiScore ?? '-' }}</span>
-              <span class="score-unit">/ 100</span>
+            <div class="score-col">
+              <div class="score-circle {{ scoreClass(app.aiScore) }}">
+                <span class="score-value">{{ app.aiScore != null ? (app.aiScore | number:'1.0-0') : '—' }}</span>
+                <span class="score-unit">/ 100</span>
+              </div>
+              @if (app.aiScore != null) {
+                <span class="level-badge {{ scoreLevelClass(app.aiScore) }}">{{ scoreLevel(app.aiScore) }}</span>
+              } @else {
+                <span class="score-label">Score IA</span>
+              }
             </div>
-            <span class="score-label">Score IA</span>
+
+            <div class="card-meta">
+              <span class="chip {{ statusChipClass(app.status) }}">{{ statusLabel(app.status) }}</span>
+              <span class="app-date">
+                <span class="material-icons-round">calendar_today</span>
+                {{ app.appliedAt | date:'dd MMM yyyy' }}
+              </span>
+            </div>
           </div>
 
-          <div class="application-main">
-            @if (app.aiSummary) {
-              <div class="ai-summary">
-                <span class="material-icons-round">psychology</span>
-                <p>{{ app.aiSummary }}</p>
+          <!-- ── Corps — Analyse ── -->
+          <div class="card-body">
+
+            <!-- ── Bannière : analyse en cours ── -->
+            @if (analyzingIds.has(app.id)) {
+              <div class="analyzing-banner">
+                <mat-spinner diameter="18" />
+                <span>Analyse Groq IA en cours, veuillez patienter (30–60 s)…</span>
               </div>
             }
 
+            <!-- ── Bannière : analyse non encore lancée ── -->
+            @if (!analyzingIds.has(app.id) && app.aiScore == null && app.status === 'PENDING') {
+              <div class="ai-pending-banner">
+                <div class="pending-left">
+                  <span class="material-icons-round">hourglass_empty</span>
+                  <div>
+                    <strong>Analyse IA en attente</strong>
+                    <p>Déclenchez l'analyse pour obtenir un score et des recommandations personnalisées.</p>
+                  </div>
+                </div>
+                <button mat-flat-button class="analyze-btn" (click)="analyzeApplication(app)">
+                  <mat-icon>psychology</mat-icon>
+                  Analyser maintenant
+                </button>
+              </div>
+            }
+
+            <!-- ── Résultats de l'analyse IA ── -->
+            @if (!analyzingIds.has(app.id) && app.aiScore != null) {
+
+              <!-- Barre de score -->
+              <div class="score-bar-row">
+                <div class="score-bar-track">
+                  <div class="score-bar-fill {{ scoreClass(app.aiScore) }}"
+                       [style.width.%]="app.aiScore > 0 ? app.aiScore : 2"></div>
+                </div>
+                <span class="score-bar-label {{ scoreLevelClass(app.aiScore) }}">
+                  {{ scoreLevel(app.aiScore) }}
+                  @if (app.aiScore > 0) { — {{ app.aiScore | number:'1.0-0' }}/100 }
+                  @else { — Analyse indisponible }
+                </span>
+              </div>
+
+              <!-- Avis du recruteur IA -->
+              @if (app.aiFeedback && app.aiScore > 0) {
+                <div class="analysis-block feedback-block">
+                  <div class="block-header">
+                    <span class="material-icons-round">rate_review</span>
+                    <strong>Avis recruteur IA</strong>
+                  </div>
+                  <p>{{ app.aiFeedback }}</p>
+                </div>
+              }
+
+              <!-- Analyse IA du profil -->
+              @if (app.aiSummary) {
+                <div class="analysis-block ai-block">
+                  <div class="block-header">
+                    <span class="material-icons-round">psychology</span>
+                    <strong>Profil analysé</strong>
+                  </div>
+                  <p>{{ app.aiSummary }}</p>
+                </div>
+              }
+
+              <!-- Compatibilité CV avec l'offre -->
+              @if (app.cvSummary) {
+                <div class="analysis-block cv-block">
+                  <div class="block-header">
+                    <span class="material-icons-round">fact_check</span>
+                    <strong>Compatibilité avec l'offre</strong>
+                  </div>
+                  <div class="cv-summary-lines">
+                    @for (line of app.cvSummary.split('\n'); track $index) {
+                      @if (line.trim()) { <p>{{ line }}</p> }
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Questions d'entretien IA -->
+              @if (app.aiInterviewQuestions?.length && app.aiScore > 0) {
+                <div class="analysis-block questions-block">
+                  <div class="block-header">
+                    <span class="material-icons-round">quiz</span>
+                    <strong>Questions d'entretien suggérées par l'IA</strong>
+                  </div>
+                  <ol class="questions-list">
+                    @for (q of app.aiInterviewQuestions; track $index) {
+                      <li>{{ q }}</li>
+                    }
+                  </ol>
+                </div>
+              }
+
+            }
+
+            <!-- ── Lettre de motivation ── -->
             @if (app.coverLetter) {
-              <div class="cover-letter">
-                <span class="material-icons-round">article</span>
-                <p>{{ app.coverLetter }}</p>
+              <div class="analysis-block cover-block">
+                <div class="block-header">
+                  <span class="material-icons-round">article</span>
+                  <strong>Lettre de motivation</strong>
+                </div>
+                <p class="cover-text">{{ app.coverLetter }}</p>
               </div>
             }
 
@@ -79,24 +195,70 @@
                   <span>{{ app.cv.fileName }}</span>
                 </div>
                 <div class="cv-actions">
-                  <button mat-button class="btn-cv" (click)="openCv(app)">
+                  <button mat-stroked-button class="btn-cv-view" (click)="openCv(app)">
                     <mat-icon>{{ canPreviewCv(app.cv) ? 'visibility' : 'download' }}</mat-icon>
-                    {{ canPreviewCv(app.cv) ? 'Voir le CV' : 'Telecharger le CV' }}
+                    {{ canPreviewCv(app.cv) ? 'Voir le CV' : 'Télécharger' }}
                   </button>
-                  <button mat-button class="btn-cv-secondary" (click)="downloadCv(app)">
-                    <mat-icon>download</mat-icon>
-                    Telecharger
-                  </button>
+                  @if (canPreviewCv(app.cv)) {
+                    <button mat-icon-button class="btn-cv-dl" (click)="downloadCv(app)" matTooltip="Télécharger">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                  }
                 </div>
               </div>
             }
+
           </div>
 
-          <div class="app-footer">
-            <div class="app-date">{{ app.appliedAt | date:'dd/MM/yyyy' }}</div>
-            <span class="chip {{ statusChipClass(app.status) }}">{{ app.status }}</span>
-            <app-select class="status-select" label="Statut" [options]="statusOptions" [ngModel]="app.status" (selectionChange)="updateStatus(app, $event)"></app-select>
+          <!-- ── Pied de carte — Actions ── -->
+          <div class="card-footer">
+            <div class="footer-left">
+              @if (app.status === 'INTERVIEW') {
+                <span class="interview-badge">
+                  <mat-icon>event_available</mat-icon>
+                  Entretien planifié
+                </span>
+              }
+              @if (app.status === 'ACCEPTED') {
+                <span class="interview-badge accepted-badge">
+                  <mat-icon>check_circle</mat-icon>
+                  Candidat accepté
+                </span>
+              }
+            </div>
+            <div class="footer-right">
+              @if (app.status !== 'REJECTED' && app.status !== 'INTERVIEW' && app.status !== 'ACCEPTED') {
+                <button mat-stroked-button class="interview-btn" (click)="openInterviewDialog(app)" matTooltip="Planifier un entretien">
+                  <mat-icon>event</mat-icon>
+                  Entretien
+                </button>
+              }
+
+              <!-- Sélecteur de statut via mat-menu (portail CDK, non coupé par overflow) -->
+              <button mat-stroked-button class="status-menu-trigger" [matMenuTriggerFor]="statusMenu">
+                <span class="status-dot {{ statusDotClass(app.status) }}"></span>
+                {{ statusLabel(app.status) }}
+                <mat-icon class="chevron-icon">expand_more</mat-icon>
+              </button>
+
+              <mat-menu #statusMenu="matMenu" class="status-dropdown-menu">
+                <div class="status-menu-header">Changer le statut</div>
+                @for (opt of statusOptions; track opt.value) {
+                  <button mat-menu-item class="status-menu-item"
+                          [class.status-active]="app.status === opt.value"
+                          (click)="updateStatus(app, opt.value)">
+                    <span class="status-dot {{ opt.dot }}"></span>
+                    <mat-icon class="status-icon">{{ opt.icon }}</mat-icon>
+                    <span>{{ opt.label }}</span>
+                    @if (app.status === opt.value) {
+                      <mat-icon class="check-icon">check</mat-icon>
+                    }
+                  </button>
+                }
+              </mat-menu>
+            </div>
           </div>
+
         </div>
       }
     </div>

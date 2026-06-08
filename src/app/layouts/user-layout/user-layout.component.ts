@@ -59,6 +59,7 @@ export class UserLayoutComponent implements OnInit {
   enterpriseNav: NavItem[] = [
     { label: 'Tableau de bord', icon: 'dashboard', route: '/enterprise/dashboard' },
     { label: 'Mes offres', icon: 'work_outline', route: '/enterprise/offers' },
+    { label: 'Entretiens', icon: 'event', route: '/enterprise/interviews' },
     { label: 'Messagerie', icon: 'chat_bubble_outline', route: '/enterprise/messages' },
     { label: 'Actualites', icon: 'newspaper', route: '/enterprise/feed' },
     { label: 'Freelance', icon: 'handyman', route: '/enterprise/freelance' },
@@ -70,6 +71,7 @@ export class UserLayoutComponent implements OnInit {
     { label: 'Decouvrir', icon: 'explore', route: '/candidate/discovery' },
     { label: 'Rechercher offres', icon: 'search', route: '/candidate/search' },
     { label: 'Mes candidatures', icon: 'send', route: '/candidate/applications' },
+    { label: 'Entretiens', icon: 'event', route: '/candidate/interviews' },
     { label: 'Mes CVs', icon: 'description', route: '/candidate/cvs' },
     { label: 'Messagerie', icon: 'chat_bubble_outline', route: '/candidate/messages' },
     { label: 'Actualites', icon: 'newspaper', route: '/candidate/feed' },

@@ -8,15 +8,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { AlertService } from '../../../core/services/alert.service';
 import { ApplicationService } from '../../../core/services/application.service';
 import { ApplicationDetail, ApplicationDetailCV, ApplicationStatus } from '../../../core/models/models';
-import { AppSelectComponent } from '../../../shared/components/app-select/app-select.component';
+import { InterviewDialogComponent } from '../interview-dialog/interview-dialog.component';
 
 @Component({
   selector: 'app-enterprise-applications',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, AppSelectComponent, MatTooltipModule, MatTabsModule],
+  imports: [CommonModule, RouterLink, FormsModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule, MatTabsModule, MatDialogModule, MatMenuModule],
   templateUrl: './enterprise-applications.component.html',
   styleUrls: ['./enterprise-applications.component.scss']
 })
@@ -25,6 +27,7 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly alertSvc = inject(AlertService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly dialog = inject(MatDialog);
 
   loading = true;
   offerId!: number;
@@ -36,12 +39,25 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
   private viewerObjectUrl: string | null = null;
 
   statusOptions = [
-    { value: 'REVIEWED', label: 'En revue' },
-    { value: 'SHORTLISTED', label: 'Selectionne' },
-    { value: 'INTERVIEW', label: 'Entretien' },
-    { value: 'ACCEPTED', label: 'Accepte' },
-    { value: 'REJECTED', label: 'Refuse' },
+    { value: 'REVIEWED',    label: 'En revue',    icon: 'visibility',    dot: 'dot-blue'   },
+    { value: 'SHORTLISTED', label: 'Sélectionné', icon: 'star',          dot: 'dot-indigo' },
+    { value: 'INTERVIEW',   label: 'Entretien',   icon: 'event',         dot: 'dot-orange' },
+    { value: 'ACCEPTED',    label: 'Accepté',     icon: 'check_circle',  dot: 'dot-green'  },
+    { value: 'REJECTED',    label: 'Refusé',      icon: 'cancel',        dot: 'dot-red'    },
   ];
+
+  statusDotClass(status: ApplicationStatus | string): string {
+    const map: Record<string, string> = {
+      PENDING:     'dot-gray',
+      REVIEWED:    'dot-blue',
+      AI_ANALYZED: 'dot-purple',
+      SHORTLISTED: 'dot-indigo',
+      INTERVIEW:   'dot-orange',
+      ACCEPTED:    'dot-green',
+      REJECTED:    'dot-red',
+    };
+    return map[status] ?? 'dot-gray';
+  }
 
   ngOnInit(): void {
     this.offerId = +this.route.snapshot.paramMap.get('id')!;
@@ -50,6 +66,7 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.revokeViewerUrl();
+    this.pollingTimers.forEach(t => clearTimeout(t));
   }
 
   loadRanked(): void {
@@ -91,10 +108,8 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
         if (!this.canPreviewCv(cv)) {
           this.viewerLoading = false;
           this.downloadBlob(blob, cv.fileName);
-          this.alertSvc.success('CV telecharge pour lecture');
           return;
         }
-
         this.revokeViewerUrl();
         this.viewerObjectUrl = URL.createObjectURL(blob);
         this.viewerUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.viewerObjectUrl);
@@ -102,7 +117,9 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.viewerLoading = false;
-        this.alertSvc.error('Erreur', err.error?.message || 'Impossible de charger le CV');
+        this.parseBlobError(err).then(msg =>
+          this.alertSvc.error('Impossible de charger le CV', msg)
+        );
       }
     });
   }
@@ -116,8 +133,25 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
 
     this.appSvc.getApplicationCv(app.id).subscribe({
       next: blob => this.downloadBlob(blob, cv.fileName),
-      error: err => this.alertSvc.error('Erreur', err.error?.message || 'Impossible de telecharger le CV')
+      error: err => {
+        this.parseBlobError(err).then(msg =>
+          this.alertSvc.error('Impossible de télécharger le CV', msg)
+        );
+      }
     });
+  }
+
+  private async parseBlobError(err: any): Promise<string> {
+    if (err.error instanceof Blob) {
+      try {
+        const text = await err.error.text();
+        const json = JSON.parse(text);
+        return json.message || `Erreur ${err.status}`;
+      } catch {
+        return `Erreur ${err.status}`;
+      }
+    }
+    return err.error?.message || `Erreur ${err.status}`;
   }
 
   closeViewer(): void {
@@ -144,15 +178,127 @@ export class EnterpriseApplicationsComponent implements OnInit, OnDestroy {
     return map[status] ?? 'chip-gray';
   }
 
-  scoreClass(score?: number): string {
+  statusLabel(status: ApplicationStatus): string {
+    const labels: Record<ApplicationStatus, string> = {
+      PENDING: 'En attente',
+      REVIEWED: 'En revue',
+      AI_ANALYZED: 'Analysé',
+      SHORTLISTED: 'Sélectionné',
+      INTERVIEW: 'Entretien',
+      ACCEPTED: 'Accepté',
+      REJECTED: 'Refusé'
+    };
+    return labels[status] ?? status;
+  }
+
+  scoreClass(score?: number | null): string {
     if (score == null) return 'score-na';
     if (score >= 80) return 'score-high';
     if (score >= 50) return 'score-mid';
     return 'score-low';
   }
 
+  scoreLevel(score?: number | null): string {
+    if (score == null) return '';
+    if (score >= 80) return 'EXCELLENT';
+    if (score >= 65) return 'BON';
+    if (score >= 50) return 'MOYEN';
+    return 'FAIBLE';
+  }
+
+  scoreLevelClass(score?: number | null): string {
+    if (score == null) return '';
+    if (score >= 80) return 'level-excellent';
+    if (score >= 65) return 'level-bon';
+    if (score >= 50) return 'level-moyen';
+    return 'level-faible';
+  }
+
   initials(name: string | undefined): string {
     return name?.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || '?';
+  }
+
+  analyzingIds = new Set<number>();
+  private pollingTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+  analyzeApplication(app: ApplicationDetail): void {
+    this.cancelPolling(app.id);
+    this.analyzingIds.add(app.id);
+    this.appSvc.triggerAnalysis(app.id).subscribe({
+      next: () => this.pollForResult(app, 0),
+      error: err => {
+        this.analyzingIds.delete(app.id);
+        this.alertSvc.error('Erreur', err.error?.message || 'Impossible de lancer l\'analyse');
+      }
+    });
+  }
+
+  private pollForResult(app: ApplicationDetail, attempts: number): void {
+    // Adaptatif : rapide au début, plus lent après 5 tentatives
+    const delay = attempts < 5 ? 8000 : 15000;
+    const maxAttempts = 13; // ~5×8s + 8×15s = 160s max
+
+    const timer = setTimeout(() => {
+      this.pollingTimers.delete(app.id);
+      if (!this.analyzingIds.has(app.id)) return;
+
+      this.appSvc.getRankedWithDetails(this.offerId).subscribe({
+        next: res => {
+          const updated = res.data.find(a => a.id === app.id);
+          if (updated?.aiScore != null) {
+            this.analyzingIds.delete(app.id);
+            this.ranked = res.data;
+            const score = Math.round(updated.aiScore);
+            if (score > 0) {
+              this.alertSvc.success('Analyse terminée — Score : ' + score + '/100');
+            } else {
+              this.alertSvc.info('Analyse terminée', 'Score indisponible — le service IA était temporairement inaccessible.');
+            }
+          } else if (attempts + 1 < maxAttempts) {
+            this.pollForResult(app, attempts + 1);
+          } else {
+            this.analyzingIds.delete(app.id);
+            this.ranked = res.data;
+            this.alertSvc.error('Analyse non disponible', 'L\'analyse IA n\'a pas répondu dans les délais. Vérifiez les logs du serveur et réessayez.');
+          }
+        },
+        error: () => {
+          this.analyzingIds.delete(app.id);
+        }
+      });
+    }, delay);
+
+    this.pollingTimers.set(app.id, timer);
+  }
+
+  private cancelPolling(id: number): void {
+    const timer = this.pollingTimers.get(id);
+    if (timer != null) {
+      clearTimeout(timer);
+      this.pollingTimers.delete(id);
+    }
+  }
+
+  refreshApplication(app: ApplicationDetail): void {
+    this.loadRanked();
+  }
+
+  openInterviewDialog(app: ApplicationDetail): void {
+    const ref = this.dialog.open(InterviewDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: false,
+      data: {
+        applicationId: app.id,
+        candidateName: app.candidate?.fullName ?? 'Candidat',
+        jobTitle: app.jobOffer?.title ?? 'Poste'
+      }
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        app.status = 'INTERVIEW';
+      }
+    });
   }
 
   private downloadBlob(blob: Blob, fileName: string): void {

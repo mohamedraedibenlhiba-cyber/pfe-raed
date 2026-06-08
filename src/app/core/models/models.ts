@@ -224,6 +224,9 @@ export interface ApplicationDetail {
   aiScore?: number;
   aiSummary?: string;
   aiFeedback?: string;
+  aiCandidateFeedback?: string;
+  aiInterviewQuestions?: string[];
+  cvSummary?: string;
   recruiterNotes?: string;
   recruiterRating?: number;
   appliedAt: string;
@@ -607,6 +610,58 @@ export interface UserSearchResponse {
   connectionStatus: ConnectionRequestStatus;
   requestId?: number;
   requestDirection?: ConnectionRequestDirection;
+}
+
+// ─── Interviews ───────────────────────────────────────────────────────────────
+export type InterviewType = 'VIDEO' | 'IN_PERSON' | 'PHONE';
+export type InterviewStatus = 'PROPOSED' | 'CONFIRMED' | 'RESCHEDULED' | 'CANCELLED' | 'COMPLETED';
+
+export interface InterviewCandidateInfo {
+  id: number;
+  fullName: string;
+  email: string;
+  profilePicture?: string;
+}
+
+export interface InterviewEnterpriseInfo {
+  id: number;
+  companyName: string;
+  companyLogo?: string;
+}
+
+export interface InterviewJobOfferInfo {
+  id: number;
+  title: string;
+  location?: string;
+}
+
+export interface Interview {
+  id: number;
+  applicationId: number;
+  candidate: InterviewCandidateInfo;
+  enterprise: InterviewEnterpriseInfo;
+  jobOffer: InterviewJobOfferInfo;
+  scheduledAt: string;
+  durationMinutes: number;
+  type: InterviewType;
+  status: InterviewStatus;
+  meetingLink?: string;
+  location?: string;
+  enterpriseNotes?: string;
+  candidateNote?: string;
+  cancellationReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InterviewRequest {
+  applicationId: number;
+  scheduledAt: string;
+  durationMinutes?: number;
+  type?: InterviewType;
+  meetingLink?: string;
+  location?: string;
+  enterpriseNotes?: string;
 }
 
 // ─── Friendships ──────────────────────────────────────────────────────────────

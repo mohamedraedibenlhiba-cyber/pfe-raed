@@ -1,0 +1,124 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>event</mat-icon>
+      </div>
+      <div>
+        <h2 mat-dialog-title>Planifier un entretien</h2>
+        <p class="header-sub">{{ data.candidateName }} — {{ data.jobTitle }}</p>
+      </div>
+    </div>
+    <button mat-icon-button [mat-dialog-close]="null" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="interview-form">
+
+      <!-- Date et heure -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>schedule</mat-icon>
+          Date et heure
+        </h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date et heure de l'entretien</mat-label>
+          <input matInput type="datetime-local" formControlName="scheduledAt" />
+          <mat-icon matSuffix>calendar_today</mat-icon>
+          @if (form.get('scheduledAt')?.hasError('required') && form.get('scheduledAt')?.touched) {
+            <mat-error>La date est requise</mat-error>
+          }
+          @if (form.get('scheduledAt')?.hasError('pastDate')) {
+            <mat-error>La date doit être dans le futur</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Durée</mat-label>
+          <mat-select formControlName="durationMinutes">
+            @for (opt of durationOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>timer</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Type d'entretien -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>category</mat-icon>
+          Type d'entretien
+        </h3>
+        <div class="type-selector">
+          @for (opt of typeOptions; track opt.value) {
+            <button type="button"
+              class="type-btn"
+              [class.active]="form.value.type === opt.value"
+              (click)="form.get('type')!.setValue(opt.value)">
+              <mat-icon>{{ opt.icon }}</mat-icon>
+              <span>{{ opt.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Lien ou lieu -->
+      @if (isVideo) {
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>link</mat-icon>
+            Lien de visioconférence
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Lien Google Meet / Zoom / Teams</mat-label>
+            <input matInput formControlName="meetingLink" placeholder="https://meet.google.com/..." />
+            <mat-icon matSuffix>videocam</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      @if (isInPerson) {
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>location_on</mat-icon>
+            Adresse
+          </h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Adresse / Bureau / Salle</mat-label>
+            <input matInput formControlName="location" placeholder="12 Rue de la Paix, Paris..." />
+            <mat-icon matSuffix>place</mat-icon>
+          </mat-form-field>
+        </div>
+      }
+
+      <!-- Notes -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>notes</mat-icon>
+          Instructions (optionnel)
+        </h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Instructions pour le candidat</mat-label>
+          <textarea matInput formControlName="enterpriseNotes" rows="3"
+            placeholder="Documents à apporter, code vestimentaire, interlocuteurs..."></textarea>
+        </mat-form-field>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="null" [disabled]="saving">Annuler</button>
+    <button mat-flat-button color="primary" class="submit-btn" (click)="submit()" [disabled]="saving">
+      @if (saving) {
+        <mat-spinner diameter="18" color="accent"></mat-spinner>
+      } @else {
+        <mat-icon>send</mat-icon>
+        Proposer l'entretien
+      }
+    </button>
+  </mat-dialog-actions>
+</div>
