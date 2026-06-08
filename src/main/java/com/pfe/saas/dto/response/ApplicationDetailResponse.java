@@ -36,6 +36,11 @@ public class ApplicationDetailResponse {
     private Double aiScore;
     private String aiSummary;
     private String aiFeedback;
+    private String aiCandidateFeedback;
+    private java.util.List<String> aiInterviewQuestions;
+
+    // Résumé du CV (points compatibles avec l'offre)
+    private String cvSummary;
 
     // Notes recruteur
     private String recruiterNotes;

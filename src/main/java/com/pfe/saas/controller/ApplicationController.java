@@ -174,6 +174,17 @@ public class ApplicationController {
                 applicationService.addRecruiterNote(id, enterpriseId, note, rating)));
     }
 
+    @PostMapping("/{id}/analyze")
+    @PreAuthorize("hasRole('ENTERPRISE')")
+    @Operation(summary = "Déclencher l'analyse IA d'une candidature")
+    public ResponseEntity<ApiResponse<Void>> analyzeApplication(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long enterpriseId = resolveUserId(userDetails);
+        applicationService.triggerAnalysis(id, enterpriseId);
+        return ResponseEntity.ok(ApiResponse.ok("Analyse lancée en arrière-plan", null));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Détail d'une candidature")
     public ResponseEntity<ApiResponse<Application>> getById(@PathVariable Long id) {

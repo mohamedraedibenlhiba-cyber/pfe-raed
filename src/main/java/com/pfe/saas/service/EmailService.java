@@ -115,6 +115,161 @@ public class EmailService {
     }
 
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  EMAILS ENTRETIENS
+    // ══════════════════════════════════════════════════════════════════════════
+
+    public void sendInterviewInvitationEmail(
+            String email, String candidateName, String companyName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, Integer durationMinutes,
+            String type, String meetingLink, String location) {
+        sendHtmlEmail(email,
+            "Invitation à un entretien — " + jobTitle + " · NeoHire",
+            buildInterviewInvitationHtml(candidateName, companyName, jobTitle, scheduledAt, durationMinutes, type, meetingLink, location));
+    }
+
+    public void sendInterviewConfirmedEmail(
+            String email, String recipientName, String candidateName,
+            String jobTitle, java.time.LocalDateTime scheduledAt, String note) {
+        sendHtmlEmail(email,
+            candidateName + " a confirmé l'entretien — NeoHire",
+            buildInterviewConfirmedHtml(recipientName, candidateName, jobTitle, scheduledAt, note));
+    }
+
+    public void sendInterviewCancelledEmail(
+            String email, String recipientName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, String reason) {
+        sendHtmlEmail(email,
+            "Entretien annulé — " + jobTitle + " · NeoHire",
+            buildInterviewCancelledHtml(recipientName, jobTitle, scheduledAt, reason));
+    }
+
+    public void sendInterviewReminderEmail(
+            String email, String recipientName, String otherPartyName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, String type, String meetingLink, String location) {
+        sendHtmlEmail(email,
+            "Rappel : entretien demain — " + jobTitle + " · NeoHire",
+            buildInterviewReminderHtml(recipientName, otherPartyName, jobTitle, scheduledAt, type, meetingLink, location));
+    }
+
+    private void sendHtmlEmail(String to, String subject, String html) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(html, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            log.error("Échec envoi email '{}' à {} : {}", subject, to, e.getMessage());
+        }
+    }
+
+    private String buildInterviewInvitationHtml(String candidateName, String companyName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, Integer durationMinutes, String type, String meetingLink, String location) {
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
+        String typeLabel = switch (type) {
+            case "VIDEO" -> "📹 Visioconférence";
+            case "PHONE" -> "📞 Téléphone";
+            default -> "🏢 Présentiel";
+        };
+        String locationBlock = (type.equals("VIDEO") && meetingLink != null && !meetingLink.isBlank())
+            ? "<a href='" + meetingLink + "' style='display:inline-block;background:linear-gradient(135deg,#f97316,#fcb900);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:16px 0;'>Rejoindre la réunion</a>"
+            : (!type.equals("VIDEO") && location != null ? "<p>📍 Lieu : <strong>" + location + "</strong></p>" : "");
+
+        return emailBase("Invitation à un entretien 📅", """
+            <p>Bonjour <strong>""" + candidateName + """
+            </strong>,</p>
+            <p><strong>""" + companyName + """
+            </strong> vous invite à un entretien pour le poste de <strong>""" + jobTitle + """
+            </strong>.</p>
+            <div style='background:#f8fafc;border-left:4px solid #f97316;padding:16px;border-radius:6px;margin:20px 0;'>
+              <p><strong>📅 Date :</strong> """ + scheduledAt.format(fmt) + """
+              </p>
+              <p><strong>⏱️ Durée :</strong> """ + durationMinutes + """
+               minutes</p>
+              <p><strong>🎯 Type :</strong> """ + typeLabel + """
+              </p>
+            </div>
+            """ + locationBlock + """
+            <p style='color:#64748b;font-size:13px;'>Connectez-vous sur NeoHire pour confirmer ou contacter le recruteur.</p>
+            """);
+    }
+
+    private String buildInterviewConfirmedHtml(String recipientName, String candidateName,
+            String jobTitle, java.time.LocalDateTime scheduledAt, String note) {
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
+        String noteBlock = (note != null && !note.isBlank())
+            ? "<div style='background:#f0fdf4;border-left:4px solid #4ade80;padding:12px;border-radius:6px;margin:12px 0;'><strong>Message du candidat :</strong><br>" + note + "</div>"
+            : "";
+        return emailBase("Entretien confirmé ✅", """
+            <p>Bonjour <strong>""" + recipientName + """
+            </strong>,</p>
+            <p><strong>""" + candidateName + """
+            </strong> a confirmé l'entretien prévu le <strong>""" + scheduledAt.format(fmt) + """
+            </strong> pour le poste de <strong>""" + jobTitle + """
+            </strong>.</p>
+            """ + noteBlock + """
+            <p style='color:#64748b;font-size:13px;'>Consultez les détails dans votre tableau de bord NeoHire.</p>
+            """);
+    }
+
+    private String buildInterviewCancelledHtml(String recipientName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, String reason) {
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
+        String reasonBlock = (reason != null && !reason.isBlank())
+            ? "<div style='background:#fef2f2;border-left:4px solid #f87171;padding:12px;border-radius:6px;margin:12px 0;'><strong>Motif :</strong> " + reason + "</div>"
+            : "";
+        return emailBase("Entretien annulé ❌", """
+            <p>Bonjour <strong>""" + recipientName + """
+            </strong>,</p>
+            <p>L'entretien du <strong>""" + scheduledAt.format(fmt) + """
+            </strong> pour le poste de <strong>""" + jobTitle + """
+            </strong> a été annulé.</p>
+            """ + reasonBlock + """
+            <p style='color:#64748b;font-size:13px;'>Rendez-vous sur NeoHire pour reprogrammer si nécessaire.</p>
+            """);
+    }
+
+    private String buildInterviewReminderHtml(String recipientName, String otherPartyName, String jobTitle,
+            java.time.LocalDateTime scheduledAt, String type, String meetingLink, String location) {
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
+        String typeLabel = switch (type) { case "VIDEO" -> "📹 Visioconférence"; case "PHONE" -> "📞 Téléphone"; default -> "🏢 Présentiel"; };
+        String link = (type.equals("VIDEO") && meetingLink != null && !meetingLink.isBlank())
+            ? "<a href='" + meetingLink + "' style='display:inline-block;background:linear-gradient(135deg,#f97316,#fcb900);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:16px 0;'>Rejoindre la réunion</a>"
+            : (!type.equals("VIDEO") && location != null ? "<p>📍 Lieu : <strong>" + location + "</strong></p>" : "");
+        return emailBase("Rappel entretien demain 🔔", """
+            <p>Bonjour <strong>""" + recipientName + """
+            </strong>,</p>
+            <p>Rappel : votre entretien avec <strong>""" + otherPartyName + """
+            </strong> pour le poste de <strong>""" + jobTitle + """
+            </strong> a lieu <strong>demain</strong>.</p>
+            <div style='background:#f8fafc;border-left:4px solid #f97316;padding:16px;border-radius:6px;margin:20px 0;'>
+              <p><strong>📅 Date :</strong> """ + scheduledAt.format(fmt) + """
+              </p>
+              <p><strong>🎯 Type :</strong> """ + typeLabel + """
+              </p>
+            </div>
+            """ + link + """
+            <p style='color:#64748b;font-size:13px;'>Bonne chance ! L'équipe NeoHire.</p>
+            """);
+    }
+
+    private String emailBase(String title, String bodyContent) {
+        return "<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body style='font-family:Segoe UI,sans-serif;color:#333;'>" +
+            "<div style='max-width:600px;margin:0 auto;background:#f9f9f9;border-radius:10px;padding:30px;'>" +
+            "<div style='text-align:center;border-bottom:3px solid #f97316;padding-bottom:16px;margin-bottom:24px;'>" +
+            "<span style='font-size:26px;font-weight:900;color:#f97316;'>NeoHire</span>" +
+            "</div>" +
+            "<div style='background:#fff;padding:28px;border-radius:8px;'>" +
+            "<h2 style='margin:0 0 16px;color:#0f172a;font-size:18px;'>" + title + "</h2>" +
+            bodyContent +
+            "</div>" +
+            "<p style='text-align:center;font-size:11px;color:#94a3b8;margin-top:24px;'>© 2026 NeoHire</p>" +
+            "</div></body></html>";
+    }
+
     private String buildVerificationEmailContent(String fullName, String verificationLink) {
         String userName = fullName != null ? fullName : "Utilisateur";
 

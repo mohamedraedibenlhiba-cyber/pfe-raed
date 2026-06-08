@@ -5,6 +5,7 @@ import com.pfe.saas.entity.*;
 import com.pfe.saas.mapper.CVMapper;
 import com.pfe.saas.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CVService {
 
     private final CVRepository cvRepository;
@@ -96,12 +98,16 @@ public class CVService {
     @Transactional(readOnly = true)
     public byte[] readCVContent(CV cv) throws IOException {
         Path filePath = Paths.get(cv.getFilePath()).toAbsolutePath().normalize();
+        log.info("Lecture CV — chemin stocké: '{}' → absolu: '{}'", cv.getFilePath(), filePath);
+        log.info("UPLOAD_BASE_PATH = '{}'", UPLOAD_BASE_PATH);
 
         if (!filePath.startsWith(UPLOAD_BASE_PATH)) {
-            throw new IllegalArgumentException("AccÃ¨s refusÃ©: chemin de CV invalide");
+            log.error("Chemin CV hors répertoire autorisé: {}", filePath);
+            throw new IllegalArgumentException("Accès refusé: chemin de CV invalide");
         }
         if (!Files.exists(filePath)) {
-            throw new FileNotFoundException("Fichier CV introuvable");
+            log.error("Fichier CV introuvable sur disque: {}", filePath);
+            throw new FileNotFoundException("Fichier CV introuvable : " + filePath);
         }
 
         return Files.readAllBytes(filePath);

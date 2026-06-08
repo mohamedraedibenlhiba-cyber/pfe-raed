@@ -63,6 +63,22 @@ public class GlobalExceptionHandler {
         return ApiResponse.error("Conflit de données : une entrée similaire existe déjà");
     }
 
+    /** Fichier introuvable sur le disque */
+    @ExceptionHandler(java.io.FileNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiResponse<Void> handleFileNotFound(java.io.FileNotFoundException ex) {
+        log.warn("Fichier CV introuvable : {}", ex.getMessage());
+        return ApiResponse.error("Le fichier CV est introuvable sur le serveur");
+    }
+
+    /** Erreur lecture/écriture fichier */
+    @ExceptionHandler(java.io.IOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiResponse<Void> handleIo(java.io.IOException ex) {
+        log.error("Erreur I/O : {}", ex.getMessage(), ex);
+        return ApiResponse.error("Erreur lors de la lecture du fichier : " + ex.getMessage());
+    }
+
     /** Fichier trop lourd */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)

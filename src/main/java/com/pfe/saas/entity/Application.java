@@ -47,6 +47,12 @@ public class Application {
     @Column(name = "ai_feedback", columnDefinition = "TEXT")
     private String aiFeedback;
 
+    @Column(name = "ai_candidate_feedback", columnDefinition = "TEXT")
+    private String aiCandidateFeedback;
+
+    @Column(name = "ai_interview_questions", columnDefinition = "TEXT")
+    private String aiInterviewQuestions;
+
     @Column(name = "recruiter_notes", columnDefinition = "TEXT")
     private String recruiterNotes;
 

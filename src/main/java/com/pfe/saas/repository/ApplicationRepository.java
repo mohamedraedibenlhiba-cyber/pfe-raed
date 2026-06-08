@@ -28,6 +28,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     @Query("SELECT a FROM Application a WHERE a.jobOffer.id = :offerId ORDER BY a.aiScore DESC")
     List<Application> findByJobOfferIdOrderByScore(@Param("offerId") Long offerId);
 
+    @Query("SELECT a FROM Application a LEFT JOIN FETCH a.candidate LEFT JOIN FETCH a.jobOffer jo LEFT JOIN FETCH jo.enterprise LEFT JOIN FETCH a.cv WHERE a.id = :id")
+    Optional<Application> findByIdWithDetails(@Param("id") Long id);
+
     long countByJobOfferId(Long jobOfferId);
     long countByStatus(ApplicationStatus status);
 

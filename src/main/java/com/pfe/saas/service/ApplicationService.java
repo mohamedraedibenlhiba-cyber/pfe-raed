@@ -1,5 +1,7 @@
 package com.pfe.saas.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pfe.saas.dto.request.ApplicationRequest;
 import com.pfe.saas.dto.response.EnterpriseDashboardResponse;
 import com.pfe.saas.dto.response.ApplicationDetailResponse;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ public class ApplicationService {
     private final NotificationService notificationService;
     private final AiAnalysisService aiAnalysisService;
     private final EmailService emailService;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public Application apply(Long candidateId, ApplicationRequest req) {
@@ -314,6 +318,9 @@ public class ApplicationService {
                 .aiScore(app.getAiScore())
                 .aiSummary(app.getAiSummary())
                 .aiFeedback(app.getAiFeedback())
+                .aiCandidateFeedback(app.getAiCandidateFeedback())
+                .aiInterviewQuestions(parseQuestions(app.getAiInterviewQuestions()))
+                .cvSummary(cv != null ? cv.getAiSummary() : null)
                 .recruiterNotes(app.getRecruiterNotes())
                 .recruiterRating(app.getRecruiterRating())
                 .appliedAt(app.getAppliedAt())
@@ -345,5 +352,21 @@ public class ApplicationService {
                 .stream()
                 .map(this::mapApplicationToDetail)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void triggerAnalysis(Long applicationId, Long enterpriseId) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Candidature non trouvée"));
+        if (!app.getJobOffer().getEnterprise().getId().equals(enterpriseId)) {
+            throw new RuntimeException("Accès non autorisé");
+        }
+        aiAnalysisService.analyzeApplicationAsync(applicationId);
+    }
+
+    private List<String> parseQuestions(String json) {
+        if (json == null || json.isBlank()) return Collections.emptyList();
+        try { return objectMapper.readValue(json, new TypeReference<>() {}); }
+        catch (Exception e) { return Collections.emptyList(); }
     }
 }
