@@ -8,6 +8,7 @@ import com.pfe.saas.enums.Role;
 import com.pfe.saas.repository.*;
 import com.pfe.saas.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -81,8 +83,12 @@ public class AuthService {
 
         Enterprise saved = enterpriseRepository.save(enterprise);
 
-        // Send welcome email for enterprise
-        emailService.sendWelcomeEmailEnterprise(saved.getEmail(), saved.getFullName(), saved.getCompanyName());
+        // A mail failure must never cancel account creation.
+        try {
+            emailService.sendWelcomeEmailEnterprise(saved.getEmail(), saved.getFullName(), saved.getCompanyName());
+        } catch (Exception ex) {
+            log.warn(ex.getMessage(), ex);
+        }
 
         String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
         return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
@@ -111,8 +117,12 @@ public class AuthService {
 
         Candidate saved = candidateRepository.save(candidate);
 
-        // Send welcome email for candidate
-        emailService.sendWelcomeEmailCandidate(saved.getEmail(), saved.getFullName());
+        // A mail failure must never cancel account creation.
+        try {
+            emailService.sendWelcomeEmailCandidate(saved.getEmail(), saved.getFullName());
+        } catch (Exception ex) {
+            log.warn(ex.getMessage(), ex);
+        }
 
         String token = tokenProvider.generateTokenFromEmail(saved.getEmail());
         return new JwtResponse(token, saved.getId(), saved.getEmail(), saved.getFullName(), saved.getRole().name());
