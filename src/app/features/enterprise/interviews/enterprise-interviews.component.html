@@ -1,45 +1,70 @@
-<div class="interviews-page">
-  <div class="page-header">
-    <h1 class="page-title">
-      <mat-icon>event</mat-icon>
-      Mes entretiens
-    </h1>
-    <p class="page-subtitle">{{ interviews.length }} entretien(s) planifié(s)</p>
-  </div>
+<div class="enterprise-interviews-page">
+  <section class="interviews-hero">
+    <div>
+      <span class="hero-kicker">Planning entreprise</span>
+      <h1>Mes entretiens</h1>
+      <p>
+        Suivez vos entretiens planifiés, consultez les informations candidat et gérez les actions importantes.
+      </p>
+    </div>
+
+    <div class="hero-count">
+      <strong>{{ interviews.length }}</strong>
+      <span>entretien(s)</span>
+    </div>
+  </section>
 
   @if (loading) {
-    <div class="loading-center"><mat-spinner diameter="40" /></div>
-  } @else if (!interviews.length) {
-    <div class="empty-state card">
-      <span class="material-icons-round empty-icon">event_available</span>
-      <p class="empty-title">Aucun entretien planifié</p>
-      <p class="empty-desc">Proposez des entretiens depuis les candidatures de vos offres</p>
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
     </div>
+  } @else if (!interviews.length) {
+    <section class="empty-interviews">
+      <div class="empty-icon">
+        <mat-icon>event_available</mat-icon>
+      </div>
+      <h2>Aucun entretien planifié</h2>
+      <p>Proposez des entretiens depuis les candidatures de vos offres.</p>
+    </section>
   } @else {
-    <div class="interviews-list">
+    <section class="interviews-list">
       @for (iv of interviews; track iv.id) {
-        <div class="iv-card card">
-          <div class="iv-card-left">
+        <article class="interview-card">
+          <div class="interview-main">
             <div class="type-icon-wrapper">
               <mat-icon>{{ typeIcon(iv.type) }}</mat-icon>
             </div>
-            <div class="iv-info">
-              <h3 class="iv-job">{{ iv.jobOffer.title }}</h3>
-              <div class="iv-meta">
+
+            <div class="interview-info">
+              <div class="interview-title-row">
+                <div>
+                  <h3>{{ iv.jobOffer.title }}</h3>
+                  <p>{{ iv.candidate.fullName }}</p>
+                </div>
+
+                <span class="status-pill {{ statusChipClass(iv.status) }}">
+                  {{ statusLabel(iv.status) }}
+                </span>
+              </div>
+
+              <div class="interview-meta">
                 <span class="meta-pill">
                   <mat-icon>person</mat-icon>
                   {{ iv.candidate.fullName }}
                 </span>
+
                 <span class="meta-pill">
                   <mat-icon>{{ typeIcon(iv.type) }}</mat-icon>
                   {{ typeLabel(iv.type) }}
                 </span>
+
                 @if (iv.meetingLink) {
                   <a class="meta-pill link" [href]="iv.meetingLink" target="_blank" rel="noopener">
                     <mat-icon>link</mat-icon>
                     Rejoindre
                   </a>
                 }
+
                 @if (iv.location) {
                   <span class="meta-pill">
                     <mat-icon>place</mat-icon>
@@ -47,41 +72,47 @@
                   </span>
                 }
               </div>
+
               @if (iv.enterpriseNotes) {
-                <p class="iv-notes">{{ iv.enterpriseNotes }}</p>
+                <div class="note-card enterprise-note">
+                  <mat-icon>info_outline</mat-icon>
+                  <p>{{ iv.enterpriseNotes }}</p>
+                </div>
               }
+
               @if (iv.candidateNote) {
-                <p class="iv-candidate-note">
+                <div class="note-card candidate-note">
                   <mat-icon>chat_bubble_outline</mat-icon>
-                  Note candidat : {{ iv.candidateNote }}
-                </p>
+                  <p>Note candidat : {{ iv.candidateNote }}</p>
+                </div>
               }
             </div>
           </div>
 
-          <div class="iv-card-right">
-            <div class="iv-datetime">
+          <aside class="interview-side">
+            <div class="datetime-card">
               <span class="iv-date">{{ iv.scheduledAt | date:'EEE dd MMM yyyy' }}</span>
-              <span class="iv-time">{{ iv.scheduledAt | date:'HH:mm' }}</span>
-              <span class="iv-duration">{{ iv.durationMinutes }} min</span>
+              <strong>{{ iv.scheduledAt | date:'HH:mm' }}</strong>
+              <small>{{ iv.durationMinutes }} min</small>
             </div>
-            <span class="chip {{ statusChipClass(iv.status) }}">{{ statusLabel(iv.status) }}</span>
-            <div class="iv-actions">
+
+            <div class="interview-actions">
               @if (canComplete(iv)) {
                 <button mat-stroked-button class="btn-complete" (click)="complete(iv)" matTooltip="Marquer comme complété">
                   <mat-icon>check_circle</mat-icon>
                   Complété
                 </button>
               }
+
               @if (canCancel(iv)) {
                 <button mat-icon-button class="btn-cancel" (click)="cancel(iv)" matTooltip="Annuler l'entretien">
                   <mat-icon>cancel</mat-icon>
                 </button>
               }
             </div>
-          </div>
-        </div>
+          </aside>
+        </article>
       }
-    </div>
+    </section>
   }
 </div>

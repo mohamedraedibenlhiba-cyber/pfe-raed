@@ -1,23 +1,43 @@
-<div class="dashboard">
-  <!-- ✨ Search Section -->
-  <div class="search-banner">
-    <h2>Trouver des candidats</h2>
+<div class="enterprise-dashboard">
+  <section class="enterprise-hero">
+    <div class="hero-content">
+      <span class="hero-kicker">Espace entreprise</span>
+      <h1>Bonjour, {{ auth.currentUser?.fullName }}</h1>
+      <p>
+        Pilotez vos offres, suivez vos candidatures et trouvez les meilleurs talents pour vos équipes.
+      </p>
+    </div>
+
+    <a mat-flat-button routerLink="/enterprise/offers/new" class="hero-action">
+      <mat-icon>add</mat-icon>
+      Publier une offre
+    </a>
+  </section>
+
+  <section class="talent-search-card">
+    <div class="search-copy">
+      <h2>Trouver des candidats</h2>
+      <p>Recherchez un profil par nom, poste ou localisation.</p>
+    </div>
+
     <div class="search-wrapper">
-      <mat-form-field class="search-field">
+      <mat-form-field appearance="outline" class="search-field">
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput
-               placeholder="Chercher un candidat..."
-               [(ngModel)]="searchQuery"
-               (input)="searchUsers()"
-               (keyup.escape)="clearSearch()"
-               [disabled]="loadingSearch" />
+        <input
+          matInput
+          placeholder="Chercher un candidat..."
+          [(ngModel)]="searchQuery"
+          (input)="searchUsers()"
+          (keyup.escape)="clearSearch()"
+          [disabled]="loadingSearch" />
       </mat-form-field>
 
-      <!-- Search Results -->
       @if (showSearch && searchQuery && searchResults.length > 0) {
         <div class="search-results-dropdown">
           @if (loadingSearch) {
-            <div class="loading-center"><mat-spinner diameter="24" /></div>
+            <div class="loading-center">
+              <mat-spinner diameter="24" />
+            </div>
           } @else {
             @for (user of searchResults; track user.id) {
               <div class="search-result-item">
@@ -26,22 +46,21 @@
                   <div class="user-details">
                     <p class="name">{{ user.fullName }}</p>
                     <p class="subtitle">{{ user.headline || 'Candidat' }}</p>
-                    <p class="location" *ngIf="user.city">
-                      <mat-icon>location_on</mat-icon> {{ user.city }}
-                    </p>
+                    @if (user.city) {
+                      <p class="location">
+                        <mat-icon>location_on</mat-icon>
+                        {{ user.city }}
+                      </p>
+                    }
                   </div>
                 </div>
+
                 <div class="result-actions">
-                  <button mat-icon-button
-                          (click)="openUserModal(user)"
-                          [matTooltip]="'Voir le profil'"
-                          class="action-btn">
+                  <button mat-icon-button (click)="openUserModal(user)" matTooltip="Voir le profil" class="action-btn">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button mat-raised-button
-                          (click)="openUserModal(user)"
-                          color="primary"
-                          class="msg-btn">
+
+                  <button mat-flat-button (click)="openUserModal(user)" class="msg-btn">
                     <mat-icon>{{ user.canMessage ? 'mail' : 'person_add' }}</mat-icon>
                     {{ user.canMessage ? 'Message' : 'Contacter' }}
                   </button>
@@ -52,113 +71,146 @@
         </div>
       }
     </div>
-  </div>
-
-  <!-- Welcome -->
-  <div class="welcome-banner">
-    <div class="welcome-text">
-      <h1>Bonjour, {{ auth.currentUser?.fullName }} 👋</h1>
-      <p>Gérez vos offres d'emploi et trouvez les meilleurs talents grâce à l'IA.</p>
-    </div>
-    <a mat-flat-button routerLink="/enterprise/offers/new" class="btn-primary">
-      <mat-icon>add</mat-icon> Publier une offre
-    </a>
-  </div>
+  </section>
 
   @if (loading) {
-    <div class="loading-center"><mat-spinner diameter="40" /></div>
-  } @else {
-
-    <!-- Stats row -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon bg-primary"><span class="material-icons-round">work</span></div>
-        <div class="stat-info">
-          <p class="stat-label">Total offres</p>
-          <h3 class="stat-value">{{ offers.length }}</h3>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-success"><span class="material-icons-round">public</span></div>
-        <div class="stat-info">
-          <p class="stat-label">Publiées</p>
-          <h3 class="stat-value">{{ publishedCount }}</h3>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-warning"><span class="material-icons-round">drafts</span></div>
-        <div class="stat-info">
-          <p class="stat-label">Brouillons</p>
-          <h3 class="stat-value">{{ draftCount }}</h3>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon bg-info"><span class="material-icons-round">archive</span></div>
-        <div class="stat-info">
-          <p class="stat-label">Fermées</p>
-          <h3 class="stat-value">{{ closedCount }}</h3>
-        </div>
-      </div>
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
     </div>
+  } @else {
+    <section class="stats-grid">
+      <article class="metric-card">
+        <div class="metric-icon"><mat-icon>work</mat-icon></div>
+        <div>
+          <span>Total offres</span>
+          <strong>{{ offers.length }}</strong>
+          <small>Toutes les offres</small>
+        </div>
+      </article>
 
-    <!-- Recent offers -->
-    <div class="card section-card">
-      <div class="section-header">
-        <h3>Offres récentes</h3>
-        <a routerLink="/enterprise/offers" mat-button class="view-all-btn">
-          Voir toutes <mat-icon>arrow_forward</mat-icon>
-        </a>
-      </div>
+      <article class="metric-card">
+        <div class="metric-icon"><mat-icon>public</mat-icon></div>
+        <div>
+          <span>Publiées</span>
+          <strong>{{ publishedCount }}</strong>
+          <small>Visibles candidats</small>
+        </div>
+      </article>
 
-      @if (!offers.length) {
-        <div class="empty-state">
-          <span class="material-icons-round empty-icon">work_outline</span>
-          <p class="empty-title">Aucune offre créée</p>
-          <p class="empty-desc">Publiez votre première offre d'emploi</p>
-          <a mat-flat-button routerLink="/enterprise/offers/new" class="btn-primary" style="margin-top:12px">
-            <mat-icon>add</mat-icon> Créer une offre
+      <article class="metric-card">
+        <div class="metric-icon"><mat-icon>drafts</mat-icon></div>
+        <div>
+          <span>Brouillons</span>
+          <strong>{{ draftCount }}</strong>
+          <small>À finaliser</small>
+        </div>
+      </article>
+
+      <article class="metric-card">
+        <div class="metric-icon"><mat-icon>archive</mat-icon></div>
+        <div>
+          <span>Fermées</span>
+          <strong>{{ closedCount }}</strong>
+          <small>Archivées</small>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="panel offers-panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-label">Activité récente</span>
+            <h2>Offres récentes</h2>
+          </div>
+
+          <a routerLink="/enterprise/offers" class="link-action">
+            Voir toutes
+            <mat-icon>arrow_forward</mat-icon>
           </a>
         </div>
-      } @else {
-        <div class="offers-list">
-          @for (offer of offers.slice(0, 5); track offer.id) {
-            <div class="offer-row">
-              <div class="offer-info">
-                <span class="offer-title">{{ offer.title }}</span>
-                <span class="offer-meta">{{ offer.location || 'Non précisé' }} • {{ offer.contractType }}</span>
-              </div>
-              <div class="offer-badges">
-                <span class="chip {{ offer.status === 'PUBLISHED' ? 'chip-success' : offer.status === 'DRAFT' ? 'chip-warning' : 'chip-gray' }}">
+
+        @if (!offers.length) {
+          <div class="empty-offers">
+            <div class="empty-icon">
+              <mat-icon>work_outline</mat-icon>
+            </div>
+            <h3>Aucune offre créée</h3>
+            <p>Publiez votre première offre pour commencer à recevoir des candidatures.</p>
+            <a mat-flat-button routerLink="/enterprise/offers/new" class="empty-action">
+              <mat-icon>add</mat-icon>
+              Créer une offre
+            </a>
+          </div>
+        } @else {
+          <div class="offers-list">
+            @for (offer of offers.slice(0, 5); track offer.id) {
+              <div class="offer-row">
+                <div class="offer-logo">
+                  {{ offer.title?.[0]?.toUpperCase() || 'O' }}
+                </div>
+
+                <div class="offer-info">
+                  <strong>{{ offer.title }}</strong>
+                  <span>{{ offer.location || 'Non précisé' }} • {{ offer.contractType }}</span>
+                </div>
+
+                <span class="status-pill {{ offer.status === 'PUBLISHED' ? 'success' : offer.status === 'DRAFT' ? 'warning' : 'gray' }}">
                   {{ offer.status === 'PUBLISHED' ? 'Publiée' : offer.status === 'DRAFT' ? 'Brouillon' : 'Fermée' }}
                 </span>
-              </div>
-              <a mat-icon-button [routerLink]="['/enterprise/offers', offer.id, 'applications']" matTooltip="Voir les candidatures">
-                <mat-icon>people</mat-icon>
-              </a>
-            </div>
-          }
-        </div>
-      }
-    </div>
 
-    <!-- Quick links -->
-    <div class="quick-links-grid">
-      <a routerLink="/enterprise/offers" class="quick-link-card">
-        <div class="ql-icon bg-primary"><span class="material-icons-round">work_outline</span></div>
-        <span>Gérer les offres</span>
+                <a mat-icon-button [routerLink]="['/enterprise/offers', offer.id, 'applications']" matTooltip="Voir les candidatures">
+                  <mat-icon>people</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="side-panel">
+        <div class="side-card yellow">
+          <span class="side-label">Recrutement</span>
+          <h3>Publier une offre</h3>
+          <p>Créez une offre claire pour attirer rapidement les bons candidats.</p>
+          <a routerLink="/enterprise/offers/new">
+            Nouvelle offre
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        <div class="side-card">
+          <span class="side-label">Talent pool</span>
+          <h3>Contacter un candidat</h3>
+          <p>Utilisez la recherche pour ouvrir un profil et démarrer un échange.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="quick-actions">
+      <a routerLink="/enterprise/offers" class="quick-action">
+        <mat-icon>work_outline</mat-icon>
+        <strong>Gérer les offres</strong>
+        <small>Créer, modifier, publier</small>
       </a>
-      <a routerLink="/enterprise/messages" class="quick-link-card">
-        <div class="ql-icon bg-info"><span class="material-icons-round">chat_bubble_outline</span></div>
-        <span>Messagerie</span>
+
+      <a routerLink="/enterprise/messages" class="quick-action">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <strong>Messagerie</strong>
+        <small>Échanger avec les candidats</small>
       </a>
-      <a routerLink="/enterprise/feed" class="quick-link-card">
-        <div class="ql-icon bg-success"><span class="material-icons-round">newspaper</span></div>
-        <span>Actualités</span>
+
+      <a routerLink="/enterprise/feed" class="quick-action">
+        <mat-icon>newspaper</mat-icon>
+        <strong>Actualités</strong>
+        <small>Publier et suivre le réseau</small>
       </a>
-      <a routerLink="/enterprise/reclamations" class="quick-link-card">
-        <div class="ql-icon bg-warning"><span class="material-icons-round">report_problem</span></div>
-        <span>Réclamations</span>
+
+      <a routerLink="/enterprise/reclamations" class="quick-action">
+        <mat-icon>report_problem</mat-icon>
+        <strong>Réclamations</strong>
+        <small>Suivre vos demandes</small>
       </a>
-    </div>
+    </section>
   }
 </div>
