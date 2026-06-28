@@ -1,28 +1,32 @@
 <section class="admin-hub">
-  <div class="page-header">
-    <div class="header-copy">
-      <span class="eyebrow">Pilotage Power BI</span>
-      <h1 class="page-title">Accueil admin</h1>
-      <p class="page-subtitle">
-        Une seule page pour naviguer entre vos dashboards Power BI et garder une lecture claire des priorites.
+  <section class="admin-hero">
+    <div class="hero-copy">
+      <span class="hero-kicker">Pilotage Power BI</span>
+      <h1>Accueil admin</h1>
+      <p>
+        Une seule page pour naviguer entre vos dashboards Power BI et garder une lecture claire des priorités.
       </p>
     </div>
 
-    <div class="header-actions">
-      <a mat-stroked-button routerLink="/admin/users">
+    <div class="hero-actions">
+      <a mat-flat-button routerLink="/admin/users" class="hero-btn">
         <mat-icon>people</mat-icon>
         Utilisateurs
       </a>
-      <a mat-stroked-button routerLink="/admin/reclamations">
+
+      <a mat-flat-button routerLink="/admin/reclamations" class="hero-btn secondary">
         <mat-icon>report_problem</mat-icon>
-        Reclamations
+        Réclamations
       </a>
     </div>
-  </div>
+  </section>
 
-  <div class="summary-grid">
-    <article class="summary-card hero-card">
-      <span class="summary-icon material-icons-round">{{ activeView.icon }}</span>
+  <section class="summary-grid">
+    <article class="summary-card main-summary">
+      <div class="summary-icon">
+        <mat-icon>{{ activeView.icon }}</mat-icon>
+      </div>
+
       <div class="summary-content">
         <p class="summary-kicker">{{ activeView.label }}</p>
         <h2>{{ activeView.headline }}</h2>
@@ -37,31 +41,35 @@
 
     <article class="summary-card">
       <p class="mini-title">Points de lecture</p>
+
       <div class="focus-pills">
         @for (point of activeView.focusPoints; track point) {
           <span class="focus-pill">{{ point }}</span>
         }
       </div>
     </article>
-  </div>
+  </section>
 
-  <div class="dashboard-switcher">
+  <section class="dashboard-switcher">
     @for (view of views; track view.id) {
       <button
         type="button"
         class="switcher-btn"
         [class.active]="activeView.id === view.id"
         (click)="selectView(view)">
-        <span class="material-icons-round switcher-icon">{{ view.icon }}</span>
+        <span class="switcher-icon">
+          <mat-icon>{{ view.icon }}</mat-icon>
+        </span>
+
         <span class="switcher-copy">
           <strong>{{ view.label }}</strong>
           <span>{{ view.headline }}</span>
         </span>
       </button>
     }
-  </div>
+  </section>
 
-  <div class="report-shell">
+  <section class="report-shell">
     <div class="report-toolbar">
       <div>
         <p class="toolbar-kicker">Dashboard actif</p>
@@ -82,7 +90,7 @@
 
     <div class="report-summary">
       <div class="report-summary-card">
-        <span class="material-icons-round">insights</span>
+        <mat-icon>insights</mat-icon>
         <div>
           <strong>Lecture rapide</strong>
           <p>{{ activeView.summaryBody }}</p>
@@ -90,7 +98,7 @@
       </div>
 
       <div class="report-summary-card">
-        <span class="material-icons-round">track_changes</span>
+        <mat-icon>track_changes</mat-icon>
         <div>
           <strong>Ce que cette vue pilote</strong>
           <p>{{ activeView.headline }}</p>
@@ -98,10 +106,10 @@
       </div>
 
       <div class="report-summary-card">
-        <span class="material-icons-round">rocket_launch</span>
+        <mat-icon>rocket_launch</mat-icon>
         <div>
-          <strong>Conseil d usage</strong>
-          <p>Utilisez les onglets ci dessus pour changer de perspective sans quitter l accueil admin.</p>
+          <strong>Conseil d’usage</strong>
+          <p>Utilisez les onglets ci-dessus pour changer de perspective sans quitter l’accueil admin.</p>
         </div>
       </div>
     </div>
@@ -115,5 +123,5 @@
         loading="lazy">
       </iframe>
     </div>
-  </div>
+  </section>
 </section>

@@ -1,26 +1,31 @@
 <div class="admin-shell" [class.sidebar-collapsed]="!sidebarOpen()">
-  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon"><span class="material-icons-round">rocket_launch</span></div>
-        <span class="logo-text">NeoHire</span>
+      <div class="logo neo-layout-logo">
+        <div class="neo-mini-box">N</div>
+        <div class="neo-mini-box">E</div>
+        <div class="neo-mini-box">O</div>
+        <span class="neo-mini-text">Hire Admin</span>
       </div>
+
       <button class="toggle-btn" (click)="toggleSidebar()">
         <span class="material-icons-round">{{ sidebarOpen() ? 'menu_open' : 'menu' }}</span>
       </button>
     </div>
 
     <div class="sidebar-section-label">Administration</div>
+
     <nav class="sidebar-nav">
       @for (item of navItems; track item.route) {
-        <a class="nav-item"
-           [routerLink]="item.route"
-           routerLinkActive="active"
-           [matTooltip]="!sidebarOpen() ? item.label : ''"
-           matTooltipPosition="after">
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [matTooltip]="!sidebarOpen() ? item.label : ''"
+          matTooltipPosition="after">
           <span class="material-icons-round nav-icon">{{ item.icon }}</span>
           <span class="nav-label">{{ item.label }}</span>
+
           @if (item.badge) {
             <span class="nav-badge">{{ item.badge }}</span>
           }
@@ -29,9 +34,15 @@
     </nav>
 
     <div class="sidebar-divider"></div>
+
     <div class="sidebar-section-label">Paramètres</div>
+
     <nav class="sidebar-nav">
-      <a class="nav-item" routerLink="/admin/dashboard" [matTooltip]="!sidebarOpen() ? 'Paramètres' : ''" matTooltipPosition="after">
+      <a
+        class="nav-item"
+        routerLink="/admin/dashboard"
+        [matTooltip]="!sidebarOpen() ? 'Paramètres' : ''"
+        matTooltipPosition="after">
         <span class="material-icons-round nav-icon">settings</span>
         <span class="nav-label">Paramètres</span>
       </a>
@@ -39,33 +50,34 @@
 
     <div class="sidebar-user">
       <div class="user-avatar">{{ auth.currentUser?.fullName?.[0]?.toUpperCase() }}</div>
+
       <div class="user-info">
         <span class="user-name">{{ auth.currentUser?.fullName }}</span>
         <span class="user-role">Super Administrateur</span>
       </div>
+
       <button mat-icon-button class="logout-btn" (click)="logout()" matTooltip="Déconnexion">
         <span class="material-icons-round">logout</span>
       </button>
     </div>
   </aside>
 
-  <!-- ── Main ─────────────────────────────────────────────────────────────── -->
   <div class="main-area">
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
         <h3 class="page-breadcrumb">Administration</h3>
       </div>
+
       <div class="topbar-right">
         <div class="admin-badge">
-          <span class="material-icons-round">shield</span>
-          <span>Admin</span>
+          <span class="material-icons-round">admin_panel_settings</span>
+          <span>Super Admin</span>
         </div>
+
         <div class="admin-avatar">{{ auth.currentUser?.fullName?.[0]?.toUpperCase() }}</div>
       </div>
     </header>
 
-    <!-- Page content -->
     <main class="page-content">
       <router-outlet />
     </main>
