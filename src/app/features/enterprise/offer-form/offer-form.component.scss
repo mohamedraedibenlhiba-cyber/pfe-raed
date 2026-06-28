@@ -1,0 +1,9 @@
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.back-btn { color: var(--text-secondary)!important; }
+.loading-center { display: flex; justify-content: center; padding: 80px; }
+
+.form-card { max-width: 780px; }
+.form-section-title { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; .full { grid-column: 1/-1; } @media (max-width: 600px) { grid-template-columns: 1fr; } }
+.checkbox-row { margin: 4px 0 12px; }
+.form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); }

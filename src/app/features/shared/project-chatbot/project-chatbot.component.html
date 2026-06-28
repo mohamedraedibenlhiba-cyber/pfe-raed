@@ -1,0 +1,143 @@
+<div class="chatbot-widget">
+
+  @if (panelOpen()) {
+    <aside class="chatbot-panel">
+
+      <!-- ── Header ────────────────────────────────────────────────── -->
+      <header class="chatbot-header">
+        <div class="header-left">
+          <div class="bot-avatar-header">
+            <mat-icon>smart_toy</mat-icon>
+          </div>
+          <div class="header-info">
+            <h3 class="header-title">Assistant NeoHire</h3>
+            <div class="header-status">
+              <span class="status-dot"></span>
+              <span>En ligne · {{ roleLabel }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button mat-icon-button type="button"
+                  (click)="resetConversation()"
+                  matTooltip="Nouvelle conversation">
+            <mat-icon>edit_square</mat-icon>
+          </button>
+          <button mat-icon-button type="button"
+                  (click)="closePanel()"
+                  matTooltip="Fermer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </header>
+
+      <!-- ── Messages ──────────────────────────────────────────────── -->
+      <div class="chatbot-messages" #messagesContainer>
+        @for (message of messages; track $index) {
+          <div class="message-row" [class.user-row]="message.role === 'user'">
+
+            @if (message.role === 'assistant') {
+              <div class="avatar bot-avatar">
+                <mat-icon>smart_toy</mat-icon>
+              </div>
+            }
+
+            <div class="bubble-wrapper" [class.user-wrapper]="message.role === 'user'">
+              <div class="message-bubble" [class.user-bubble]="message.role === 'user'">
+                <p class="message-text" [innerHTML]="renderText(message.text)"></p>
+
+                @if (message.actions?.length) {
+                  <div class="action-chips">
+                    @for (action of message.actions; track action.route) {
+                      <button type="button" class="chip-action" (click)="openRoute(action.route)">
+                        @if (action.icon) {
+                          <mat-icon>{{ action.icon }}</mat-icon>
+                        }
+                        {{ action.label }}
+                      </button>
+                    }
+                  </div>
+                }
+
+                @if (message.suggestions?.length && message.role === 'assistant') {
+                  <div class="suggestion-chips">
+                    @for (s of message.suggestions; track s) {
+                      <button type="button" class="chip-suggestion" (click)="ask(s)">
+                        {{ s }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+              <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+            </div>
+
+            @if (message.role === 'user') {
+              <div class="avatar user-avatar">{{ userInitials() }}</div>
+            }
+          </div>
+        }
+
+        @if (thinking) {
+          <div class="message-row">
+            <div class="avatar bot-avatar">
+              <mat-icon>smart_toy</mat-icon>
+            </div>
+            <div class="bubble-wrapper">
+              <div class="message-bubble typing-bubble">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── Quick prompts ──────────────────────────────────────────── -->
+      <div class="quick-prompts">
+        <span class="prompts-label">Suggestions rapides</span>
+        <div class="prompts-list">
+          @for (prompt of quickPrompts; track prompt) {
+            <button type="button" class="quick-chip" (click)="ask(prompt)">
+              {{ prompt }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- ── Composer ───────────────────────────────────────────────── -->
+      <form class="chatbot-composer" (ngSubmit)="sendPrompt()">
+        <div class="composer-inner">
+          <textarea
+            [(ngModel)]="draft"
+            name="msg"
+            rows="1"
+            placeholder="Posez votre question..."
+            (keydown)="handleComposerKeydown($event)"
+            (input)="autoResize($event)">
+          </textarea>
+          <button mat-icon-button type="submit" class="send-btn"
+                  [disabled]="!draft.trim() || thinking"
+                  matTooltip="Envoyer (Entrée)">
+            <mat-icon>send</mat-icon>
+          </button>
+        </div>
+        <p class="composer-hint">Entrée pour envoyer · Maj+Entrée pour nouvelle ligne</p>
+      </form>
+
+    </aside>
+  }
+
+  <!-- ── Trigger button ─────────────────────────────────────────────── -->
+  <button type="button"
+          class="chatbot-trigger"
+          [class.active]="panelOpen()"
+          (click)="togglePanel()"
+          aria-label="Assistant NeoHire">
+    <mat-icon class="trigger-icon">{{ panelOpen() ? 'close' : 'smart_toy' }}</mat-icon>
+    @if (!panelOpen()) {
+      <span class="trigger-label">Assistant</span>
+    }
+  </button>
+
+</div>

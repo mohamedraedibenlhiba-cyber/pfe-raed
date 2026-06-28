@@ -1,0 +1,97 @@
+<div class="applications-page">
+  <section class="applications-hero">
+    <div>
+      <span class="hero-kicker">Suivi des candidatures</span>
+      <h1>Mes candidatures</h1>
+      <p>
+        Retrouvez vos candidatures envoyées, leur statut de traitement et les retours générés par l’analyse IA.
+      </p>
+    </div>
+
+    <div class="hero-count">
+      <strong>{{ applications.length }}</strong>
+      <span>candidature(s)</span>
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (!applications.length) {
+    <section class="empty-applications">
+      <div class="empty-icon">
+        <mat-icon>send</mat-icon>
+      </div>
+      <h2>Aucune candidature envoyée</h2>
+      <p>Explorez les offres disponibles et postulez avec le CV le plus adapté à votre profil.</p>
+      <a mat-flat-button routerLink="/candidate/search" class="empty-action">
+        Rechercher des offres
+      </a>
+    </section>
+  } @else {
+    <section class="applications-list">
+      @for (app of applications; track app.id) {
+        <article class="application-card">
+          <div class="application-header">
+            <div class="company-logo">
+              {{ app.jobOffer?.enterprise?.companyName?.[0]?.toUpperCase() || 'N' }}
+            </div>
+
+            <div class="application-info">
+              <h3>{{ app.jobOffer?.title }}</h3>
+              <p>{{ app.jobOffer?.enterprise?.companyName }}</p>
+
+              <div class="meta-row">
+                @if (app.jobOffer?.location) {
+                  <span class="meta">
+                    <mat-icon>place</mat-icon>
+                    {{ app.jobOffer?.location }}
+                  </span>
+                }
+
+                @if (app.jobOffer?.contractType) {
+                  <span class="meta contract">
+                    {{ app.jobOffer?.contractType }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="application-side">
+              <span class="status-pill {{ statusChipClass(app.status) }}">
+                {{ statusLabel(app.status) }}
+              </span>
+
+              @if (app.aiScore) {
+                <div class="ai-score {{ app.aiScore >= 80 ? 'high' : app.aiScore >= 50 ? 'mid' : 'low' }}">
+                  <mat-icon>psychology</mat-icon>
+                  <strong>{{ app.aiScore }}</strong>
+                  <small>/100</small>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (app.aiSummary) {
+            <div class="ai-summary">
+              <div class="ai-icon">
+                <mat-icon>auto_awesome</mat-icon>
+              </div>
+              <div>
+                <span>Analyse IA</span>
+                <p>{{ app.aiSummary }}</p>
+              </div>
+            </div>
+          }
+
+          <div class="application-footer">
+            <span>
+              Postulé le {{ app.appliedAt | date:'dd MMMM yyyy' }}
+            </span>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</div>

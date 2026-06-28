@@ -1,0 +1,119 @@
+<section class="admin-hub">
+  <div class="page-header">
+    <div class="header-copy">
+      <span class="eyebrow">Pilotage Power BI</span>
+      <h1 class="page-title">Accueil admin</h1>
+      <p class="page-subtitle">
+        Une seule page pour naviguer entre vos dashboards Power BI et garder une lecture claire des priorites.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/admin/users">
+        <mat-icon>people</mat-icon>
+        Utilisateurs
+      </a>
+      <a mat-stroked-button routerLink="/admin/reclamations">
+        <mat-icon>report_problem</mat-icon>
+        Reclamations
+      </a>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <article class="summary-card hero-card">
+      <span class="summary-icon material-icons-round">{{ activeView.icon }}</span>
+      <div class="summary-content">
+        <p class="summary-kicker">{{ activeView.label }}</p>
+        <h2>{{ activeView.headline }}</h2>
+        <p>{{ activeView.summaryBody }}</p>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <p class="mini-title">{{ activeView.summaryTitle }}</p>
+      <p class="summary-text">{{ activeView.intro }}</p>
+    </article>
+
+    <article class="summary-card">
+      <p class="mini-title">Points de lecture</p>
+      <div class="focus-pills">
+        @for (point of activeView.focusPoints; track point) {
+          <span class="focus-pill">{{ point }}</span>
+        }
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-switcher">
+    @for (view of views; track view.id) {
+      <button
+        type="button"
+        class="switcher-btn"
+        [class.active]="activeView.id === view.id"
+        (click)="selectView(view)">
+        <span class="material-icons-round switcher-icon">{{ view.icon }}</span>
+        <span class="switcher-copy">
+          <strong>{{ view.label }}</strong>
+          <span>{{ view.headline }}</span>
+        </span>
+      </button>
+    }
+  </div>
+
+  <div class="report-shell">
+    <div class="report-toolbar">
+      <div>
+        <p class="toolbar-kicker">Dashboard actif</p>
+        <h2>{{ activeView.label }}</h2>
+        <p>{{ activeView.intro }}</p>
+      </div>
+
+      <a
+        mat-flat-button
+        class="btn-primary"
+        [href]="activeView.openUrl"
+        target="_blank"
+        rel="noopener noreferrer">
+        <mat-icon>open_in_new</mat-icon>
+        Ouvrir dans Power BI
+      </a>
+    </div>
+
+    <div class="report-summary">
+      <div class="report-summary-card">
+        <span class="material-icons-round">insights</span>
+        <div>
+          <strong>Lecture rapide</strong>
+          <p>{{ activeView.summaryBody }}</p>
+        </div>
+      </div>
+
+      <div class="report-summary-card">
+        <span class="material-icons-round">track_changes</span>
+        <div>
+          <strong>Ce que cette vue pilote</strong>
+          <p>{{ activeView.headline }}</p>
+        </div>
+      </div>
+
+      <div class="report-summary-card">
+        <span class="material-icons-round">rocket_launch</span>
+        <div>
+          <strong>Conseil d usage</strong>
+          <p>Utilisez les onglets ci dessus pour changer de perspective sans quitter l accueil admin.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-frame">
+      <iframe
+        title="powerbi-admin-hub"
+        [src]="safeEmbedUrl"
+        frameborder="0"
+        allowfullscreen="true"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,71 @@
+<div class="messaging-layout">
+  <!-- Conversations sidebar -->
+  <div class="conversations-panel card">
+    <div class="conv-header">
+      <h3>Messagerie</h3>
+    </div>
+
+    <!-- Conversations List -->
+    @if (loading) {
+      <div class="loading-center"><mat-spinner diameter="30" /></div>
+    } @else if (!conversations.length) {
+      <div class="empty-state small">
+        <span class="material-icons-round empty-icon" style="font-size:40px">chat_bubble_outline</span>
+        <p class="empty-title">Aucune conversation</p>
+      </div>
+    } @else {
+      @for (conv of conversations; track conv.id) {
+        <div class="conv-item" [class.active]="selectedConv?.id === conv.id" (click)="selectConversation(conv)">
+          <div class="conv-avatar">{{ initials(getOtherParticipant(conv).fullName) }}</div>
+          <div class="conv-info">
+            <p class="conv-name">{{ getOtherParticipant(conv).fullName }}</p>
+            <p class="conv-date">{{ conv.lastMessageAt | date:'dd/MM HH:mm' }}</p>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Chat panel -->
+  <div class="chat-panel card">
+    @if (!selectedConv) {
+      <div class="no-conv-selected">
+        <span class="material-icons-round" style="font-size:64px;color:#cbd5e1">chat_bubble_outline</span>
+        <p style="color:#64748b;margin-top:12px">Sélectionnez une conversation</p>
+      </div>
+    } @else {
+      <!-- Chat Header with Profile Link -->
+      <div class="chat-header">
+        <div class="header-left">
+          <div class="conv-avatar">{{ initials(getOtherParticipant(selectedConv).fullName) }}</div>
+          <div class="header-info">
+            <strong>{{ getOtherParticipant(selectedConv).fullName }}</strong>
+            <p class="role-badge">{{ getRoleLabel(getOtherParticipant(selectedConv).role) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        @if (loadingMessages) {
+          <div class="loading-center"><mat-spinner diameter="30" /></div>
+        } @else {
+          @for (msg of messages; track msg.id) {
+            <div class="message" [class.own]="msg.sender.id === auth.currentUser?.id">
+              <div class="bubble">{{ msg.content }}</div>
+              <span class="msg-time">{{ msg.sentAt | date:'HH:mm' }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="message-input">
+        <mat-form-field class="input-field">
+          <input matInput [(ngModel)]="newMessage" placeholder="Saisissez votre message..." (keyup.enter)="send()" />
+        </mat-form-field>
+        <button mat-icon-button (click)="send()" [disabled]="!newMessage.trim() || sending" class="send-btn">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+</div>

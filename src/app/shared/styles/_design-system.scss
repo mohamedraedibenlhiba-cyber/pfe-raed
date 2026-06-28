@@ -1,0 +1,387 @@
+// ===================================================================
+// DESIGN SYSTEM - CORPORATE PROFESSIONAL (LinkedIn Style)
+// ===================================================================
+// Color Palette, Typography, Spacing, Shadows, Transitions
+// ===================================================================
+
+// ============================================================================
+// 1. COLOR PALETTE (LinkedIn Corporate Professional)
+// ============================================================================
+
+// ============================================================================
+// PRIMARY COLORS - NEOHIRE AMBER PALETTE (WordPress)
+// ============================================================================
+$color-primary: #fcb900;              // Main Amber (Luminous Vivid Amber)
+$color-primary-light: #fef4d9;        // Light amber background
+$color-primary-dark: #e8a800;         // Dark amber for hover/active
+$color-primary-lightest: #fffbf0;     // Palest amber for highlights
+
+// ============================================================================
+// SECONDARY COLORS - PROFESSIONAL PALETTE (WordPress)
+// ============================================================================
+$color-secondary: #abb8c3;            // Cyan Bluish Gray (professional, subtle)
+$color-secondary-light: #d9dfe5;      // Lighter gray for secondary text
+$color-secondary-lighter: #e8f0f5;    // Very light gray for backgrounds
+$color-secondary-lightest: #f3f6f8;   // Ultra-light gray for subtle backgrounds
+
+// ============================================================================
+// ACCENT COLORS - WORDPRESS PALETTE
+// ============================================================================
+$color-accent: #9b51e0;               // Vivid Purple (accent)
+$color-accent-light: #f3e8ff;         // Light purple background
+$color-accent-secondary: #ff6900;     // Luminous Vivid Orange (warnings)
+$color-accent-secondary-light: #fff5f0;  // Light orange background
+$color-accent-tertiary: #0693e3;      // Vivid Cyan Blue (info)
+$color-accent-tertiary-light: #f0f7ff;   // Light blue background
+$color-accent-quaternary: #00d084;    // Vivid Green Cyan (success)
+$color-accent-quaternary-light: #e8f8f5; // Light green background
+$color-accent-pink: #f78da7;          // Pale Pink (subtle accent)
+$color-accent-pink-light: #fef0f5;    // Light pink background
+
+// ============================================================================
+// SEMANTIC COLORS - STATUS & STATES (WordPress Palette)
+// ============================================================================
+$color-success: #00d084;              // Vivid Green Cyan
+$color-success-light: #e8f8f5;        // Light green background
+$color-error: #cf2e2e;                // Vivid Red
+$color-error-light: #fde8e8;          // Light red background
+$color-warning: #ff6900;              // Luminous Vivid Orange
+$color-warning-light: #fff5f0;        // Light orange background
+$color-info: #0693e3;                 // Vivid Cyan Blue
+$color-info-light: #f0f7ff;           // Light blue background
+$color-danger: #cf2e2e;               // Red danger (alias for error)
+$color-danger-light: #fde8e8;         // Light red background
+
+// ============================================================================
+// NEUTRAL COLORS
+// ============================================================================
+$color-white: #ffffff;                // White background (WordPress white)
+$color-black: #000000;                // Black text (WordPress black)
+$color-bg: #f8f9fb;                   // Main background (light neutral)
+$color-bg-light: #fafbfc;             // Alternative light background
+$color-border: #d9dfe5;               // Border color (slightly lighter gray)
+
+// ============================================================================
+// TEXT COLORS
+// ============================================================================
+$color-text-dark: #000000;            // Primary text (WordPress black)
+$color-text-primary: #000000;         // Primary text (alias)
+$color-text-secondary: #abb8c3;       // Secondary text (WordPress cyan-gray)
+$color-text-muted: #d9dfe5;           // Muted text (lowest contrast)
+$color-text-disabled: #d9dfe5;        // Disabled text
+
+// ============================================================================
+// 2. TYPOGRAPHY VARIABLES
+// ============================================================================
+
+// Font Family
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Font Sizes
+$font-size-xs: 11px;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 15px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-2xl: 20px;
+$font-size-3xl: 24px;
+$font-size-4xl: 28px;
+$font-size-5xl: 32px;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+$line-height-loose: 2;
+
+// Letter Spacing
+$letter-spacing-tight: -0.5px;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.5px;
+
+// ============================================================================
+// 3. SPACING SCALE
+// ============================================================================
+
+$space-0: 0;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+$space-20: 80px;
+$space-24: 96px;
+
+// Rapid assignment
+$spacing: (
+  0: $space-0,
+  1: $space-1,
+  2: $space-2,
+  3: $space-3,
+  4: $space-4,
+  5: $space-5,
+  6: $space-6,
+  8: $space-8,
+  10: $space-10,
+  12: $space-12,
+  16: $space-16,
+  20: $space-20,
+  24: $space-24,
+);
+
+// ============================================================================
+// 4. BORDER RADIUS
+// ============================================================================
+
+$radius-none: 0;
+$radius-sm: 4px;
+$radius-base: 6px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+$border-radius: (
+  none: $radius-none,
+  sm: $radius-sm,
+  base: $radius-base,
+  md: $radius-md,
+  lg: $radius-lg,
+  xl: $radius-xl,
+  full: $radius-full,
+);
+
+// ============================================================================
+// 5. SHADOWS
+// ============================================================================
+
+// Box Shadows
+$shadow-none: none;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-base: 0 2px 4px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+$shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.15);
+
+// Inset Shadows
+$shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+
+$shadows: (
+  none: $shadow-none,
+  sm: $shadow-sm,
+  base: $shadow-base,
+  md: $shadow-md,
+  lg: $shadow-lg,
+  xl: $shadow-xl,
+  2xl: $shadow-2xl,
+  inset: $shadow-inset,
+);
+
+// ============================================================================
+// 6. TRANSITIONS & ANIMATIONS
+// ============================================================================
+
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+$easing-in: cubic-bezier(0.4, 0, 1, 1);
+$easing-out: cubic-bezier(0, 0, 0.2, 1);
+$easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+// ============================================================================
+// 7. BREAKPOINTS
+// ============================================================================
+
+$breakpoint-xs: 0;
+$breakpoint-sm: 480px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+$breakpoints: (
+  'xs': $breakpoint-xs,
+  'sm': $breakpoint-sm,
+  'md': $breakpoint-md,
+  'lg': $breakpoint-lg,
+  'xl': $breakpoint-xl,
+  '2xl': $breakpoint-2xl,
+);
+
+// ============================================================================
+// 8. Z-INDEX SCALE
+// ============================================================================
+
+$z-index-hide: -1;
+$z-index-auto: auto;
+$z-index-0: 0;
+$z-index-10: 10;
+$z-index-20: 20;
+$z-index-30: 30;
+$z-index-40: 40;
+$z-index-50: 50;
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+$z-indexes: (
+  hide: $z-index-hide,
+  auto: $z-index-auto,
+  0: $z-index-0,
+  10: $z-index-10,
+  20: $z-index-20,
+  30: $z-index-30,
+  40: $z-index-40,
+  50: $z-index-50,
+  dropdown: $z-index-dropdown,
+  sticky: $z-index-sticky,
+  fixed: $z-index-fixed,
+  modal-backdrop: $z-index-modal-backdrop,
+  modal: $z-index-modal,
+  popover: $z-index-popover,
+  tooltip: $z-index-tooltip,
+);
+
+// ============================================================================
+// 9. BUTTON STYLES
+// ============================================================================
+
+$button-padding-y: $space-2;
+$button-padding-x: $space-4;
+$button-padding: $button-padding-y $button-padding-x;
+
+$button-padding-y-sm: 6px;
+$button-padding-x-sm: 12px;
+$button-padding-sm: $button-padding-y-sm $button-padding-x-sm;
+
+$button-padding-y-lg: 12px;
+$button-padding-x-lg: 24px;
+$button-padding-lg: $button-padding-y-lg $button-padding-x-lg;
+
+$button-border-radius: $radius-sm;
+$button-font-weight: $font-weight-semibold;
+$button-font-size: $font-size-base;
+
+// ============================================================================
+// 10. FORM ELEMENT STYLES
+// ============================================================================
+
+$input-height: 40px;
+$input-height-sm: 32px;
+$input-height-lg: 48px;
+
+$input-padding-y: 10px;
+$input-padding-x: $space-3;
+$input-padding: $input-padding-y $input-padding-x;
+
+$input-border: 1px solid $color-border;
+$input-border-radius: $radius-md;
+$input-bg: $color-white;
+$input-color: $color-text-dark;
+$input-placeholder-color: $color-text-disabled;
+
+// Focus States
+$input-focus-border-color: $color-primary;
+$input-focus-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+
+// ============================================================================
+// 11. CARD STYLES
+// ============================================================================
+
+$card-padding: $space-4;
+$card-margin-bottom: $space-4;
+$card-border-radius: $radius-md;
+$card-border: 1px solid $color-border;
+$card-bg: $color-white;
+$card-box-shadow: $shadow-base;
+$card-box-shadow-hover: $shadow-md;
+$card-transition: all $transition-base;
+
+// ============================================================================
+// 12. BADGE STYLES
+// ============================================================================
+
+$badge-padding-y: 2px;
+$badge-padding-x: 6px;
+$badge-font-size: $font-size-xs;
+$badge-border-radius: $radius-full;
+$badge-font-weight: $font-weight-semibold;
+
+// ============================================================================
+// 13. STATE COLORS
+// ============================================================================
+
+$state-default: $color-text-secondary;
+$state-hover: $color-primary-dark;
+$state-active: $color-primary;
+$state-disabled: $color-secondary-lighter;
+$state-focus: $color-primary;
+
+// ============================================================================
+// 14. CSS VARIABLES (for dynamic theming)
+// ============================================================================
+
+:root {
+  // Colors
+  --color-primary: #{$color-primary};
+  --color-primary-light: #{$color-primary-light};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-secondary: #{$color-secondary};
+  --color-accent: #{$color-accent};
+  --color-danger: #{$color-danger};
+  --color-warning: #{$color-warning};
+  --color-white: #{$color-white};
+  --color-bg: #{$color-bg};
+  --color-border: #{$color-border};
+  --color-text-dark: #{$color-text-dark};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-text-muted: #{$color-text-muted};
+
+  // Spacing
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-6: #{$space-6};
+  --space-8: #{$space-8};
+
+  // Radius
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+
+  // Transitions
+  --transition-base: #{$transition-base};
+  --transition-fast: #{$transition-fast};
+
+  // Z-Index
+  --z-dropdown: #{$z-index-dropdown};
+  --z-sticky: #{$z-index-sticky};
+  --z-fixed: #{$z-index-fixed};
+  --z-modal: #{$z-index-modal};
+}

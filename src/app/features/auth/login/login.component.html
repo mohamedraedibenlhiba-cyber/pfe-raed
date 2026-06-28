@@ -1,0 +1,104 @@
+<div class="auth-wrapper">
+  <section class="auth-brand">
+    <div class="brand-top">
+
+ <div class="neo-logo">
+    <div class="neo-box">N</div>
+    <div class="neo-box">E</div>
+    <div class="neo-box">O</div>
+
+    <span class="neo-text">Hire</span>
+</div>
+
+</div>
+
+    <div class="brand-content">
+      <p class="eyebrow">Espace recrutement</p>
+      <h1>Votre recrutement<br />à portée de clics.</h1>
+      <p class="brand-description">
+        Centralisez vos offres, vos candidatures et vos échanges dans une plateforme pensée
+        pour les équipes RH de NeoLedge.
+      </p>
+
+      <div class="brand-features">
+        <div class="feature-item">
+          <span class="material-icons-round">work_outline</span>
+          <span>Suivi clair des candidatures</span>
+        </div>
+        <div class="feature-item">
+          <span class="material-icons-round">groups</span>
+          <span>Collaboration recruteurs-candidats</span>
+        </div>
+        <div class="feature-item">
+          <span class="material-icons-round">insights</span>
+          <span>Aide à la décision par matching IA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-form-panel">
+    <div class="auth-form-container">
+      <div class="form-header">
+        <div class="mobile-logo">NeoHire</div>
+        <h2>Bienvenue</h2>
+        <p>Connectez-vous à votre espace NeoHire.</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>Adresse e-mail</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="vous@exemple.com" autocomplete="email" />
+          <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
+
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Adresse e-mail invalide</mat-error>
+          }
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <mat-error>L'e-mail est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" autocomplete="current-password" />
+          <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+
+          <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Le mot de passe est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <a routerLink="/auth/forgot-password" class="forgot-password-link">
+          Mot de passe oublié ?
+        </a>
+
+        <button mat-flat-button type="submit" class="btn-submit" [disabled]="loading">
+          @if (loading) {
+            <mat-spinner diameter="20" />
+          } @else {
+            <span>Se connecter</span>
+            <mat-icon>arrow_forward</mat-icon>
+          }
+        </button>
+      </form>
+
+
+      <div class="form-footer">
+        <span>Vous n'avez pas encore de compte ?</span>
+        <a routerLink="/auth/register" class="register-link">Créer un compte gratuitement</a>
+      </div>
+
+     <div class="team-showcase">
+  <div class="team-title-box">
+    Trouvez votre équipe
+  </div>
+  <div class="team-image"></div>
+</div>
+    </div>
+  </section>
+</div>

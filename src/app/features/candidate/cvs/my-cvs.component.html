@@ -1,0 +1,110 @@
+<div class="cvs-page">
+  <section class="cvs-hero">
+    <div>
+      <span class="hero-kicker">Documents candidat</span>
+      <h1>Mes CVs</h1>
+      <p>
+        Ajoutez vos CV, choisissez un document par défaut et utilisez-les pour postuler rapidement aux offres.
+      </p>
+    </div>
+
+    <label class="upload-hero-btn" [class.loading]="uploading">
+      @if (uploading) {
+        <mat-spinner diameter="20" />
+        <span>Import en cours...</span>
+      } @else {
+        <mat-icon>upload_file</mat-icon>
+        <span>Ajouter un CV</span>
+      }
+      <input type="file" accept=".pdf,.docx" (change)="onFileSelect($event)" hidden [disabled]="uploading" />
+    </label>
+  </section>
+
+  <section class="info-card">
+    <div class="info-icon">
+      <mat-icon>info</mat-icon>
+    </div>
+    <p>
+      Importez un CV au format PDF ou Word. Il pourra être utilisé lors de vos candidatures et dans le matching avec les offres.
+    </p>
+  </section>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (!cvs.length) {
+    <section class="empty-cvs">
+      <div class="empty-icon">
+        <mat-icon>description</mat-icon>
+      </div>
+      <h2>Aucun CV ajouté</h2>
+      <p>Importez votre premier CV pour commencer à postuler.</p>
+    </section>
+  } @else {
+    <section class="cvs-grid">
+      @for (cv of cvs; track cv.id) {
+        <article class="cv-card" [class.default]="cv.defaultCv">
+          @if (cv.defaultCv) {
+            <div class="default-badge">
+              <mat-icon>star</mat-icon>
+              Par défaut
+            </div>
+          }
+
+          <div class="cv-icon-wrap">
+            <mat-icon>description</mat-icon>
+          </div>
+
+          <div class="cv-details">
+            <h3>{{ cv.fileName }}</h3>
+            <p>{{ fileSize(cv.fileSize) }} • Importé le {{ cv.uploadedAt | date:'dd/MM/yyyy' }}</p>
+          </div>
+
+          <div class="cv-actions">
+            <button mat-flat-button class="btn-view" (click)="viewCV(cv)" matTooltip="Visualiser le CV">
+              <mat-icon>visibility</mat-icon>
+              Voir
+            </button>
+
+            @if (!cv.defaultCv) {
+              <button mat-stroked-button class="btn-default" (click)="setDefault(cv)" matTooltip="Définir comme CV par défaut">
+                <mat-icon>star_outline</mat-icon>
+                Par défaut
+              </button>
+            }
+
+            <button mat-icon-button class="btn-delete" (click)="delete(cv)" matTooltip="Supprimer">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+
+  @if (viewerUrl || viewerLoading) {
+    <div class="cv-viewer-overlay" (click)="closeViewer()">
+      <div class="cv-viewer-modal" (click)="$event.stopPropagation()">
+        <div class="cv-viewer-header">
+          <span class="cv-viewer-title">
+            <mat-icon>description</mat-icon>
+            {{ viewerName }}
+          </span>
+
+          <button mat-icon-button (click)="closeViewer()" matTooltip="Fermer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        @if (viewerLoading) {
+          <div class="viewer-loading">
+            <mat-spinner diameter="48" />
+          </div>
+        } @else {
+          <iframe [src]="viewerUrl" class="cv-iframe"></iframe>
+        }
+      </div>
+    </div>
+  }
+</div>

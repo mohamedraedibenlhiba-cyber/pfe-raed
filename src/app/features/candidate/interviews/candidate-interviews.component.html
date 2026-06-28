@@ -1,0 +1,139 @@
+<div class="interviews-page">
+  <section class="interviews-hero">
+    <div>
+      <span class="hero-kicker">Planning candidat</span>
+      <h1>Mes entretiens</h1>
+      <p>
+        Consultez vos invitations, confirmez vos disponibilités et retrouvez les informations utiles pour chaque échange.
+      </p>
+    </div>
+
+    <div class="hero-count">
+      <strong>{{ interviews.length }}</strong>
+      <span>entretien(s)</span>
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (!interviews.length) {
+    <section class="empty-interviews">
+      <div class="empty-icon">
+        <mat-icon>event_available</mat-icon>
+      </div>
+      <h2>Aucun entretien pour le moment</h2>
+      <p>Les invitations envoyées par les entreprises apparaîtront ici.</p>
+    </section>
+  } @else {
+    <section class="interviews-list">
+      @for (iv of interviews; track iv.id) {
+        <article class="interview-card" [class.proposed]="iv.status === 'PROPOSED'">
+          @if (iv.status === 'PROPOSED' && isUpcoming(iv)) {
+            <div class="action-banner">
+              <mat-icon>notifications_active</mat-icon>
+              Invitation en attente de votre confirmation
+            </div>
+          }
+
+          <div class="interview-body">
+            <div class="company-logo">
+              @if (iv.enterprise.companyLogo) {
+                <img [src]="iv.enterprise.companyLogo" [alt]="iv.enterprise.companyName" />
+              } @else {
+                {{ iv.enterprise.companyName[0]?.toUpperCase() }}
+              }
+            </div>
+
+            <div class="interview-info">
+              <div class="interview-title-row">
+                <div>
+                  <h3>{{ iv.jobOffer.title }}</h3>
+                  <p>{{ iv.enterprise.companyName }}</p>
+                </div>
+
+                <span class="status-pill {{ statusChipClass(iv.status) }}">
+                  {{ statusLabel(iv.status) }}
+                </span>
+              </div>
+
+              <div class="interview-meta">
+                <span class="meta-pill main-date">
+                  <mat-icon>schedule</mat-icon>
+                  {{ iv.scheduledAt | date:"dd/MM/yyyy 'à' HH:mm" }}
+                </span>
+
+                <span class="meta-pill">
+                  <mat-icon>timer</mat-icon>
+                  {{ iv.durationMinutes }} min
+                </span>
+
+                <span class="meta-pill">
+                  <mat-icon>{{ typeIcon(iv.type) }}</mat-icon>
+                  {{ typeLabel(iv.type) }}
+                </span>
+
+                @if (iv.meetingLink && iv.status !== 'CANCELLED') {
+                  <a class="meta-pill link" [href]="iv.meetingLink" target="_blank" rel="noopener">
+                    <mat-icon>videocam</mat-icon>
+                    Rejoindre la réunion
+                  </a>
+                }
+
+                @if (iv.location) {
+                  <span class="meta-pill">
+                    <mat-icon>place</mat-icon>
+                    {{ iv.location }}
+                  </span>
+                }
+              </div>
+
+              @if (iv.enterpriseNotes) {
+                <div class="note-card enterprise-note">
+                  <mat-icon>info_outline</mat-icon>
+                  <p>{{ iv.enterpriseNotes }}</p>
+                </div>
+              }
+
+              @if (iv.candidateNote && iv.status !== 'CANCELLED') {
+                <div class="note-card candidate-note">
+                  <mat-icon>chat_bubble_outline</mat-icon>
+                  <p>Votre note : {{ iv.candidateNote }}</p>
+                </div>
+              }
+
+              @if (iv.cancellationReason) {
+                <div class="note-card cancellation-note">
+                  <mat-icon>cancel</mat-icon>
+                  <p>Motif d'annulation : {{ iv.cancellationReason }}</p>
+                </div>
+              }
+            </div>
+
+            <div class="interview-actions">
+              @if (iv.status === 'PROPOSED') {
+                <button mat-flat-button class="btn-confirm" (click)="confirmInterview(iv)">
+                  <mat-icon>check_circle</mat-icon>
+                  Confirmer
+                </button>
+
+                <button mat-stroked-button class="btn-decline" (click)="cancel(iv)">
+                  <mat-icon>cancel</mat-icon>
+                  Décliner
+                </button>
+              }
+
+              @if (iv.status === 'CONFIRMED' && isUpcoming(iv)) {
+                <button mat-stroked-button class="btn-decline" (click)="cancel(iv)">
+                  <mat-icon>cancel</mat-icon>
+                  Annuler
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</div>

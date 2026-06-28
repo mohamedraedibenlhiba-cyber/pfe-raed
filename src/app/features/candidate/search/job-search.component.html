@@ -1,0 +1,214 @@
+<div class="search-page">
+  <section class="search-hero">
+    <div>
+      <span class="hero-kicker">Recherche d’offres</span>
+      <h1>Trouvez votre prochaine opportunité</h1>
+      <p>
+        Explorez les offres publiées par les entreprises et filtrez rapidement celles qui correspondent à votre profil.
+      </p>
+    </div>
+  </section>
+
+  <section class="search-panel">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Titre, poste, entreprise...</mat-label>
+        <input matInput [(ngModel)]="titleFilter" (keyup.enter)="search()" />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="location-field">
+        <mat-label>Ville, région</mat-label>
+        <input matInput [(ngModel)]="locationFilter" (keyup.enter)="search()" />
+        <mat-icon matPrefix>place</mat-icon>
+      </mat-form-field>
+
+      <app-select
+        class="contract-field"
+        label="Type de contrat"
+        [options]="contractTypeOpts"
+        [(ngModel)]="contractFilter">
+      </app-select>
+
+      <button mat-flat-button class="search-btn" (click)="search()">
+        <mat-icon>search</mat-icon>
+        Rechercher
+      </button>
+    </div>
+
+    <div class="results-summary">
+      <strong>{{ totalElements }}</strong>
+      <span>offre(s) disponible(s)</span>
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else if (!offers.length) {
+    <section class="empty-results">
+      <div class="empty-icon">
+        <mat-icon>search_off</mat-icon>
+      </div>
+      <h2>Aucune offre trouvée</h2>
+      <p>Essayez avec un autre intitulé, une autre ville ou un type de contrat différent.</p>
+    </section>
+  } @else {
+    <section class="offers-grid">
+      @for (offer of offers; track offer.id) {
+        <article class="offer-card">
+          <div class="offer-header">
+            <div class="company-logo">
+              {{ offer.enterprise?.companyName?.[0]?.toUpperCase() || 'N' }}
+            </div>
+
+            <div class="offer-title-block">
+              <h3>{{ offer.title }}</h3>
+              <p>{{ offer.enterprise?.companyName }}</p>
+            </div>
+          </div>
+
+          <div class="offer-tags">
+            @if (offer.location) {
+              <span class="tag">
+                <mat-icon>place</mat-icon>
+                {{ offer.location }}
+              </span>
+            }
+
+            @if (offer.contractType) {
+              <span class="tag highlighted">{{ offer.contractType }}</span>
+            }
+
+            @if (offer.remote) {
+              <span class="tag remote">
+                <mat-icon>home</mat-icon>
+                Télétravail
+              </span>
+            }
+
+            @if (offer.experienceRequired) {
+              <span class="tag">{{ offer.experienceRequired }}+ ans</span>
+            }
+
+            @if (offer.experienceLevel) {
+              <span class="tag">{{ offer.experienceLevel }}</span>
+            }
+
+            @if (offer.numberOfPositions && offer.numberOfPositions > 1) {
+              <span class="tag">
+                <mat-icon>group</mat-icon>
+                {{ offer.numberOfPositions }} postes
+              </span>
+            }
+          </div>
+
+          @if (offer.salaryMin || offer.salaryMax) {
+            <div class="salary-line">
+              <mat-icon>euro</mat-icon>
+              <span>{{ offer.salaryMin | number }} – {{ offer.salaryMax | number }} €/an</span>
+            </div>
+          }
+
+          @if (offer.techStack || offer.requiredSkills) {
+            <div class="skills-box">
+              <mat-icon>code</mat-icon>
+              <span>{{ offer.techStack || offer.requiredSkills }}</span>
+            </div>
+          }
+
+          <div class="offer-footer">
+            <span class="offer-date">
+              Publiée le {{ offer.createdAt | date:'dd/MM/yyyy' }}
+            </span>
+
+            <button mat-flat-button class="btn-apply" (click)="openApply(offer)">
+              Postuler
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+
+    <mat-paginator
+      [length]="totalElements"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20]"
+      (page)="onPage($event)"
+      class="paginator">
+    </mat-paginator>
+  }
+</div>
+
+@if (selectedOffer) {
+  <div class="apply-overlay" (click)="selectedOffer=null">
+    <div class="apply-panel" (click)="$event.stopPropagation()">
+      <div class="panel-header">
+        <div>
+          <span>Nouvelle candidature</span>
+          <h3>{{ selectedOffer.title }}</h3>
+          <p>{{ selectedOffer.enterprise?.companyName }}</p>
+        </div>
+
+        <button mat-icon-button (click)="selectedOffer=null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      @if (selectedOffer.benefits) {
+        <div class="panel-detail-section">
+          <p class="panel-detail-label">
+            <mat-icon>card_giftcard</mat-icon>
+            Avantages
+          </p>
+          <p class="panel-detail-text">{{ selectedOffer.benefits }}</p>
+        </div>
+      }
+
+      @if (selectedOffer.interviewProcess) {
+        <div class="panel-detail-section">
+          <p class="panel-detail-label">
+            <mat-icon>how_to_reg</mat-icon>
+            Processus d'entretien
+          </p>
+          <p class="panel-detail-text">{{ selectedOffer.interviewProcess }}</p>
+        </div>
+      }
+
+      @if (selectedOffer.startDate) {
+        <p class="panel-detail-label">
+          <mat-icon>event</mat-icon>
+          Début souhaité :
+          <strong>{{ selectedOffer.startDate | date:'dd/MM/yyyy' }}</strong>
+        </p>
+      }
+
+      <app-select label="CV" [options]="cvOpts" [(ngModel)]="selectedCvId"></app-select>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Lettre de motivation</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="coverLetter"
+          rows="5"
+          placeholder="Présentez-vous et expliquez votre motivation...">
+        </textarea>
+      </mat-form-field>
+
+      <button
+        mat-flat-button
+        class="apply-submit"
+        (click)="submitApply()"
+        [disabled]="applyLoading">
+        @if (applyLoading) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon>send</mat-icon>
+          Envoyer ma candidature
+        }
+      </button>
+    </div>
+  </div>
+}

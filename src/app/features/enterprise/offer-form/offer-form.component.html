@@ -1,0 +1,119 @@
+<div class="form-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ isEdit ? 'Modifier l\'offre' : 'Nouvelle offre d\'emploi' }}</h1>
+      <p class="page-subtitle">{{ isEdit ? 'Mettez à jour les informations de l\'offre' : 'Créez et publiez votre offre d\'emploi' }}</p>
+    </div>
+    <a mat-button routerLink="/enterprise/offers" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </a>
+  </div>
+
+  <div class="card form-card">
+    @if (loading) {
+      <div class="loading-center"><mat-spinner diameter="40" /></div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <h3 class="form-section-title">Informations principales</h3>
+        <div class="form-grid">
+          <mat-form-field class="full">
+            <mat-label>Titre du poste *</mat-label>
+            <input matInput formControlName="title" placeholder="ex: Développeur Full-Stack Senior" />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Lieu</mat-label>
+            <input matInput formControlName="location" placeholder="Paris, France" />
+            <mat-icon matPrefix>place</mat-icon>
+          </mat-form-field>
+
+          <app-select label="Type de contrat" [options]="contractTypeOpts" formControlName="contractType"></app-select>
+
+          <mat-form-field>
+            <mat-label>Salaire minimum (€/an)</mat-label>
+            <input matInput formControlName="salaryMin" type="number" />
+            <mat-icon matPrefix>euro</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Salaire maximum (€/an)</mat-label>
+            <input matInput formControlName="salaryMax" type="number" />
+            <mat-icon matPrefix>euro</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Expérience requise (années)</mat-label>
+            <input matInput formControlName="experienceRequired" type="number" min="0" />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Date limite de candidature</mat-label>
+            <input matInput formControlName="deadlineDate" type="date" />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Date de début souhaitée</mat-label>
+            <input matInput formControlName="startDate" type="date" />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Nombre de postes</mat-label>
+            <input matInput formControlName="numberOfPositions" type="number" min="1" />
+            <mat-icon matPrefix>group</mat-icon>
+          </mat-form-field>
+
+          <app-select label="Niveau d'expérience" [options]="experienceLevelOpts" formControlName="experienceLevel"></app-select>
+        </div>
+
+        <div class="checkbox-row">
+          <mat-checkbox formControlName="remote">Poste en télétravail (partiel ou total)</mat-checkbox>
+        </div>
+
+        <h3 class="form-section-title">Détails de l'offre</h3>
+
+        <mat-form-field>
+          <mat-label>Description du poste *</mat-label>
+          <textarea matInput formControlName="description" rows="6" placeholder="Décrivez le poste, les responsabilités, le contexte de l'équipe..."></textarea>
+          @if (form.get('description')?.hasError('minlength') && form.get('description')?.touched) {
+            <mat-error>Minimum 50 caractères</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Exigences du poste</mat-label>
+          <textarea matInput formControlName="requirements" rows="3" placeholder="Qualifications, diplômes, expériences requises..."></textarea>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Compétences requises (pour le scoring IA)</mat-label>
+          <input matInput formControlName="requiredSkills" placeholder="Angular, Spring Boot, Docker, AWS... (séparées par des virgules)" />
+          <mat-hint>Ces compétences servent au matching IA avec les candidats</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Stack technique</mat-label>
+          <input matInput formControlName="techStack" placeholder="React, Node.js, PostgreSQL, Kubernetes..." />
+          <mat-hint>Technologies utilisées dans l'entreprise</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Avantages (benefits)</mat-label>
+          <textarea matInput formControlName="benefits" rows="3" placeholder="Mutuelle premium, titres-restaurant, 2 jours de télétravail/semaine, RTT..."></textarea>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Processus d'entretien</mat-label>
+          <textarea matInput formControlName="interviewProcess" rows="3" placeholder="Ex : 1) Appel RH 30 min → 2) Test technique → 3) Entretien technique → 4) Entretien RH final"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <a mat-stroked-button routerLink="/enterprise/offers">Annuler</a>
+          <button mat-flat-button type="submit" class="btn-primary" [disabled]="form.invalid || saving">
+            @if (saving) { <mat-spinner diameter="20" /> }
+            @else { <mat-icon>{{ isEdit ? 'save' : 'publish' }}</mat-icon> {{ isEdit ? 'Enregistrer' : 'Créer l\'offre' }} }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

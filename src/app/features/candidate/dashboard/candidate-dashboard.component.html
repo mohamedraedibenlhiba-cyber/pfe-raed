@@ -1,0 +1,180 @@
+<div class="candidate-dashboard">
+  <section class="hero-card">
+    <div class="hero-content">
+      <div class="hero-kicker">Espace candidat</div>
+      <h1>Bonjour, {{ auth.currentUser?.fullName }}</h1>
+      <p>
+        Suivez vos candidatures, gérez vos CV et trouvez les offres qui correspondent vraiment à votre profil.
+      </p>
+    </div>
+
+    <a mat-flat-button routerLink="/candidate/search" class="hero-action">
+      <mat-icon>search</mat-icon>
+      Rechercher une offre
+    </a>
+  </section>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="40" />
+    </div>
+  } @else {
+    <section class="stats-grid">
+     <article class="metric-card">
+  <div class="metric-icon">
+    <mat-icon>send</mat-icon>
+  </div>
+  <div>
+    <span>Candidatures</span>
+    <strong>{{ applications.length }}</strong>
+    <small>Envoyées</small>
+  </div>
+</article>
+
+<article class="metric-card">
+  <div class="metric-icon">
+    <mat-icon>hourglass_empty</mat-icon>
+  </div>
+  <div>
+    <span>En attente</span>
+    <strong>{{ pendingCount }}</strong>
+    <small>À suivre</small>
+  </div>
+</article>
+
+<article class="metric-card">
+  <div class="metric-icon">
+    <mat-icon>star</mat-icon>
+  </div>
+  <div>
+    <span>Sélectionnés</span>
+    <strong>{{ shortlistCount }}</strong>
+    <small>Profils retenus</small>
+  </div>
+</article>
+
+<article class="metric-card">
+  <div class="metric-icon">
+    <mat-icon>event</mat-icon>
+  </div>
+  <div>
+    <span>Entretiens</span>
+    <strong>{{ interviewCount }}</strong>
+    <small>Planifiés</small>
+  </div>
+</article>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="panel applications-panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-label">Activité récente</span>
+            <h2>Mes dernières candidatures</h2>
+          </div>
+
+          <a routerLink="/candidate/applications" class="link-action">
+            Voir tout
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        @if (!applications.length) {
+          <div class="empty-applications">
+            <div class="empty-icon">
+              <span class="material-icons-round">work_outline</span>
+            </div>
+            <h3>Aucune candidature pour le moment</h3>
+            <p>
+              Commencez par explorer les offres disponibles et postulez avec votre CV le plus adapté.
+            </p>
+            <a mat-flat-button routerLink="/candidate/search" class="empty-action">
+              Rechercher des offres
+            </a>
+          </div>
+        } @else {
+          <div class="applications-list">
+            @for (app of applications.slice(0, 5); track app.id) {
+              <div class="application-item">
+                <div class="company-avatar">
+                  {{ app.jobOffer?.enterprise?.companyName?.charAt(0) || 'N' }}
+                </div>
+
+                <div class="application-main">
+                  <strong>{{ app.jobOffer?.title }}</strong>
+                  <span>{{ app.jobOffer?.enterprise?.companyName }}</span>
+                </div>
+
+                @if (app.aiScore) {
+                  <div class="score-pill">
+                    {{ app.aiScore }}<small>/100</small>
+                  </div>
+                }
+
+                <span class="status-pill {{ appStatusClass(app.status) }}">
+                  {{ app.status }}
+                </span>
+
+                <span class="application-date">
+                  {{ app.appliedAt | date:'dd/MM' }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="side-panel">
+        <div class="side-card">
+          <span class="side-label">Prochaine action</span>
+          <h3>Complétez votre profil</h3>
+          <p>
+            Un profil clair aide les recruteurs à mieux comprendre votre parcours.
+          </p>
+          <a routerLink="/candidate/profile">
+            Mettre à jour mon profil
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        <div class="side-card yellow">
+          <span class="side-label">CV</span>
+          <h3>{{ cvCount }} CV enregistré(s)</h3>
+          <p>
+            Ajoutez plusieurs CV pour adapter vos candidatures selon les offres.
+          </p>
+          <a routerLink="/candidate/cvs">
+            Gérer mes CV
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+      </aside>
+    </section>
+
+    <section class="quick-actions">
+      <a routerLink="/candidate/search" class="quick-action">
+        <span class="material-icons-round">search</span>
+        <strong>Offres d’emploi</strong>
+        <small>Explorer les opportunités</small>
+      </a>
+
+      <a routerLink="/candidate/cvs" class="quick-action">
+        <span class="material-icons-round">description</span>
+        <strong>Mes CVs</strong>
+        <small>{{ cvCount }} document(s)</small>
+      </a>
+
+      <a routerLink="/candidate/messages" class="quick-action">
+        <span class="material-icons-round">chat_bubble_outline</span>
+        <strong>Messagerie</strong>
+        <small>Échanger avec les recruteurs</small>
+      </a>
+
+      <a routerLink="/candidate/reclamations" class="quick-action">
+        <span class="material-icons-round">report_problem</span>
+        <strong>Réclamations</strong>
+        <small>Suivre mes demandes</small>
+      </a>
+    </section>
+  }
+</div>
